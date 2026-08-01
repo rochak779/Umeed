@@ -23,7 +23,7 @@ import {
 } from "@/data/seed";
 import { buildHelperTimeoutAlert, buildMissAlert, buildSosAlert, waitMs } from "./escalation";
 
-const KEY = "umeed.v1";
+const KEY = "umeed.v2";
 
 export type PushMessage = { id: string; title: string; body: string };
 
@@ -420,6 +420,7 @@ export function UmeedProvider({ children }: { children: ReactNode }) {
       setAlertState,
       helperRespond,
       advanceClock,
+      updatePerson,
       setStatus,
       setOnboardingDone,
       setParentOnboarded,
@@ -446,6 +447,7 @@ export function UmeedProvider({ children }: { children: ReactNode }) {
       setAlertState,
       helperRespond,
       advanceClock,
+      updatePerson,
       setStatus,
       setOnboardingDone,
       setParentOnboarded,

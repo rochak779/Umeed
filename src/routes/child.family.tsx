@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { BadgeCheck, ChevronRight, Mail, Phone, Plus, ShieldCheck, X } from "lucide-react";
+import { BadgeCheck, ChevronRight, Mail, Pencil, Phone, Plus, ShieldCheck, X } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { EscalationLadder } from "@/components/umeed/EscalationLadder";
@@ -34,6 +34,7 @@ function PersonRow({
   verified,
   tone,
   badge,
+  onEdit,
 }: {
   initials: string;
   name: string;
@@ -42,15 +43,25 @@ function PersonRow({
   verified?: boolean | undefined;
   tone?: "sage" | "trust" | "marigold" | undefined;
   badge?: string | undefined;
+  onEdit?: (() => void) | undefined;
 }) {
   return (
     <UCard as="li" className="p-4">
-      <div className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3">
+      <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3">
         <Avatar initials={initials} size={48} tone={tone} />
         <div className="min-w-0">
           <p className="t-card-title truncate font-medium text-text">{name}</p>
           <p className="t-caption truncate text-text-soft">{meta}</p>
         </div>
+        {onEdit ? (
+          <button
+            onClick={onEdit}
+            aria-label={`Edit details for ${name}`}
+            className="flex size-11 shrink-0 items-center justify-center rounded-full border border-line bg-surface text-trust"
+          >
+            <Pencil size={18} aria-hidden />
+          </button>
+        ) : null}
       </div>
       <div className="mt-3 flex flex-wrap items-center gap-2">
         {verified ? (
@@ -70,13 +81,73 @@ function PersonRow({
 }
 
 
+const LANGUAGES = ["English", "हिन्दी", "मराठी", "தமிழ்", "తెలుగు", "ಕನ್ನಡ", "বাংলা"];
+
+type Draft = {
+  name: string;
+  shortName: string;
+  relationship: string;
+  age: string;
+  city: string;
+  phone: string;
+  language: string;
+};
+
 function Family() {
-  const { data } = useUmeed();
+  const { data, updatePerson } = useUmeed();
   const [ladder, setLadder] = useState(false);
+  const [editId, setEditId] = useState<string | null>(null);
+  const [draft, setDraft] = useState<Draft | null>(null);
   const parents = data.family.filter((p) => p.role === "parent");
   const siblings = data.family.filter((p) => p.role === "sibling");
   const helper = data.family.find((p) => p.role === "helper");
   const you = data.family.find((p) => p.role === "child")!;
+
+  const openEdit = (id: string) => {
+    const p = data.family.find((m) => m.id === id);
+    if (!p) return;
+    setEditId(id);
+    setDraft({
+      name: p.name,
+      shortName: p.shortName,
+      relationship: p.relationship,
+      age: String(p.age),
+      city: p.city,
+      phone: p.phone,
+      language: p.language ?? "English",
+    });
+  };
+
+  const closeEdit = () => {
+    setEditId(null);
+    setDraft(null);
+  };
+
+  const saveEdit = () => {
+    if (!editId || !draft) return;
+    const trimmed = draft.name.trim();
+    if (!trimmed) {
+      toast.error("A name is needed");
+      return;
+    }
+    updatePerson(editId, {
+      name: trimmed,
+      shortName: draft.shortName.trim() || trimmed.split(" ")[0]!,
+      relationship: draft.relationship.trim(),
+      age: Number(draft.age) || 0,
+      city: draft.city.trim(),
+      phone: draft.phone.trim(),
+      language: draft.language,
+      initials: trimmed
+        .split(" ")
+        .filter(Boolean)
+        .slice(0, 2)
+        .map((w) => w[0]!.toUpperCase())
+        .join(""),
+    });
+    toast.success(`${trimmed} updated`);
+    closeEdit();
+  };
 
   return (
     <>
@@ -93,6 +164,7 @@ function Family() {
               meta={`${you.age} · ${you.city}`}
               access={you.access}
               badge="Plan owner"
+              onEdit={() => openEdit(you.id)}
             />
           </ul>
         </section>
@@ -111,6 +183,7 @@ function Family() {
                 access="Sees only her own reminders and readings. Nothing about the others."
                 verified={p.verified}
                 tone={p.id === "anuradha" ? "marigold" : "trust"}
+                onEdit={() => openEdit(p.id)}
               />
             ))}
           </ul>
@@ -130,6 +203,7 @@ function Family() {
                 access="Sees everything you see. Gets alerts only after 30 minutes."
                 tone="trust"
                 badge="Alerts after 30 min"
+                onEdit={() => openEdit(s.id)}
               />
             ))}
           </ul>
@@ -148,6 +222,7 @@ function Family() {
                 access="Gets the first alert. Does not see medical records."
                 tone="sage"
                 badge="First to know"
+                onEdit={() => openEdit(helper.id)}
               />
             </ul>
             <div className="mt-3 flex flex-col gap-2">
@@ -215,6 +290,120 @@ function Family() {
           </div>
         ) : null}
       </Screen>
+
+      {draft ? (
+        <div
+          className="absolute inset-0 z-40 flex items-end bg-text/30"
+          role="dialog"
+          aria-label="Edit member details"
+        >
+          <div className="max-h-[85%] w-full space-y-3 overflow-y-auto rounded-t-[1.25rem] bg-surface p-5">
+            <div className="flex items-center justify-between">
+              <h2 className="t-section text-text">Edit details</h2>
+              <button
+                onClick={closeEdit}
+                aria-label="Close"
+                className="flex size-12 items-center justify-center rounded-full text-text-soft"
+              >
+                <X size={20} aria-hidden />
+              </button>
+            </div>
+
+            <EditField label="Full name">
+              <input
+                className={inputCx}
+                value={draft.name}
+                onChange={(e) => setDraft({ ...draft, name: e.target.value })}
+              />
+            </EditField>
+            <EditField label="What we call them">
+              <input
+                className={inputCx}
+                value={draft.shortName}
+                onChange={(e) => setDraft({ ...draft, shortName: e.target.value })}
+              />
+            </EditField>
+            <div className="grid grid-cols-2 gap-3">
+              <EditField label="Relationship">
+                <input
+                  className={inputCx}
+                  value={draft.relationship}
+                  onChange={(e) => setDraft({ ...draft, relationship: e.target.value })}
+                />
+              </EditField>
+              <EditField label="Age">
+                <input
+                  className={inputCx}
+                  inputMode="numeric"
+                  value={draft.age}
+                  onChange={(e) => setDraft({ ...draft, age: e.target.value })}
+                />
+              </EditField>
+            </div>
+            <EditField label="City">
+              <input
+                className={inputCx}
+                value={draft.city}
+                onChange={(e) => setDraft({ ...draft, city: e.target.value })}
+              />
+            </EditField>
+            <EditField label="Phone">
+              <input
+                className={inputCx}
+                inputMode="tel"
+                value={draft.phone}
+                onChange={(e) => setDraft({ ...draft, phone: e.target.value })}
+              />
+            </EditField>
+            <EditField
+              label="Language they read best"
+              hint="Parents see their whole app in this language."
+            >
+              <select
+                className={inputCx}
+                value={draft.language}
+                onChange={(e) => setDraft({ ...draft, language: e.target.value })}
+              >
+                {LANGUAGES.map((l) => (
+                  <option key={l} value={l}>
+                    {l}
+                  </option>
+                ))}
+              </select>
+            </EditField>
+
+            <div className="flex flex-col gap-2 pt-1">
+              <UButton full onClick={saveEdit}>
+                Save changes
+              </UButton>
+              <UButton variant="ghost" full onClick={closeEdit}>
+                Cancel
+              </UButton>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </>
+  );
+}
+
+const inputCx =
+  "t-body min-h-12 w-full rounded-[0.75rem] border border-line bg-surface px-3 text-text placeholder:text-text-soft focus:border-sage";
+
+function EditField({
+  label,
+  hint,
+  children,
+}: {
+  label: string;
+  hint?: string | undefined;
+  children: React.ReactNode;
+}) {
+  return (
+    <label className="block">
+      <span className="t-caption mb-1 block font-medium text-text">{label}</span>
+      {children}
+      {hint ? <span className="t-caption mt-1 block text-text-soft">{hint}</span> : null}
+    </label>
   );
 }
