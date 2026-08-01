@@ -1,10 +1,11 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { motion } from "framer-motion";
-import { ChevronRight, HeartHandshake, UserRound } from "lucide-react";
+import { ChevronRight, HeartHandshake, UserRound, Users } from "lucide-react";
 import { toast } from "sonner";
 import { Wordmark } from "@/components/umeed/Wordmark";
-import { Avatar } from "@/components/umeed/primitives";
+import { cn } from "@/lib/utils";
 import { useUmeed } from "@/state/UmeedProvider";
+
 
 export const Route = createFileRoute("/")({
   head: () => ({
