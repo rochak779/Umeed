@@ -23,7 +23,7 @@ import {
 } from "@/data/seed";
 import { buildHelperTimeoutAlert, buildMissAlert, buildSosAlert, waitMs } from "./escalation";
 
-const KEY = "umeed.v1";
+const KEY = "umeed.v2";
 
 export type PushMessage = { id: string; title: string; body: string };
 
