@@ -72,7 +72,7 @@ function PersonaChooser() {
               I am the family member
             </span>
             <span className="t-caption block text-text-soft">
-              Aditi, 41 · Bengaluru · pays for the family
+              {"\n"}
             </span>
           </span>
           <ChevronRight aria-hidden size={22} className="text-sage" />
@@ -90,7 +90,7 @@ function PersonaChooser() {
           <span className="min-w-0 flex-1">
             <span className="t-card-title block font-semibold text-text">I am the parent</span>
             <span className="t-caption block text-text-soft">
-              Anuradha, 68 · Kota · big buttons, voice first
+              {"\n"}
             </span>
           </span>
           <ChevronRight aria-hidden size={22} className="text-sage" />
