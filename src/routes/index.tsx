@@ -66,7 +66,7 @@ function PersonaChooser() {
           transition={{ delay: 0.08, duration: 0.35 }}
           className="card-calm flex w-full items-center gap-4 p-4 text-left"
         >
-          <Avatar initials="AR" size={56} />
+          <Avatar initials="FM" size={56} />
           <span className="min-w-0 flex-1">
             <span className="t-card-title block font-semibold text-text">
               I am the family member
@@ -86,7 +86,7 @@ function PersonaChooser() {
           transition={{ delay: 0.16, duration: 0.35 }}
           className="card-calm flex w-full items-center gap-4 p-4 text-left"
         >
-          <Avatar initials="AN" size={56} tone="marigold" />
+          <Avatar initials="PA" size={56} tone="marigold" />
           <span className="min-w-0 flex-1">
             <span className="t-card-title block font-semibold text-text">I am the parent</span>
             <span className="t-caption block text-text-soft">
