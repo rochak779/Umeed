@@ -128,6 +128,7 @@ function Family() {
                 meta={`${s.age} · ${s.city}`}
                 access="Sees everything you see. Gets alerts only after 30 minutes."
                 tone="trust"
+                badge="Alerts after 30 min"
               />
             ))}
           </ul>
@@ -145,19 +146,20 @@ function Family() {
                 meta={`${helper.relationship} · ${helper.distance}`}
                 access="Gets the first alert. Does not see medical records."
                 tone="sage"
+                badge="First to know"
               />
             </ul>
-            <div className="mt-3 flex gap-3">
+            <div className="mt-3 flex flex-col gap-2">
               <UButton
                 variant="secondary"
                 full
                 onClick={() => toast.success("Calling Sunita")}
               >
-                <Phone size={18} aria-hidden /> Call Sunita
+                <Phone size={18} aria-hidden /> Call {helper.shortName}
               </UButton>
               <Link
                 to="/helper"
-                className="t-button inline-flex min-h-12 flex-1 items-center justify-center gap-2 rounded-[0.875rem] border border-sage bg-surface px-4 text-sage"
+                className="t-button inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full border border-line bg-surface px-4 text-text-soft"
               >
                 See her view <ChevronRight size={16} aria-hidden />
               </Link>
@@ -165,29 +167,39 @@ function Family() {
           </section>
         ) : null}
 
-        <UCard className="flex items-center gap-3">
-          <span className="flex size-11 items-center justify-center rounded-full bg-sage-tint text-sage">
-            <Plus size={20} aria-hidden />
-          </span>
-          <div className="min-w-0 flex-1">
-            <p className="t-body font-medium text-text">Invite someone else</p>
-            <p className="t-caption text-text-soft">A cousin, an aunt, or a second neighbour.</p>
+        <UCard className="p-4">
+          <div className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3">
+            <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-sage-tint text-sage">
+              <Plus size={20} aria-hidden />
+            </span>
+            <div className="min-w-0">
+              <p className="t-card-title font-medium text-text">Invite someone else</p>
+              <p className="t-caption text-text-soft">A cousin, an aunt, or a second neighbour.</p>
+            </div>
           </div>
           <UButton
             variant="secondary"
+            full
+            className="mt-3"
             onClick={() => toast.success("Invite sent by WhatsApp")}
           >
-            <Mail size={18} aria-hidden /> Invite
+            <Mail size={18} aria-hidden /> Invite by WhatsApp
           </UButton>
         </UCard>
 
         <button
-          onClick={() => setLadder(true)}
-          className="t-body flex min-h-12 w-full items-center gap-2 rounded-[0.875rem] border border-line bg-surface px-4 py-3 text-trust"
+          onClick={() => setLadder((v) => !v)}
+          aria-expanded={ladder}
+          className="t-button flex min-h-14 w-full items-center gap-3 rounded-full border border-line bg-surface px-5 text-trust"
         >
-          <ShieldCheck size={18} aria-hidden /> How we reach people
-          <ChevronRight size={16} aria-hidden className="ml-auto" />
+          <ShieldCheck size={20} aria-hidden /> How we reach people
+          <ChevronRight
+            size={18}
+            aria-hidden
+            className={cn("ml-auto transition-transform", ladder && "rotate-90")}
+          />
         </button>
+
 
         {ladder ? (
           <div className="relative">
