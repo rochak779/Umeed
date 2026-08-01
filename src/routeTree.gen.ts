@@ -10,33 +10,267 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ChildRouteImport } from './routes/child'
+import { Route as DemoRouteImport } from './routes/demo'
+import { Route as HelperRouteImport } from './routes/helper'
+import { Route as ParentRouteImport } from './routes/parent'
+import { Route as ChildAlertsRouteImport } from './routes/child.alerts'
+import { Route as ChildBriefRouteImport } from './routes/child.brief'
+import { Route as ChildDocumentsRouteImport } from './routes/child.documents'
+import { Route as ChildFamilyRouteImport } from './routes/child.family'
+import { Route as ChildHomeRouteImport } from './routes/child.home'
+import { Route as ChildOnboardingRouteImport } from './routes/child.onboarding'
+import { Route as ParentIndexRouteImport } from './routes/parent.index'
+import { Route as ParentHelpRouteImport } from './routes/parent.help'
+import { Route as ParentHomeRouteImport } from './routes/parent.home'
+import { Route as ParentLoginRouteImport } from './routes/parent.login'
+import { Route as ParentPhotoRouteImport } from './routes/parent.photo'
+import { Route as ParentSpeakRouteImport } from './routes/parent.speak'
+import { Route as ParentWelcomeRouteImport } from './routes/parent.welcome'
+import { Route as ChildParentIdRouteImport } from './routes/child.parent.$id'
+import { Route as ChildRecommendationIdRouteImport } from './routes/child.recommendation.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ChildRoute = ChildRouteImport.update({
+  id: '/child',
+  path: '/child',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DemoRoute = DemoRouteImport.update({
+  id: '/demo',
+  path: '/demo',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HelperRoute = HelperRouteImport.update({
+  id: '/helper',
+  path: '/helper',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ParentRoute = ParentRouteImport.update({
+  id: '/parent',
+  path: '/parent',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChildAlertsRoute = ChildAlertsRouteImport.update({
+  id: '/alerts',
+  path: '/alerts',
+  getParentRoute: () => ChildRoute,
+} as any)
+const ChildBriefRoute = ChildBriefRouteImport.update({
+  id: '/brief',
+  path: '/brief',
+  getParentRoute: () => ChildRoute,
+} as any)
+const ChildDocumentsRoute = ChildDocumentsRouteImport.update({
+  id: '/documents',
+  path: '/documents',
+  getParentRoute: () => ChildRoute,
+} as any)
+const ChildFamilyRoute = ChildFamilyRouteImport.update({
+  id: '/family',
+  path: '/family',
+  getParentRoute: () => ChildRoute,
+} as any)
+const ChildHomeRoute = ChildHomeRouteImport.update({
+  id: '/home',
+  path: '/home',
+  getParentRoute: () => ChildRoute,
+} as any)
+const ChildOnboardingRoute = ChildOnboardingRouteImport.update({
+  id: '/onboarding',
+  path: '/onboarding',
+  getParentRoute: () => ChildRoute,
+} as any)
+const ParentIndexRoute = ParentIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ParentRoute,
+} as any)
+const ParentHelpRoute = ParentHelpRouteImport.update({
+  id: '/help',
+  path: '/help',
+  getParentRoute: () => ParentRoute,
+} as any)
+const ParentHomeRoute = ParentHomeRouteImport.update({
+  id: '/home',
+  path: '/home',
+  getParentRoute: () => ParentRoute,
+} as any)
+const ParentLoginRoute = ParentLoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => ParentRoute,
+} as any)
+const ParentPhotoRoute = ParentPhotoRouteImport.update({
+  id: '/photo',
+  path: '/photo',
+  getParentRoute: () => ParentRoute,
+} as any)
+const ParentSpeakRoute = ParentSpeakRouteImport.update({
+  id: '/speak',
+  path: '/speak',
+  getParentRoute: () => ParentRoute,
+} as any)
+const ParentWelcomeRoute = ParentWelcomeRouteImport.update({
+  id: '/welcome',
+  path: '/welcome',
+  getParentRoute: () => ParentRoute,
+} as any)
+const ChildParentIdRoute = ChildParentIdRouteImport.update({
+  id: '/parent/$id',
+  path: '/parent/$id',
+  getParentRoute: () => ChildRoute,
+} as any)
+const ChildRecommendationIdRoute = ChildRecommendationIdRouteImport.update({
+  id: '/recommendation/$id',
+  path: '/recommendation/$id',
+  getParentRoute: () => ChildRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/child': typeof ChildRouteWithChildren
+  '/demo': typeof DemoRoute
+  '/helper': typeof HelperRoute
+  '/parent': typeof ParentRouteWithChildren
+  '/child/alerts': typeof ChildAlertsRoute
+  '/child/brief': typeof ChildBriefRoute
+  '/child/documents': typeof ChildDocumentsRoute
+  '/child/family': typeof ChildFamilyRoute
+  '/child/home': typeof ChildHomeRoute
+  '/child/onboarding': typeof ChildOnboardingRoute
+  '/parent/help': typeof ParentHelpRoute
+  '/parent/home': typeof ParentHomeRoute
+  '/parent/login': typeof ParentLoginRoute
+  '/parent/photo': typeof ParentPhotoRoute
+  '/parent/speak': typeof ParentSpeakRoute
+  '/parent/welcome': typeof ParentWelcomeRoute
+  '/parent/': typeof ParentIndexRoute
+  '/child/parent/$id': typeof ChildParentIdRoute
+  '/child/recommendation/$id': typeof ChildRecommendationIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/child': typeof ChildRouteWithChildren
+  '/demo': typeof DemoRoute
+  '/helper': typeof HelperRoute
+  '/child/alerts': typeof ChildAlertsRoute
+  '/child/brief': typeof ChildBriefRoute
+  '/child/documents': typeof ChildDocumentsRoute
+  '/child/family': typeof ChildFamilyRoute
+  '/child/home': typeof ChildHomeRoute
+  '/child/onboarding': typeof ChildOnboardingRoute
+  '/parent/help': typeof ParentHelpRoute
+  '/parent/home': typeof ParentHomeRoute
+  '/parent/login': typeof ParentLoginRoute
+  '/parent/photo': typeof ParentPhotoRoute
+  '/parent/speak': typeof ParentSpeakRoute
+  '/parent/welcome': typeof ParentWelcomeRoute
+  '/parent': typeof ParentIndexRoute
+  '/child/parent/$id': typeof ChildParentIdRoute
+  '/child/recommendation/$id': typeof ChildRecommendationIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/child': typeof ChildRouteWithChildren
+  '/demo': typeof DemoRoute
+  '/helper': typeof HelperRoute
+  '/parent': typeof ParentRouteWithChildren
+  '/child/alerts': typeof ChildAlertsRoute
+  '/child/brief': typeof ChildBriefRoute
+  '/child/documents': typeof ChildDocumentsRoute
+  '/child/family': typeof ChildFamilyRoute
+  '/child/home': typeof ChildHomeRoute
+  '/child/onboarding': typeof ChildOnboardingRoute
+  '/parent/help': typeof ParentHelpRoute
+  '/parent/home': typeof ParentHomeRoute
+  '/parent/login': typeof ParentLoginRoute
+  '/parent/photo': typeof ParentPhotoRoute
+  '/parent/speak': typeof ParentSpeakRoute
+  '/parent/welcome': typeof ParentWelcomeRoute
+  '/parent/': typeof ParentIndexRoute
+  '/child/parent/$id': typeof ChildParentIdRoute
+  '/child/recommendation/$id': typeof ChildRecommendationIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/child'
+    | '/demo'
+    | '/helper'
+    | '/parent'
+    | '/child/alerts'
+    | '/child/brief'
+    | '/child/documents'
+    | '/child/family'
+    | '/child/home'
+    | '/child/onboarding'
+    | '/parent/help'
+    | '/parent/home'
+    | '/parent/login'
+    | '/parent/photo'
+    | '/parent/speak'
+    | '/parent/welcome'
+    | '/parent/'
+    | '/child/parent/$id'
+    | '/child/recommendation/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/child'
+    | '/demo'
+    | '/helper'
+    | '/child/alerts'
+    | '/child/brief'
+    | '/child/documents'
+    | '/child/family'
+    | '/child/home'
+    | '/child/onboarding'
+    | '/parent/help'
+    | '/parent/home'
+    | '/parent/login'
+    | '/parent/photo'
+    | '/parent/speak'
+    | '/parent/welcome'
+    | '/parent'
+    | '/child/parent/$id'
+    | '/child/recommendation/$id'
+  id:
+    | '__root__'
+    | '/'
+    | '/child'
+    | '/demo'
+    | '/helper'
+    | '/parent'
+    | '/child/alerts'
+    | '/child/brief'
+    | '/child/documents'
+    | '/child/family'
+    | '/child/home'
+    | '/child/onboarding'
+    | '/parent/help'
+    | '/parent/home'
+    | '/parent/login'
+    | '/parent/photo'
+    | '/parent/speak'
+    | '/parent/welcome'
+    | '/parent/'
+    | '/child/parent/$id'
+    | '/child/recommendation/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ChildRoute: typeof ChildRouteWithChildren
+  DemoRoute: typeof DemoRoute
+  HelperRoute: typeof HelperRoute
+  ParentRoute: typeof ParentRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
@@ -48,22 +282,196 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/child': {
+      id: '/child'
+      path: '/child'
+      fullPath: '/child'
+      preLoaderRoute: typeof ChildRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/demo': {
+      id: '/demo'
+      path: '/demo'
+      fullPath: '/demo'
+      preLoaderRoute: typeof DemoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/helper': {
+      id: '/helper'
+      path: '/helper'
+      fullPath: '/helper'
+      preLoaderRoute: typeof HelperRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/parent': {
+      id: '/parent'
+      path: '/parent'
+      fullPath: '/parent'
+      preLoaderRoute: typeof ParentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/child/alerts': {
+      id: '/child/alerts'
+      path: '/alerts'
+      fullPath: '/child/alerts'
+      preLoaderRoute: typeof ChildAlertsRouteImport
+      parentRoute: typeof ChildRoute
+    }
+    '/child/brief': {
+      id: '/child/brief'
+      path: '/brief'
+      fullPath: '/child/brief'
+      preLoaderRoute: typeof ChildBriefRouteImport
+      parentRoute: typeof ChildRoute
+    }
+    '/child/documents': {
+      id: '/child/documents'
+      path: '/documents'
+      fullPath: '/child/documents'
+      preLoaderRoute: typeof ChildDocumentsRouteImport
+      parentRoute: typeof ChildRoute
+    }
+    '/child/family': {
+      id: '/child/family'
+      path: '/family'
+      fullPath: '/child/family'
+      preLoaderRoute: typeof ChildFamilyRouteImport
+      parentRoute: typeof ChildRoute
+    }
+    '/child/home': {
+      id: '/child/home'
+      path: '/home'
+      fullPath: '/child/home'
+      preLoaderRoute: typeof ChildHomeRouteImport
+      parentRoute: typeof ChildRoute
+    }
+    '/child/onboarding': {
+      id: '/child/onboarding'
+      path: '/onboarding'
+      fullPath: '/child/onboarding'
+      preLoaderRoute: typeof ChildOnboardingRouteImport
+      parentRoute: typeof ChildRoute
+    }
+    '/parent/': {
+      id: '/parent/'
+      path: '/'
+      fullPath: '/parent/'
+      preLoaderRoute: typeof ParentIndexRouteImport
+      parentRoute: typeof ParentRoute
+    }
+    '/parent/help': {
+      id: '/parent/help'
+      path: '/help'
+      fullPath: '/parent/help'
+      preLoaderRoute: typeof ParentHelpRouteImport
+      parentRoute: typeof ParentRoute
+    }
+    '/parent/home': {
+      id: '/parent/home'
+      path: '/home'
+      fullPath: '/parent/home'
+      preLoaderRoute: typeof ParentHomeRouteImport
+      parentRoute: typeof ParentRoute
+    }
+    '/parent/login': {
+      id: '/parent/login'
+      path: '/login'
+      fullPath: '/parent/login'
+      preLoaderRoute: typeof ParentLoginRouteImport
+      parentRoute: typeof ParentRoute
+    }
+    '/parent/photo': {
+      id: '/parent/photo'
+      path: '/photo'
+      fullPath: '/parent/photo'
+      preLoaderRoute: typeof ParentPhotoRouteImport
+      parentRoute: typeof ParentRoute
+    }
+    '/parent/speak': {
+      id: '/parent/speak'
+      path: '/speak'
+      fullPath: '/parent/speak'
+      preLoaderRoute: typeof ParentSpeakRouteImport
+      parentRoute: typeof ParentRoute
+    }
+    '/parent/welcome': {
+      id: '/parent/welcome'
+      path: '/welcome'
+      fullPath: '/parent/welcome'
+      preLoaderRoute: typeof ParentWelcomeRouteImport
+      parentRoute: typeof ParentRoute
+    }
+    '/child/parent/$id': {
+      id: '/child/parent/$id'
+      path: '/parent/$id'
+      fullPath: '/child/parent/$id'
+      preLoaderRoute: typeof ChildParentIdRouteImport
+      parentRoute: typeof ChildRoute
+    }
+    '/child/recommendation/$id': {
+      id: '/child/recommendation/$id'
+      path: '/recommendation/$id'
+      fullPath: '/child/recommendation/$id'
+      preLoaderRoute: typeof ChildRecommendationIdRouteImport
+      parentRoute: typeof ChildRoute
+    }
   }
 }
 
+interface ChildRouteChildren {
+  ChildAlertsRoute: typeof ChildAlertsRoute
+  ChildBriefRoute: typeof ChildBriefRoute
+  ChildDocumentsRoute: typeof ChildDocumentsRoute
+  ChildFamilyRoute: typeof ChildFamilyRoute
+  ChildHomeRoute: typeof ChildHomeRoute
+  ChildOnboardingRoute: typeof ChildOnboardingRoute
+  ChildParentIdRoute: typeof ChildParentIdRoute
+  ChildRecommendationIdRoute: typeof ChildRecommendationIdRoute
+}
+
+const ChildRouteChildren: ChildRouteChildren = {
+  ChildAlertsRoute: ChildAlertsRoute,
+  ChildBriefRoute: ChildBriefRoute,
+  ChildDocumentsRoute: ChildDocumentsRoute,
+  ChildFamilyRoute: ChildFamilyRoute,
+  ChildHomeRoute: ChildHomeRoute,
+  ChildOnboardingRoute: ChildOnboardingRoute,
+  ChildParentIdRoute: ChildParentIdRoute,
+  ChildRecommendationIdRoute: ChildRecommendationIdRoute,
+}
+
+const ChildRouteWithChildren = ChildRoute._addFileChildren(ChildRouteChildren)
+
+interface ParentRouteChildren {
+  ParentHelpRoute: typeof ParentHelpRoute
+  ParentHomeRoute: typeof ParentHomeRoute
+  ParentLoginRoute: typeof ParentLoginRoute
+  ParentPhotoRoute: typeof ParentPhotoRoute
+  ParentSpeakRoute: typeof ParentSpeakRoute
+  ParentWelcomeRoute: typeof ParentWelcomeRoute
+  ParentIndexRoute: typeof ParentIndexRoute
+}
+
+const ParentRouteChildren: ParentRouteChildren = {
+  ParentHelpRoute: ParentHelpRoute,
+  ParentHomeRoute: ParentHomeRoute,
+  ParentLoginRoute: ParentLoginRoute,
+  ParentPhotoRoute: ParentPhotoRoute,
+  ParentSpeakRoute: ParentSpeakRoute,
+  ParentWelcomeRoute: ParentWelcomeRoute,
+  ParentIndexRoute: ParentIndexRoute,
+}
+
+const ParentRouteWithChildren =
+  ParentRoute._addFileChildren(ParentRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ChildRoute: ChildRouteWithChildren,
+  DemoRoute: DemoRoute,
+  HelperRoute: HelperRoute,
+  ParentRoute: ParentRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
