@@ -181,7 +181,11 @@ function Onboarding() {
       setOtpStage(false);
       return;
     }
-    setStep((s) => Math.max(1, s - 1));
+    if (step === 1) {
+      navigate({ to: "/" });
+      return;
+    }
+    setStep((s) => s - 1);
   };
 
   const submitPhone = () => {
