@@ -101,7 +101,7 @@ const day = (back: number) => {
 export const family: Person[] = [
   {
     id: "aditi",
-    name: "Aditi Rao",
+    name: "\n",
     shortName: "Aditi",
     role: "child",
     relationship: "Daughter",
@@ -114,7 +114,7 @@ export const family: Person[] = [
   },
   {
     id: "anuradha",
-    name: "Anuradha Rao",
+    name: "\n",
     shortName: "Mummy",
     role: "parent",
     relationship: "Mother",
