@@ -91,6 +91,7 @@ function Family() {
               name={`${you.name} · you`}
               meta={`${you.age} · ${you.city}`}
               access={you.access}
+              badge="Plan owner"
             />
           </ul>
         </section>
