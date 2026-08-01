@@ -164,6 +164,7 @@ function Family() {
               meta={`${you.age} · ${you.city}`}
               access={you.access}
               badge="Plan owner"
+              onEdit={() => openEdit(you.id)}
             />
           </ul>
         </section>
@@ -182,6 +183,7 @@ function Family() {
                 access="Sees only her own reminders and readings. Nothing about the others."
                 verified={p.verified}
                 tone={p.id === "anuradha" ? "marigold" : "trust"}
+                onEdit={() => openEdit(p.id)}
               />
             ))}
           </ul>
@@ -201,6 +203,7 @@ function Family() {
                 access="Sees everything you see. Gets alerts only after 30 minutes."
                 tone="trust"
                 badge="Alerts after 30 min"
+                onEdit={() => openEdit(s.id)}
               />
             ))}
           </ul>
@@ -219,6 +222,7 @@ function Family() {
                 access="Gets the first alert. Does not see medical records."
                 tone="sage"
                 badge="First to know"
+                onEdit={() => openEdit(helper.id)}
               />
             </ul>
             <div className="mt-3 flex flex-col gap-2">
