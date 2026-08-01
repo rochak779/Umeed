@@ -50,7 +50,7 @@ function ParentHome() {
       <Screen className="flex flex-1 flex-col px-5">
         <section>
           <h1 className="t-display text-text">
-            {t.greeting}, {parent?.shortName ?? "Anuradha"} {t.ji}
+            नमस्ते, {parent?.shortName ?? "Mummy"} जी
           </h1>
           <p className="t-section font-normal text-text-soft">{t.todayDate}</p>
         </section>
