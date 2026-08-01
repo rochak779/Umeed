@@ -131,7 +131,7 @@ function ParentHome() {
           </Link>
         </section>
 
-        <p className="t-caption pb-2 text-center text-text-soft">{t.childCanSee(childName)}</p>
+        <p className="t-caption pb-2 text-center text-text-soft">{"\n"}</p>
       </Screen>
     </>
   );
