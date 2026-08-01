@@ -3,6 +3,7 @@ import { useState } from "react";
 import { ArrowRight, Camera, HeartHandshake, Mic, Volume2 } from "lucide-react";
 import { Screen, UButton, UCard } from "@/components/umeed/primitives";
 import { useUmeed } from "@/state/UmeedProvider";
+import { useParentLang } from "@/i18n/parent";
 
 export const Route = createFileRoute("/parent/welcome")({
   head: () => ({
@@ -23,37 +24,25 @@ export const Route = createFileRoute("/parent/welcome")({
   component: ParentWelcome,
 });
 
-const CARDS = [
-  {
-    icon: Mic,
-    title: "Say your reading",
-    body: "Tap the green button and say it the way you would tell Aditi. Nothing to type.",
-  },
-  {
-    icon: Camera,
-    title: "Or send a photo",
-    body: "Hold the phone over your machine or a paper. Umeed reads the numbers itself.",
-  },
-  {
-    icon: HeartHandshake,
-    title: "Ask for help",
-    body: "The orange button tells Sunita next door and Aditi at the same moment.",
-  },
-];
-
 function ParentWelcome() {
   const navigate = useNavigate();
-  const { setParentOnboarded } = useUmeed();
+  const { data, setParentOnboarded } = useUmeed();
+  const { t } = useParentLang();
+  const childName = data.family.find((p) => p.role === "child")?.shortName ?? "Aditi";
+  const helperName = data.family.find((p) => p.role === "helper")?.shortName ?? "Sunita";
+  const cards = [
+    { icon: Mic, title: t.w1Title, body: t.w1Body(childName) },
+    { icon: Camera, title: t.w2Title, body: t.w2Body },
+    { icon: HeartHandshake, title: t.w3Title, body: t.w3Body(helperName, childName) },
+  ];
   const [i, setI] = useState(0);
-  const card = CARDS[i]!;
+  const card = cards[i]!;
   const Icon = card.icon;
-  const last = i === CARDS.length - 1;
+  const last = i === cards.length - 1;
 
   return (
     <Screen className="px-5 pt-8">
-      <p className="t-caption text-text-soft">
-        Step {i + 1} of {CARDS.length}
-      </p>
+      <p className="t-caption text-text-soft">{t.step(i + 1, cards.length)}</p>
       <UCard className="space-y-4 py-8 text-center">
         <span className="mx-auto flex size-20 items-center justify-center rounded-full bg-sage-tint text-sage">
           <Icon size={36} aria-hidden />
@@ -62,8 +51,8 @@ function ParentWelcome() {
         <p className="t-body text-text-soft">{card.body}</p>
       </UCard>
 
-      <UButton variant="ghost" size="lg" full aria-label="Read this out loud">
-        <Volume2 size={22} aria-hidden /> Read this out loud
+      <UButton variant="ghost" size="lg" full aria-label={t.readAloud}>
+        <Volume2 size={22} aria-hidden /> {t.readAloud}
       </UButton>
 
       <UButton
@@ -78,7 +67,7 @@ function ParentWelcome() {
           }
         }}
       >
-        {last ? "I am ready" : "Next"} <ArrowRight size={22} aria-hidden />
+        {last ? t.imReady : t.next} <ArrowRight size={22} aria-hidden />
       </UButton>
       {last ? null : (
         <button
@@ -88,7 +77,7 @@ function ParentWelcome() {
           }}
           className="t-body min-h-12 w-full text-text-soft underline"
         >
-          Skip for now
+          {t.skipForNow}
         </button>
       )}
     </Screen>

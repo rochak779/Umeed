@@ -4,6 +4,7 @@ import { ArrowRight, PhoneCall } from "lucide-react";
 import { Screen, UButton, UCard } from "@/components/umeed/primitives";
 import { Wordmark } from "@/components/umeed/Wordmark";
 import { useUmeed } from "@/state/UmeedProvider";
+import { useParentLang } from "@/i18n/parent";
 
 export const Route = createFileRoute("/parent/login")({
   head: () => ({
@@ -26,7 +27,10 @@ export const Route = createFileRoute("/parent/login")({
 function ParentLogin() {
   const navigate = useNavigate();
   const { data, setPersona } = useUmeed();
+  const { t } = useParentLang();
   const parent = data.family.find((p) => p.id === "anuradha");
+  const child = data.family.find((p) => p.role === "child");
+  const childName = child?.shortName ?? "Aditi";
   const [step, setStep] = useState<"phone" | "code">("phone");
   const [code, setCode] = useState("");
 
@@ -37,29 +41,27 @@ function ParentLogin() {
       </div>
       <Screen className="px-5">
         <h1 className="t-hero text-text">
-          {step === "phone" ? "Namaste, Anuradha ji" : "Enter the six numbers"}
+          {step === "phone" ? t.loginTitle(parent?.shortName ?? "Anuradha") : t.codeTitle}
         </h1>
         <p className="t-body text-text-soft">
-          {step === "phone"
-            ? "Aditi has already made your space. Just confirm this is your phone."
-            : "We sent them by SMS. Type 1 2 3 4 5 6 for this demo."}
+          {step === "phone" ? t.loginSubtitle(childName) : t.codeSubtitle}
         </p>
 
         {step === "phone" ? (
           <UCard className="space-y-4">
-            <p className="t-caption text-text-soft">Your phone number</p>
+            <p className="t-caption text-text-soft">{t.yourPhone}</p>
             <p className="t-hero tracking-wide text-text">{parent?.phone ?? "+91 98330 71822"}</p>
             <UButton size="xl" full onClick={() => setStep("code")}>
-              Yes, this is mine <ArrowRight size={22} aria-hidden />
+              {t.yesThisIsMine} <ArrowRight size={22} aria-hidden />
             </UButton>
             <UButton variant="ghost" size="lg" full>
-              <PhoneCall size={20} aria-hidden /> Ask Aditi to call me
+              <PhoneCall size={20} aria-hidden /> {t.askChildToCall(childName)}
             </UButton>
           </UCard>
         ) : (
           <UCard className="space-y-4">
             <label className="block">
-              <span className="t-caption mb-2 block text-text-soft">Six numbers</span>
+              <span className="t-caption mb-2 block text-text-soft">{t.sixNumbers}</span>
               <input
                 inputMode="numeric"
                 autoComplete="one-time-code"
@@ -80,10 +82,10 @@ function ParentLogin() {
                 });
               }}
             >
-              Go inside <ArrowRight size={22} aria-hidden />
+              {t.goInside} <ArrowRight size={22} aria-hidden />
             </UButton>
             <UButton variant="ghost" size="lg" full onClick={() => setStep("phone")}>
-              Go back
+              {t.goBack}
             </UButton>
           </UCard>
         )}
