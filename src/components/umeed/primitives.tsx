@@ -91,25 +91,26 @@ const statusMap: Record<
   steady: {
     word: "Steady",
     icon: Leaf,
-    fg: "text-sage",
+    fg: "text-sage-dark",
     bg: "bg-sage-tint",
-    border: "border-sage/30",
+    border: "border-transparent",
   },
   watch: {
     word: "Watch",
     icon: Eye,
     fg: "text-marigold",
-    bg: "bg-marigold/10",
-    border: "border-marigold/40",
+    bg: "bg-marigold-tint",
+    border: "border-transparent",
   },
   attention: {
     word: "Needs attention",
     icon: AlertTriangle,
     fg: "text-critical",
-    bg: "bg-critical/10",
-    border: "border-critical/40",
+    bg: "bg-critical-tint",
+    border: "border-transparent",
   },
 };
+
 
 export function StatusPill({ status, className }: { status: StatusKind; className?: string }) {
   const s = statusMap[status];
