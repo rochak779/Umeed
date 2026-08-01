@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Check, HeartHandshake, Mic, Pill, Volume2 } from "lucide-react";
+import { Camera, Check, Clock, HeartHandshake, Mic, Pill, Users, Volume2 } from "lucide-react";
 import { toast } from "sonner";
 import { Screen, UButton, UCard } from "@/components/umeed/primitives";
 import { Wordmark } from "@/components/umeed/Wordmark";
