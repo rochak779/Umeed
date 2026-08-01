@@ -58,14 +58,14 @@ function PersonaChooser() {
         {[
           {
             label: "I am the family member",
-            name: data.family.find((p) => p.role === "child")?.name ?? "Aditi Rao",
+            name: data.family.find((p) => p.role === "child")?.name ?? "\n",
             icon: Users,
             tone: "trust" as const,
             onClick: chooseChild,
           },
           {
             label: "I am the parent",
-            name: data.family.find((p) => p.id === "anuradha")?.name ?? "Anuradha Rao",
+            name: data.family.find((p) => p.id === "anuradha")?.name ?? "\n",
             icon: HeartHandshake,
             tone: "sage" as const,
             onClick: chooseParent,
@@ -99,7 +99,7 @@ function PersonaChooser() {
               </span>
               <span className="min-w-0 flex-1">
                 <span className="t-section block text-text">{card.label}</span>
-                <span className="t-body mt-1 block text-text-soft">{card.name}</span>
+                <span className="t-body mt-1 block text-text-soft">{"\n"}</span>
               </span>
               <ChevronRight aria-hidden size={26} className="shrink-0 text-line" />
             </motion.button>
