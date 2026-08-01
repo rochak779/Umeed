@@ -22,17 +22,18 @@ type ButtonVariant = "primary" | "secondary" | "ghost" | "danger";
 type ButtonSize = "md" | "lg" | "xl";
 
 const variantClass: Record<ButtonVariant, string> = {
-  primary: "bg-sage text-white border border-sage active:bg-sage-dark",
-  secondary: "bg-surface text-sage border border-sage active:bg-sage-tint",
-  ghost: "bg-transparent text-text-soft border border-transparent active:bg-sage-tint",
-  danger: "bg-critical/10 text-critical border border-critical/40 active:bg-critical/20",
+  primary: "bg-sage text-white border border-sage shadow-calm active:bg-sage-dark",
+  secondary: "bg-surface text-trust border-2 border-trust active:bg-trust-tint",
+  ghost: "bg-transparent text-text-soft border border-transparent active:bg-container",
+  danger: "bg-critical-tint text-critical border border-critical/25 active:bg-critical/20",
 };
 
 const sizeClass: Record<ButtonSize, string> = {
-  md: "min-h-12 px-4",
+  md: "min-h-12 px-5",
   lg: "min-h-14 px-6",
   xl: "min-h-16 px-6",
 };
+
 
 export function UButton({
   variant = "primary",
@@ -50,7 +51,8 @@ export function UButton({
     <motion.button
       whileTap={{ scale: 0.98 }}
       className={cn(
-        "t-button inline-flex items-center justify-center gap-2 rounded-[0.875rem] transition-colors",
+        "t-button inline-flex items-center justify-center gap-2 rounded-full font-medium transition-colors",
+
         variantClass[variant],
         sizeClass[size],
         full && "w-full",
@@ -89,25 +91,26 @@ const statusMap: Record<
   steady: {
     word: "Steady",
     icon: Leaf,
-    fg: "text-sage",
+    fg: "text-sage-dark",
     bg: "bg-sage-tint",
-    border: "border-sage/30",
+    border: "border-transparent",
   },
   watch: {
     word: "Watch",
     icon: Eye,
     fg: "text-marigold",
-    bg: "bg-marigold/10",
-    border: "border-marigold/40",
+    bg: "bg-marigold-tint",
+    border: "border-transparent",
   },
   attention: {
     word: "Needs attention",
     icon: AlertTriangle,
     fg: "text-critical",
-    bg: "bg-critical/10",
-    border: "border-critical/40",
+    bg: "bg-critical-tint",
+    border: "border-transparent",
   },
 };
+
 
 export function StatusPill({ status, className }: { status: StatusKind; className?: string }) {
   const s = statusMap[status];
@@ -220,10 +223,11 @@ export function Avatar({
   tone?: "sage" | "trust" | "marigold" | undefined;
 }) {
   const tones = {
-    sage: "bg-sage-tint text-sage",
-    trust: "bg-trust/10 text-trust",
-    marigold: "bg-marigold/15 text-marigold",
+    sage: "bg-sage-tint text-sage-dark",
+    trust: "bg-trust-tint text-trust",
+    marigold: "bg-marigold-tint text-marigold",
   };
+
   return (
     <span
       aria-hidden
@@ -252,7 +256,7 @@ export function BottomNav() {
   return (
     <nav
       aria-label="Main"
-      className="sticky bottom-0 z-20 border-t border-line bg-surface/95 px-2 pb-2 pt-1 backdrop-blur"
+      className="sticky bottom-0 z-20 border-t border-line/50 bg-container-low/95 px-2 pb-2 pt-2 backdrop-blur"
     >
       <ul className="flex items-stretch justify-between">
         {navItems.map((item) => {
@@ -266,16 +270,24 @@ export function BottomNav() {
               <Link
                 to={item.to}
                 className={cn(
-                  "flex min-h-12 flex-col items-center justify-center gap-0.5 rounded-[0.875rem] px-2 py-1.5",
-                  active ? "text-sage" : "text-text-soft",
+                  "flex min-h-12 flex-col items-center justify-center gap-1 px-2 py-1",
+                  active ? "text-sage-dark" : "text-text-soft",
                 )}
               >
-                <Icon size={22} aria-hidden />
-                <span className="t-caption">{item.label}</span>
+                <span
+                  className={cn(
+                    "flex h-8 w-16 items-center justify-center rounded-full transition-colors",
+                    active && "bg-sage-tint",
+                  )}
+                >
+                  <Icon size={22} aria-hidden />
+                </span>
+                <span className="t-caption text-[0.8125rem]">{item.label}</span>
               </Link>
             </li>
           );
         })}
+
       </ul>
     </nav>
   );
@@ -353,7 +365,7 @@ export function DotStrip({
 
 export function WhyPanel({ lines }: { lines: string[] }) {
   return (
-    <details className="mt-4 rounded-[0.875rem] border border-line bg-bg px-4 py-3">
+    <details className="mt-4 rounded-[1.25rem] border border-line/50 bg-container-low px-4 py-3">
       <summary className="t-body flex min-h-12 cursor-pointer list-none items-center justify-between font-medium text-trust">
         Why we are saying this
         <span aria-hidden className="t-caption text-text-soft">

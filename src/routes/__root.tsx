@@ -63,7 +63,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "author", content: "Umeed" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "theme-color", content: "#F8F7F4" },
+      { name: "theme-color", content: "#F6FAFE" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
@@ -102,8 +102,9 @@ function PhoneFrame({ children }: { children: ReactNode }) {
   const effective = path.startsWith("/parent") ? "parent" : persona === "parent" ? "child" : "child";
 
   return (
-    <div className="flex min-h-[100dvh] justify-center bg-[#EDEBE6] sm:py-6">
+    <div className="flex min-h-[100dvh] justify-center bg-frame sm:py-6">
       <div
+
         data-persona={effective}
         className="relative flex min-h-[100dvh] w-full max-w-[430px] flex-col overflow-hidden bg-bg sm:min-h-[calc(100dvh-3rem)] sm:rounded-[2rem] sm:shadow-calm"
       >

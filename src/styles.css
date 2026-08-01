@@ -9,15 +9,22 @@
   --color-sage-dark: var(--sage-dark);
   --color-sage-tint: var(--sage-tint);
   --color-trust: var(--trust);
+  --color-trust-tint: var(--trust-tint);
   --color-marigold: var(--marigold);
+  --color-marigold-tint: var(--marigold-tint);
   --color-success: var(--success);
   --color-warning: var(--warning);
   --color-critical: var(--critical);
+  --color-critical-tint: var(--critical-tint);
   --color-bg: var(--bg);
   --color-surface: var(--surface);
+  --color-container: var(--container);
+  --color-container-low: var(--container-low);
+  --color-container-high: var(--container-high);
   --color-text: var(--text);
   --color-text-soft: var(--text-soft);
   --color-line: var(--border);
+  --color-frame: var(--frame);
 
   /* shadcn compatibility tokens */
   --color-background: var(--bg);
@@ -27,49 +34,57 @@
   --color-popover: var(--surface);
   --color-popover-foreground: var(--text);
   --color-primary: var(--sage);
-  --color-primary-foreground: var(--surface);
-  --color-secondary: var(--sage-tint);
+  --color-primary-foreground: #ffffff;
+  --color-secondary: var(--container);
   --color-secondary-foreground: var(--text);
-  --color-muted: var(--sage-tint);
+  --color-muted: var(--container-low);
   --color-muted-foreground: var(--text-soft);
   --color-accent: var(--sage-tint);
-  --color-accent-foreground: var(--text);
+  --color-accent-foreground: var(--sage-dark);
   --color-destructive: var(--critical);
-  --color-destructive-foreground: var(--surface);
+  --color-destructive-foreground: #ffffff;
   --color-border: var(--border);
   --color-input: var(--border);
   --color-ring: var(--sage);
   --color-sidebar: var(--surface);
   --color-sidebar-foreground: var(--text);
   --color-sidebar-primary: var(--sage);
-  --color-sidebar-primary-foreground: var(--surface);
+  --color-sidebar-primary-foreground: #ffffff;
   --color-sidebar-accent: var(--sage-tint);
-  --color-sidebar-accent-foreground: var(--text);
+  --color-sidebar-accent-foreground: var(--sage-dark);
   --color-sidebar-border: var(--border);
   --color-sidebar-ring: var(--sage);
 
   --radius-card: 1rem;
-  --radius-btn: 0.875rem;
+  --radius-btn: 9999px;
   --radius-input: 0.75rem;
 
   --shadow-calm:
-    0 1px 2px rgba(47, 52, 55, 0.04), 0 8px 24px rgba(47, 52, 55, 0.04);
+    0 1px 2px rgba(23, 28, 31, 0.05), 0 8px 24px rgba(23, 28, 31, 0.05);
 }
 
 :root {
-  --sage: #5e9c76;
-  --sage-dark: #4a7d5e;
-  --sage-tint: #eaf2ed;
-  --trust: #3f6ea8;
-  --marigold: #d9a441;
-  --success: #3baa5c;
-  --warning: #e7b93c;
-  --critical: #c95a5a;
-  --bg: #f8f7f4;
+  /* Material-style care palette */
+  --sage: #296745;
+  --sage-dark: #0e5132;
+  --sage-tint: #b0f1c6;
+  --trust: #2f6099;
+  --trust-tint: #d4e3ff;
+  --marigold: #7a5500;
+  --marigold-tint: #ffdeaa;
+  --success: #296745;
+  --warning: #996c04;
+  --critical: #ba1a1a;
+  --critical-tint: #ffdad6;
+  --bg: #f6fafe;
   --surface: #ffffff;
-  --text: #2f3437;
-  --text-soft: #6b7280;
-  --border: #e5e7eb;
+  --container-low: #f0f4f8;
+  --container: #eaeef2;
+  --container-high: #e4e9ec;
+  --text: #171c1f;
+  --text-soft: #404942;
+  --border: #c0c9c0;
+  --frame: #dfe3e7;
   --radius: 1rem;
 
   --fs-display: 2rem;
@@ -80,6 +95,7 @@
   --fs-caption: 0.875rem;
   --fs-button: 1rem;
 }
+
 
 [data-persona="child"] {
   --fs-display: 2rem;
@@ -139,11 +155,17 @@
 
 @utility card-calm {
   background-color: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 1rem;
+  border: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
+  border-radius: 1.25rem;
   box-shadow:
-    0 1px 2px rgba(47, 52, 55, 0.04),
-    0 8px 24px rgba(47, 52, 55, 0.04);
+    0 1px 2px rgba(23, 28, 31, 0.04),
+    0 6px 18px rgba(23, 28, 31, 0.05);
+}
+
+@utility card-flat {
+  background-color: var(--container-low);
+  border: 1px solid color-mix(in srgb, var(--border) 55%, transparent);
+  border-radius: 1.25rem;
 }
 
 @layer base {
@@ -152,11 +174,12 @@
   }
   html,
   body {
-    background-color: #edebe6;
+    background-color: var(--frame);
     color: var(--text);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
   }
+
   h1,
   h2,
   h3 {
