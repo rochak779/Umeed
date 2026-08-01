@@ -256,7 +256,7 @@ export function BottomNav() {
   return (
     <nav
       aria-label="Main"
-      className="sticky bottom-0 z-20 border-t border-line bg-surface/95 px-2 pb-2 pt-1 backdrop-blur"
+      className="sticky bottom-0 z-20 border-t border-line/50 bg-container-low/95 px-2 pb-2 pt-2 backdrop-blur"
     >
       <ul className="flex items-stretch justify-between">
         {navItems.map((item) => {
@@ -270,16 +270,24 @@ export function BottomNav() {
               <Link
                 to={item.to}
                 className={cn(
-                  "flex min-h-12 flex-col items-center justify-center gap-0.5 rounded-[0.875rem] px-2 py-1.5",
-                  active ? "text-sage" : "text-text-soft",
+                  "flex min-h-12 flex-col items-center justify-center gap-1 px-2 py-1",
+                  active ? "text-sage-dark" : "text-text-soft",
                 )}
               >
-                <Icon size={22} aria-hidden />
-                <span className="t-caption">{item.label}</span>
+                <span
+                  className={cn(
+                    "flex h-8 w-16 items-center justify-center rounded-full transition-colors",
+                    active && "bg-sage-tint",
+                  )}
+                >
+                  <Icon size={22} aria-hidden />
+                </span>
+                <span className="t-caption text-[0.8125rem]">{item.label}</span>
               </Link>
             </li>
           );
         })}
+
       </ul>
     </nav>
   );
