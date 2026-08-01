@@ -290,6 +290,120 @@ function Family() {
           </div>
         ) : null}
       </Screen>
+
+      {draft ? (
+        <div
+          className="absolute inset-0 z-40 flex items-end bg-text/30"
+          role="dialog"
+          aria-label="Edit member details"
+        >
+          <div className="max-h-[85%] w-full space-y-3 overflow-y-auto rounded-t-[1.25rem] bg-surface p-5">
+            <div className="flex items-center justify-between">
+              <h2 className="t-section text-text">Edit details</h2>
+              <button
+                onClick={closeEdit}
+                aria-label="Close"
+                className="flex size-12 items-center justify-center rounded-full text-text-soft"
+              >
+                <X size={20} aria-hidden />
+              </button>
+            </div>
+
+            <EditField label="Full name">
+              <input
+                className={inputCx}
+                value={draft.name}
+                onChange={(e) => setDraft({ ...draft, name: e.target.value })}
+              />
+            </EditField>
+            <EditField label="What we call them">
+              <input
+                className={inputCx}
+                value={draft.shortName}
+                onChange={(e) => setDraft({ ...draft, shortName: e.target.value })}
+              />
+            </EditField>
+            <div className="grid grid-cols-2 gap-3">
+              <EditField label="Relationship">
+                <input
+                  className={inputCx}
+                  value={draft.relationship}
+                  onChange={(e) => setDraft({ ...draft, relationship: e.target.value })}
+                />
+              </EditField>
+              <EditField label="Age">
+                <input
+                  className={inputCx}
+                  inputMode="numeric"
+                  value={draft.age}
+                  onChange={(e) => setDraft({ ...draft, age: e.target.value })}
+                />
+              </EditField>
+            </div>
+            <EditField label="City">
+              <input
+                className={inputCx}
+                value={draft.city}
+                onChange={(e) => setDraft({ ...draft, city: e.target.value })}
+              />
+            </EditField>
+            <EditField label="Phone">
+              <input
+                className={inputCx}
+                inputMode="tel"
+                value={draft.phone}
+                onChange={(e) => setDraft({ ...draft, phone: e.target.value })}
+              />
+            </EditField>
+            <EditField
+              label="Language they read best"
+              hint="Parents see their whole app in this language."
+            >
+              <select
+                className={inputCx}
+                value={draft.language}
+                onChange={(e) => setDraft({ ...draft, language: e.target.value })}
+              >
+                {LANGUAGES.map((l) => (
+                  <option key={l} value={l}>
+                    {l}
+                  </option>
+                ))}
+              </select>
+            </EditField>
+
+            <div className="flex flex-col gap-2 pt-1">
+              <UButton full onClick={saveEdit}>
+                Save changes
+              </UButton>
+              <UButton variant="ghost" full onClick={closeEdit}>
+                Cancel
+              </UButton>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </>
+  );
+}
+
+const inputCx =
+  "t-body min-h-12 w-full rounded-[0.75rem] border border-line bg-surface px-3 text-text placeholder:text-text-soft focus:border-sage";
+
+function EditField({
+  label,
+  hint,
+  children,
+}: {
+  label: string;
+  hint?: string | undefined;
+  children: React.ReactNode;
+}) {
+  return (
+    <label className="block">
+      <span className="t-caption mb-1 block font-medium text-text">{label}</span>
+      {children}
+      {hint ? <span className="t-caption mt-1 block text-text-soft">{hint}</span> : null}
+    </label>
   );
 }
