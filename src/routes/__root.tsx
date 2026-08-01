@@ -12,7 +12,7 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
-import { UmeedProvider, useUmeed } from "@/state/UmeedProvider";
+import { UmeedProvider } from "@/state/UmeedProvider";
 import { PushNotification } from "@/components/umeed/PushNotification";
 import { HomeIndicator, StatusBar } from "@/components/umeed/DeviceChrome";
 import { Toaster } from "@/components/ui/sonner";
@@ -98,7 +98,6 @@ function RootShell({ children }: { children: ReactNode }) {
 }
 
 function PhoneFrame({ children }: { children: ReactNode }) {
-  const { persona } = useUmeed();
   const path = useRouterState({ select: (s) => s.location.pathname });
   const effective: "child" | "parent" = path.startsWith("/parent") ? "parent" : "child";
 
