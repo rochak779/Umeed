@@ -10,6 +10,7 @@ export type Person = {
   age: number;
   city: string;
   phone: string;
+  email?: string;
   language?: string;
   conditions?: string[];
   occupation?: string;

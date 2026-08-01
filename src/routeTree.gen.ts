@@ -25,6 +25,7 @@ import { Route as ParentHelpRouteImport } from './routes/parent.help'
 import { Route as ParentHomeRouteImport } from './routes/parent.home'
 import { Route as ParentLoginRouteImport } from './routes/parent.login'
 import { Route as ParentPhotoRouteImport } from './routes/parent.photo'
+import { Route as ParentProfileRouteImport } from './routes/parent.profile'
 import { Route as ParentSpeakRouteImport } from './routes/parent.speak'
 import { Route as ParentWelcomeRouteImport } from './routes/parent.welcome'
 import { Route as ChildParentIdRouteImport } from './routes/child.parent.$id'
@@ -110,6 +111,11 @@ const ParentPhotoRoute = ParentPhotoRouteImport.update({
   path: '/photo',
   getParentRoute: () => ParentRoute,
 } as any)
+const ParentProfileRoute = ParentProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => ParentRoute,
+} as any)
 const ParentSpeakRoute = ParentSpeakRouteImport.update({
   id: '/speak',
   path: '/speak',
@@ -147,6 +153,7 @@ export interface FileRoutesByFullPath {
   '/parent/home': typeof ParentHomeRoute
   '/parent/login': typeof ParentLoginRoute
   '/parent/photo': typeof ParentPhotoRoute
+  '/parent/profile': typeof ParentProfileRoute
   '/parent/speak': typeof ParentSpeakRoute
   '/parent/welcome': typeof ParentWelcomeRoute
   '/parent/': typeof ParentIndexRoute
@@ -168,6 +175,7 @@ export interface FileRoutesByTo {
   '/parent/home': typeof ParentHomeRoute
   '/parent/login': typeof ParentLoginRoute
   '/parent/photo': typeof ParentPhotoRoute
+  '/parent/profile': typeof ParentProfileRoute
   '/parent/speak': typeof ParentSpeakRoute
   '/parent/welcome': typeof ParentWelcomeRoute
   '/parent': typeof ParentIndexRoute
@@ -191,6 +199,7 @@ export interface FileRoutesById {
   '/parent/home': typeof ParentHomeRoute
   '/parent/login': typeof ParentLoginRoute
   '/parent/photo': typeof ParentPhotoRoute
+  '/parent/profile': typeof ParentProfileRoute
   '/parent/speak': typeof ParentSpeakRoute
   '/parent/welcome': typeof ParentWelcomeRoute
   '/parent/': typeof ParentIndexRoute
@@ -215,6 +224,7 @@ export interface FileRouteTypes {
     | '/parent/home'
     | '/parent/login'
     | '/parent/photo'
+    | '/parent/profile'
     | '/parent/speak'
     | '/parent/welcome'
     | '/parent/'
@@ -236,6 +246,7 @@ export interface FileRouteTypes {
     | '/parent/home'
     | '/parent/login'
     | '/parent/photo'
+    | '/parent/profile'
     | '/parent/speak'
     | '/parent/welcome'
     | '/parent'
@@ -258,6 +269,7 @@ export interface FileRouteTypes {
     | '/parent/home'
     | '/parent/login'
     | '/parent/photo'
+    | '/parent/profile'
     | '/parent/speak'
     | '/parent/welcome'
     | '/parent/'
@@ -387,6 +399,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ParentPhotoRouteImport
       parentRoute: typeof ParentRoute
     }
+    '/parent/profile': {
+      id: '/parent/profile'
+      path: '/profile'
+      fullPath: '/parent/profile'
+      preLoaderRoute: typeof ParentProfileRouteImport
+      parentRoute: typeof ParentRoute
+    }
     '/parent/speak': {
       id: '/parent/speak'
       path: '/speak'
@@ -447,6 +466,7 @@ interface ParentRouteChildren {
   ParentHomeRoute: typeof ParentHomeRoute
   ParentLoginRoute: typeof ParentLoginRoute
   ParentPhotoRoute: typeof ParentPhotoRoute
+  ParentProfileRoute: typeof ParentProfileRoute
   ParentSpeakRoute: typeof ParentSpeakRoute
   ParentWelcomeRoute: typeof ParentWelcomeRoute
   ParentIndexRoute: typeof ParentIndexRoute
@@ -457,6 +477,7 @@ const ParentRouteChildren: ParentRouteChildren = {
   ParentHomeRoute: ParentHomeRoute,
   ParentLoginRoute: ParentLoginRoute,
   ParentPhotoRoute: ParentPhotoRoute,
+  ParentProfileRoute: ParentProfileRoute,
   ParentSpeakRoute: ParentSpeakRoute,
   ParentWelcomeRoute: ParentWelcomeRoute,
   ParentIndexRoute: ParentIndexRoute,
