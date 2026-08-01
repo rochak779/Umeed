@@ -32,6 +32,7 @@ function PersonRow({
   access,
   verified,
   tone,
+  badge,
 }: {
   initials: string;
   name: string;
@@ -39,25 +40,34 @@ function PersonRow({
   access: string;
   verified?: boolean | undefined;
   tone?: "sage" | "trust" | "marigold" | undefined;
+  badge?: string | undefined;
 }) {
   return (
-    <UCard as="li" className="flex items-start gap-3">
-      <Avatar initials={initials} size={44} tone={tone} />
-      <div className="min-w-0 flex-1">
-        <p className="t-card-title flex items-center gap-2 font-medium text-text">
-          {name}
-          {verified ? (
-            <span className="t-caption inline-flex items-center gap-1 rounded-full border border-sage/30 bg-sage-tint px-2 py-0.5 text-sage">
-              <BadgeCheck size={12} aria-hidden /> Verified
-            </span>
-          ) : null}
-        </p>
-        <p className="t-caption text-text-soft">{meta}</p>
-        <p className="t-body mt-2 text-text">{access}</p>
+    <UCard as="li" className="p-4">
+      <div className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3">
+        <Avatar initials={initials} size={48} tone={tone} />
+        <div className="min-w-0">
+          <p className="t-card-title truncate font-medium text-text">{name}</p>
+          <p className="t-caption truncate text-text-soft">{meta}</p>
+        </div>
       </div>
+      <div className="mt-3 flex flex-wrap items-center gap-2">
+        {verified ? (
+          <span className="t-caption inline-flex items-center gap-1 rounded-full bg-sage-tint px-2.5 py-1 text-sage-dark">
+            <BadgeCheck size={14} aria-hidden /> Verified
+          </span>
+        ) : null}
+        {badge ? (
+          <span className="t-caption inline-flex items-center gap-1 rounded-full bg-trust-tint px-2.5 py-1 text-trust">
+            {badge}
+          </span>
+        ) : null}
+      </div>
+      <p className="t-body mt-2 text-text-soft">{access}</p>
     </UCard>
   );
 }
+
 
 function Family() {
   const { data } = useUmeed();
