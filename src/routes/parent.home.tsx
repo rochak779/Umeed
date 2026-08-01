@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { Screen, UButton, UCard } from "@/components/umeed/primitives";
 import { Wordmark } from "@/components/umeed/Wordmark";
 import { useUmeed } from "@/state/UmeedProvider";
+import { useParentLang } from "@/i18n/parent";
 
 export const Route = createFileRoute("/parent/home")({
   head: () => ({
@@ -25,8 +26,10 @@ export const Route = createFileRoute("/parent/home")({
 
 function ParentHome() {
   const { data, completeReminder } = useUmeed();
+  const { t } = useParentLang();
   const parent = data.family.find((p) => p.id === "anuradha");
   const child = data.family.find((p) => p.role === "child");
+  const childName = child?.shortName ?? "Aditi";
   const next = data.reminders
     .filter((r) => r.parentId === "anuradha" && r.kind === "medicine")
     .find((r) => r.days[6] !== "done");
@@ -37,7 +40,7 @@ function ParentHome() {
         <Wordmark />
         <Link
           to="/parent/help"
-          aria-label="Family"
+          aria-label={t.family}
           className="flex size-14 items-center justify-center rounded-full bg-container-high text-text"
         >
           <Users size={26} aria-hidden />
@@ -46,8 +49,10 @@ function ParentHome() {
 
       <Screen className="flex flex-1 flex-col px-5">
         <section>
-          <h1 className="t-display text-text">नमस्ते, {parent?.shortName ?? "Anuradha"} ji</h1>
-          <p className="t-section font-normal text-text-soft">Thursday, 30 July</p>
+          <h1 className="t-display text-text">
+            {t.greeting}, {parent?.shortName ?? "Anuradha"} {t.ji}
+          </h1>
+          <p className="t-section font-normal text-text-soft">{t.todayDate}</p>
         </section>
 
         {/* One task at a time */}
@@ -57,14 +62,12 @@ function ParentHome() {
               <Pill size={32} aria-hidden />
             </span>
             <h2 className="t-section text-text">
-              {next ? `Time for your ${next.time} tablet` : "Nothing left to take today"}
+              {next ? t.timeForTablet(next.time) : t.nothingLeft}
             </h2>
           </div>
 
           <div className="rounded-[1rem] bg-container p-4 text-center">
-            <p className="t-section font-bold text-text">
-              {next ? next.label : "All done. Rest well."}
-            </p>
+            <p className="t-section font-bold text-text">{next ? next.label : t.allDone}</p>
           </div>
 
           {next ? (
@@ -75,24 +78,24 @@ function ParentHome() {
                 className="min-h-20 t-section"
                 onClick={() => {
                   completeReminder(next.id);
-                  toast.success("Noted. Aditi can see it.");
+                  toast.success(t.noted(childName));
                 }}
               >
-                <Check size={30} aria-hidden /> Taken
+                <Check size={30} aria-hidden /> {t.taken}
               </UButton>
               <UButton
                 variant="secondary"
                 size="xl"
                 full
                 className="min-h-20 t-section"
-                onClick={() => toast("We will ask you again in a little while.")}
+                onClick={() => toast(t.askAgain)}
               >
-                <Clock size={30} aria-hidden /> Not yet
+                <Clock size={30} aria-hidden /> {t.notYet}
               </UButton>
             </div>
           ) : (
-            <UButton variant="ghost" size="lg" full aria-label="Read this out loud">
-              <Volume2 size={24} aria-hidden /> Read this out loud
+            <UButton variant="ghost" size="lg" full aria-label={t.readAloud}>
+              <Volume2 size={24} aria-hidden /> {t.readAloud}
             </UButton>
           )}
         </UCard>
@@ -106,7 +109,7 @@ function ParentHome() {
             <span className="flex size-16 items-center justify-center rounded-full bg-trust-tint text-trust">
               <Mic size={30} aria-hidden />
             </span>
-            <span className="t-caption font-medium text-text">Speak</span>
+            <span className="t-caption font-medium text-text">{t.speak}</span>
           </Link>
           <Link
             to="/parent/photo"
@@ -115,7 +118,7 @@ function ParentHome() {
             <span className="flex size-16 items-center justify-center rounded-full bg-marigold-tint text-marigold">
               <Camera size={30} aria-hidden />
             </span>
-            <span className="t-caption font-medium text-text">Photo</span>
+            <span className="t-caption font-medium text-text">{t.photo}</span>
           </Link>
           <Link
             to="/parent/help"
@@ -124,16 +127,12 @@ function ParentHome() {
             <span className="flex size-16 items-center justify-center rounded-full bg-critical text-white">
               <HeartHandshake size={30} aria-hidden />
             </span>
-            <span className="t-caption font-bold text-critical">Help</span>
+            <span className="t-caption font-bold text-critical">{t.help}</span>
           </Link>
         </section>
 
-        <p className="t-caption pb-2 text-center text-text-soft">
-          {child?.shortName ?? "Aditi"} can see everything you do here.
-        </p>
+        <p className="t-caption pb-2 text-center text-text-soft">{t.childCanSee(childName)}</p>
       </Screen>
     </>
   );
 }
-
-
