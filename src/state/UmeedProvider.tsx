@@ -50,6 +50,7 @@ type Ctx = {
   setAlertState: (id: string, state: AlertState) => void;
   helperRespond: (going: boolean) => void;
   advanceClock: (days: number) => void;
+  updatePerson: (id: string, patch: Partial<UmeedData["family"][number]>) => void;
   setStatus: (parentId: string, status: StatusKind) => void;
   setOnboardingDone: (v: boolean) => void;
   setParentOnboarded: (v: boolean) => void;
@@ -360,6 +361,17 @@ export function UmeedProvider({ children }: { children: ReactNode }) {
   const advanceClock = useCallback((days: number) => {
     setData((d) => ({ ...d, clockOffsetDays: d.clockOffsetDays + days }));
   }, []);
+
+  const updatePerson = useCallback(
+    (id: string, patch: Partial<UmeedData["family"][number]>) => {
+      setData((d) => ({
+        ...d,
+        family: d.family.map((p) => (p.id === id ? { ...p, ...patch } : p)),
+      }));
+    },
+    [],
+  );
+
 
   const setStatus = useCallback((parentId: string, status: StatusKind) => {
     setData((d) => ({ ...d, statuses: { ...d.statuses, [parentId]: status } }));
