@@ -51,7 +51,8 @@ export function UButton({
     <motion.button
       whileTap={{ scale: 0.98 }}
       className={cn(
-        "t-button inline-flex items-center justify-center gap-2 rounded-[0.875rem] transition-colors",
+        "t-button inline-flex items-center justify-center gap-2 rounded-full font-medium transition-colors",
+
         variantClass[variant],
         sizeClass[size],
         full && "w-full",
