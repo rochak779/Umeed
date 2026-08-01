@@ -447,6 +447,7 @@ export function UmeedProvider({ children }: { children: ReactNode }) {
       setAlertState,
       helperRespond,
       advanceClock,
+      updatePerson,
       setStatus,
       setOnboardingDone,
       setParentOnboarded,
