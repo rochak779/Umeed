@@ -4,6 +4,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { EscalationLadder } from "@/components/umeed/EscalationLadder";
 import { Avatar, Screen, TopBar, UButton, UCard } from "@/components/umeed/primitives";
+import { cn } from "@/lib/utils";
 import { useUmeed } from "@/state/UmeedProvider";
 
 export const Route = createFileRoute("/child/family")({
