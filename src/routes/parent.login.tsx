@@ -54,9 +54,7 @@ function ParentLogin() {
             <UButton size="xl" full onClick={() => setStep("code")}>
               {t.yesThisIsMine} <ArrowRight size={22} aria-hidden />
             </UButton>
-            <UButton variant="ghost" size="lg" full>
-              <PhoneCall size={20} aria-hidden /> {t.askChildToCall(childName)}
-            </UButton>
+            {/* Removed "Ask to call" button as per request */}
           </UCard>
         ) : (
           <UCard className="space-y-4">
