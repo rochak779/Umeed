@@ -34,6 +34,7 @@ function PersonRow({
   verified,
   tone,
   badge,
+  onEdit,
 }: {
   initials: string;
   name: string;
@@ -42,15 +43,25 @@ function PersonRow({
   verified?: boolean | undefined;
   tone?: "sage" | "trust" | "marigold" | undefined;
   badge?: string | undefined;
+  onEdit?: (() => void) | undefined;
 }) {
   return (
     <UCard as="li" className="p-4">
-      <div className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3">
+      <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3">
         <Avatar initials={initials} size={48} tone={tone} />
         <div className="min-w-0">
           <p className="t-card-title truncate font-medium text-text">{name}</p>
           <p className="t-caption truncate text-text-soft">{meta}</p>
         </div>
+        {onEdit ? (
+          <button
+            onClick={onEdit}
+            aria-label={`Edit details for ${name}`}
+            className="flex size-11 shrink-0 items-center justify-center rounded-full border border-line bg-surface text-trust"
+          >
+            <Pencil size={18} aria-hidden />
+          </button>
+        ) : null}
       </div>
       <div className="mt-3 flex flex-wrap items-center gap-2">
         {verified ? (
