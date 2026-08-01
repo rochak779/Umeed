@@ -25,6 +25,7 @@
   --color-text-soft: var(--text-soft);
   --color-line: var(--border);
   --color-frame: var(--frame);
+  --color-device: var(--device);
 
   /* shadcn compatibility tokens */
   --color-background: var(--bg);
@@ -85,6 +86,7 @@
   --text-soft: #404942;
   --border: #c0c9c0;
   --frame: #dfe3e7;
+  --device: #1b1f22;
   --radius: 1rem;
 
   --fs-display: 2rem;

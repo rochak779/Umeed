@@ -14,6 +14,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { UmeedProvider, useUmeed } from "@/state/UmeedProvider";
 import { PushNotification } from "@/components/umeed/PushNotification";
+import { HomeIndicator, StatusBar } from "@/components/umeed/DeviceChrome";
 import { Toaster } from "@/components/ui/sonner";
 
 function NotFoundComponent() {
@@ -99,21 +100,41 @@ function RootShell({ children }: { children: ReactNode }) {
 function PhoneFrame({ children }: { children: ReactNode }) {
   const { persona } = useUmeed();
   const path = useRouterState({ select: (s) => s.location.pathname });
-  const effective = path.startsWith("/parent") ? "parent" : persona === "parent" ? "child" : "child";
+  const effective: "child" | "parent" = path.startsWith("/parent") ? "parent" : "child";
 
   return (
-    <div className="flex min-h-[100dvh] justify-center bg-frame sm:py-6">
-      <div
-
-        data-persona={effective}
-        className="relative flex min-h-[100dvh] w-full max-w-[430px] flex-col overflow-hidden bg-bg sm:min-h-[calc(100dvh-3rem)] sm:rounded-[2rem] sm:shadow-calm"
-      >
-        <PushNotification />
-        {children}
+    <div className="flex min-h-[100dvh] justify-center bg-frame sm:items-center sm:py-8">
+      {/* iPhone shell: real bezel + rounded screen on larger viewports, edge to edge on a phone */}
+      <div className="relative w-full sm:w-auto sm:rounded-[3.2rem] sm:bg-device sm:p-[11px] sm:shadow-[0_30px_70px_-20px_rgba(23,28,31,0.45)]">
+        {/* side buttons */}
+        <span
+          aria-hidden
+          className="absolute -left-[3px] top-[124px] hidden h-16 w-[3px] rounded-l-full bg-device sm:block"
+        />
+        <span
+          aria-hidden
+          className="absolute -left-[3px] top-[204px] hidden h-16 w-[3px] rounded-l-full bg-device sm:block"
+        />
+        <span
+          aria-hidden
+          className="absolute -right-[3px] top-[168px] hidden h-24 w-[3px] rounded-r-full bg-device sm:block"
+        />
+        <div
+          data-persona={effective}
+          className="relative flex min-h-[100dvh] w-full flex-col overflow-hidden bg-bg sm:h-[860px] sm:min-h-0 sm:w-[390px] sm:rounded-[2.6rem]"
+        >
+          <StatusBar persona={effective} />
+          <div className="relative flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain">
+            <PushNotification />
+            {children}
+          </div>
+          <HomeIndicator />
+        </div>
       </div>
     </div>
   );
 }
+
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
