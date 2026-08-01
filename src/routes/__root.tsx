@@ -98,7 +98,6 @@ function RootShell({ children }: { children: ReactNode }) {
 }
 
 function PhoneFrame({ children }: { children: ReactNode }) {
-  const { persona } = useUmeed();
   const path = useRouterState({ select: (s) => s.location.pathname });
   const effective: "child" | "parent" = path.startsWith("/parent") ? "parent" : "child";
 
