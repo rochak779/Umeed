@@ -58,14 +58,14 @@ function PersonaChooser() {
         {[
           {
             label: "I am the family member",
-            name: data.family.find((p) => p.role === "child")?.name ?? "Aditi Rao",
+            name: data.family.find((p) => p.role === "child")?.name ?? "\n",
             icon: Users,
             tone: "trust" as const,
             onClick: chooseChild,
           },
           {
             label: "I am the parent",
-            name: data.family.find((p) => p.id === "anuradha")?.name ?? "Anuradha Rao",
+            name: data.family.find((p) => p.id === "anuradha")?.name ?? "\n",
             icon: HeartHandshake,
             tone: "sage" as const,
             onClick: chooseParent,
