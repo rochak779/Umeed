@@ -50,6 +50,7 @@ type Ctx = {
   setAlertState: (id: string, state: AlertState) => void;
   helperRespond: (going: boolean) => void;
   advanceClock: (days: number) => void;
+  updatePerson: (id: string, patch: Partial<UmeedData["family"][number]>) => void;
   setStatus: (parentId: string, status: StatusKind) => void;
   setOnboardingDone: (v: boolean) => void;
   setParentOnboarded: (v: boolean) => void;
