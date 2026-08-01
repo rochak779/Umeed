@@ -223,10 +223,11 @@ export function Avatar({
   tone?: "sage" | "trust" | "marigold" | undefined;
 }) {
   const tones = {
-    sage: "bg-sage-tint text-sage",
-    trust: "bg-trust/10 text-trust",
-    marigold: "bg-marigold/15 text-marigold",
+    sage: "bg-sage-tint text-sage-dark",
+    trust: "bg-trust-tint text-trust",
+    marigold: "bg-marigold-tint text-marigold",
   };
+
   return (
     <span
       aria-hidden
