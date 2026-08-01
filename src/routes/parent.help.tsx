@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Check, HeartHandshake, PhoneCall, X } from "lucide-react";
 import { Avatar, Screen, UButton, UCard } from "@/components/umeed/primitives";
 import { useUmeed } from "@/state/UmeedProvider";
+import { useParentLang } from "@/i18n/parent";
 
 export const Route = createFileRoute("/parent/help")({
   head: () => ({
@@ -26,10 +27,13 @@ export const Route = createFileRoute("/parent/help")({
 function ParentHelp() {
   const navigate = useNavigate();
   const { data, triggerSOS, cancelSOS } = useUmeed();
+  const { t } = useParentLang();
   const [phase, setPhase] = useState<"ask" | "countdown" | "sent">("ask");
   const [left, setLeft] = useState(10);
   const helper = data.family.find((p) => p.role === "helper");
   const child = data.family.find((p) => p.role === "child");
+  const helperName = helper?.shortName ?? "Sunita";
+  const childName = child?.shortName ?? "Aditi";
   const sos = data.alerts.find((a) => a.level === "sos");
 
   useEffect(() => {
@@ -39,8 +43,8 @@ function ParentHelp() {
       setPhase("sent");
       return;
     }
-    const t = setTimeout(() => setLeft((l) => l - 1), 1000);
-    return () => clearTimeout(t);
+    const timer = setTimeout(() => setLeft((l) => l - 1), 1000);
+    return () => clearTimeout(timer);
   }, [phase, left, triggerSOS]);
 
   return (
@@ -48,21 +52,18 @@ function ParentHelp() {
       <header className="flex items-center gap-3 px-4 py-3">
         <Link
           to="/parent/home"
-          aria-label="Go back"
+          aria-label={t.goBack}
           className="flex size-12 items-center justify-center rounded-full text-text"
         >
           <X size={24} aria-hidden />
         </Link>
-        <h1 className="t-card-title font-semibold text-text">Ask for help</h1>
+        <h1 className="t-card-title font-semibold text-text">{t.helpTitle}</h1>
       </header>
 
       <Screen className="px-5">
         {phase === "ask" ? (
           <>
-            <p className="t-body text-text-soft">
-              This tells {helper?.shortName ?? "Sunita"} next door and{" "}
-              {child?.shortName ?? "Aditi"} at the same moment. Nobody else.
-            </p>
+            <p className="t-body text-text-soft">{t.helpIntro(helperName, childName)}</p>
             <button
               onClick={() => {
                 setLeft(10);
@@ -71,10 +72,10 @@ function ParentHelp() {
               className="mx-auto flex size-52 flex-col items-center justify-center gap-2 rounded-full bg-alert text-white shadow-lift"
             >
               <HeartHandshake size={52} aria-hidden />
-              <span className="t-card-title font-semibold">Press for help</span>
+              <span className="t-card-title font-semibold">{t.pressForHelp}</span>
             </button>
             <UCard className="space-y-3">
-              <p className="t-caption text-text-soft">Or just call someone</p>
+              <p className="t-caption text-text-soft">{t.orCall}</p>
               {[helper, child].filter(Boolean).map((p) => (
                 <div key={p!.id} className="flex items-center gap-3">
                   <Avatar initials={p!.initials} size={44} />
@@ -85,7 +86,7 @@ function ParentHelp() {
                       {p!.distance ? ` · ${p!.distance}` : ""}
                     </p>
                   </div>
-                  <UButton variant="secondary" aria-label={`Call ${p!.shortName}`}>
+                  <UButton variant="secondary" aria-label={t.call(p!.shortName)}>
                     <PhoneCall size={20} aria-hidden />
                   </UButton>
                 </div>
@@ -99,10 +100,7 @@ function ParentHelp() {
             <p className="t-hero text-alert" aria-live="assertive">
               {left}
             </p>
-            <p className="t-body text-text-soft">
-              Telling {helper?.shortName ?? "Sunita"} and {child?.shortName ?? "Aditi"} in {left}{" "}
-              seconds.
-            </p>
+            <p className="t-body text-text-soft">{t.tellingIn(helperName, childName, left)}</p>
             <UButton
               variant="secondary"
               size="xl"
@@ -112,7 +110,7 @@ function ParentHelp() {
                 setLeft(10);
               }}
             >
-              I am fine, stop
+              {t.imFineStop}
             </UButton>
           </UCard>
         ) : null}
@@ -120,19 +118,17 @@ function ParentHelp() {
         {phase === "sent" ? (
           <>
             <UCard className="space-y-4">
-              <p className="t-card-title font-semibold text-text">Help is coming</p>
+              <p className="t-card-title font-semibold text-text">{t.helpIsComing}</p>
               <ul className="space-y-3">
-                {(sos?.told ?? [helper?.shortName, child?.shortName]).map((t) => (
-                  <li key={String(t)} className="t-body flex items-center gap-2 text-text">
+                {(sos?.told ?? [helperName, childName]).map((told) => (
+                  <li key={String(told)} className="t-body flex items-center gap-2 text-text">
                     <Check size={20} className="text-sage" aria-hidden />
-                    {t} has been told
+                    {t.hasBeenTold(String(told))}
                   </li>
                 ))}
               </ul>
               <p className="t-body text-text-soft" aria-live="polite">
-                {sos?.state === "on-the-way"
-                  ? `${helper?.shortName ?? "Sunita"} is walking over now.`
-                  : `${helper?.shortName ?? "Sunita"} is 200 metres away.`}
+                {sos?.state === "on-the-way" ? t.walkingOver(helperName) : t.metresAway(helperName)}
               </p>
             </UCard>
             <UButton
@@ -144,7 +140,7 @@ function ParentHelp() {
                 navigate({ to: "/parent/home" });
               }}
             >
-              I am okay now
+              {t.imOkayNow}
             </UButton>
           </>
         ) : null}
