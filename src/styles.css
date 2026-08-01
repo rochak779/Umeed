@@ -155,11 +155,17 @@
 
 @utility card-calm {
   background-color: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 1rem;
+  border: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
+  border-radius: 1.25rem;
   box-shadow:
-    0 1px 2px rgba(47, 52, 55, 0.04),
-    0 8px 24px rgba(47, 52, 55, 0.04);
+    0 1px 2px rgba(23, 28, 31, 0.04),
+    0 6px 18px rgba(23, 28, 31, 0.05);
+}
+
+@utility card-flat {
+  background-color: var(--container-low);
+  border: 1px solid color-mix(in srgb, var(--border) 55%, transparent);
+  border-radius: 1.25rem;
 }
 
 @layer base {
@@ -168,11 +174,12 @@
   }
   html,
   body {
-    background-color: #edebe6;
+    background-color: var(--frame);
     color: var(--text);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
   }
+
   h1,
   h2,
   h3 {
