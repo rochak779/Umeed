@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { Screen, TopBar, UButton, UCard } from "@/components/umeed/primitives";
 import { useUmeed } from "@/state/UmeedProvider";
 import { dayISO } from "@/data/seed";
+import { useParentLang } from "@/i18n/parent";
 
 export const Route = createFileRoute("/parent/speak")({
   head: () => ({
@@ -25,11 +26,12 @@ export const Route = createFileRoute("/parent/speak")({
   component: ParentSpeak,
 });
 
-const HEARD = "One thirty eight over eighty six, pulse seventy four";
-
 function ParentSpeak() {
   const navigate = useNavigate();
-  const { logVital } = useUmeed();
+  const { data, logVital } = useUmeed();
+  const { t } = useParentLang();
+  const childName = data.family.find((p) => p.role === "child")?.shortName ?? "Aditi";
+  const heard = t.heardText;
   const [phase, setPhase] = useState<"idle" | "listening" | "heard">("idle");
   const [typed, setTyped] = useState("");
 
@@ -44,24 +46,22 @@ function ParentSpeak() {
     let i = 0;
     const id = setInterval(() => {
       i += 2;
-      setTyped(HEARD.slice(0, i));
-      if (i >= HEARD.length) clearInterval(id);
+      setTyped(heard.slice(0, i));
+      if (i >= heard.length) clearInterval(id);
     }, 40);
     return () => clearInterval(id);
-  }, [phase]);
+  }, [phase, heard]);
 
   return (
     <>
-      <TopBar title="Say your reading" back="/parent/home" />
+      <TopBar title={t.speakTitle} back="/parent/home" />
       <Screen className="px-5">
-        <p className="t-body text-text-soft">
-          Tap the button and say it simply: “one thirty eight over eighty six”.
-        </p>
+        <p className="t-body text-text-soft">{t.speakHint}</p>
 
         <UCard className="flex flex-col items-center gap-5 py-9">
           <button
             onClick={() => setPhase("listening")}
-            aria-label="Start listening"
+            aria-label={t.startListening}
             className="relative flex size-32 items-center justify-center rounded-full bg-sage text-white"
           >
             {phase === "listening" ? (
@@ -70,11 +70,7 @@ function ParentSpeak() {
             <Mic size={46} aria-hidden />
           </button>
           <p className="t-body text-center text-text-soft" aria-live="polite">
-            {phase === "idle"
-              ? "Ready when you are."
-              : phase === "listening"
-                ? "Listening…"
-                : "This is what I heard."}
+            {phase === "idle" ? t.ready : phase === "listening" ? t.listening : t.whatIHeard}
           </p>
           {phase === "heard" ? (
             <p className="t-card-title px-2 text-center font-medium text-text">“{typed}”</p>
@@ -84,9 +80,9 @@ function ParentSpeak() {
         {phase === "heard" ? (
           <>
             <UCard className="space-y-3">
-              <p className="t-caption text-text-soft">Umeed will save</p>
+              <p className="t-caption text-text-soft">{t.willSave}</p>
               <p className="t-hero text-text">138 / 86</p>
-              <p className="t-body text-text-soft">Pulse 74 beats a minute · this morning</p>
+              <p className="t-body text-text-soft">{t.pulseLine}</p>
             </UCard>
             <UButton
               size="xl"
@@ -101,19 +97,19 @@ function ParentSpeak() {
                   pulse: 74,
                   loggedBy: "voice",
                 });
-                toast.success("Saved. Aditi can see it now.");
+                toast.success(t.savedVoice(childName));
                 navigate({ to: "/parent/home" });
               }}
             >
-              <Check size={24} aria-hidden /> Yes, that is right
+              <Check size={24} aria-hidden /> {t.yesCorrect}
             </UButton>
             <UButton variant="secondary" size="lg" full onClick={() => setPhase("idle")}>
-              Let me say it again
+              {t.sayAgain}
             </UButton>
           </>
         ) : (
-          <UButton variant="ghost" size="lg" full aria-label="Read this out loud">
-            <Volume2 size={22} aria-hidden /> Read this out loud
+          <UButton variant="ghost" size="lg" full aria-label={t.readAloud}>
+            <Volume2 size={22} aria-hidden /> {t.readAloud}
           </UButton>
         )}
       </Screen>

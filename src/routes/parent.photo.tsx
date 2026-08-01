@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { Screen, TopBar, UButton, UCard } from "@/components/umeed/primitives";
 import { useUmeed } from "@/state/UmeedProvider";
 import { dayISO } from "@/data/seed";
+import { useParentLang } from "@/i18n/parent";
 
 export const Route = createFileRoute("/parent/photo")({
   head: () => ({
@@ -27,27 +28,26 @@ export const Route = createFileRoute("/parent/photo")({
 function ParentPhoto() {
   const navigate = useNavigate();
   const { logVital } = useUmeed();
+  const { t } = useParentLang();
   const [phase, setPhase] = useState<"aim" | "reading" | "found">("aim");
 
   useEffect(() => {
     if (phase !== "reading") return;
-    const t = setTimeout(() => setPhase("found"), 1800);
-    return () => clearTimeout(t);
+    const timer = setTimeout(() => setPhase("found"), 1800);
+    return () => clearTimeout(timer);
   }, [phase]);
 
   return (
     <>
-      <TopBar title="Take a photo" back="/parent/home" />
+      <TopBar title={t.photoTitle} back="/parent/home" />
       <Screen className="px-5">
-        <p className="t-body text-text-soft">
-          Hold the phone flat over the screen of your machine. Good light helps.
-        </p>
+        <p className="t-body text-text-soft">{t.photoHint}</p>
 
         <div className="relative aspect-[4/3] overflow-hidden rounded-[1rem] border border-line bg-text/90">
           <div className="absolute inset-8 rounded-[0.75rem] border-2 border-white/70" aria-hidden />
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-white">
             <p className="t-hero">138 / 86</p>
-            <p className="t-caption opacity-80">Pulse 74</p>
+            <p className="t-caption opacity-80">{t.pulseLine.split("·")[0]?.trim()}</p>
           </div>
           {phase === "reading" ? (
             <span
@@ -58,21 +58,17 @@ function ParentPhoto() {
         </div>
 
         <p className="t-body text-center text-text-soft" aria-live="polite">
-          {phase === "aim"
-            ? "Ready when you are."
-            : phase === "reading"
-              ? "Reading the numbers…"
-              : "Found the numbers."}
+          {phase === "aim" ? t.ready : phase === "reading" ? t.readingNumbers : t.foundNumbers}
         </p>
 
         {phase === "found" ? (
           <>
             <UCard className="space-y-3">
               <p className="t-caption flex items-center gap-2 text-text-soft">
-                <ScanLine size={16} aria-hidden /> Read from your photo
+                <ScanLine size={16} aria-hidden /> {t.readFromPhoto}
               </p>
               <p className="t-hero text-text">138 / 86</p>
-              <p className="t-body text-text-soft">Pulse 74 beats a minute · this morning</p>
+              <p className="t-body text-text-soft">{t.pulseLine}</p>
             </UCard>
             <UButton
               size="xl"
@@ -87,19 +83,19 @@ function ParentPhoto() {
                   pulse: 74,
                   loggedBy: "photo",
                 });
-                toast.success("Saved from your photo.");
+                toast.success(t.savedPhoto);
                 navigate({ to: "/parent/home" });
               }}
             >
-              <Check size={24} aria-hidden /> Yes, that is right
+              <Check size={24} aria-hidden /> {t.yesCorrect}
             </UButton>
             <UButton variant="secondary" size="lg" full onClick={() => setPhase("aim")}>
-              Take it again
+              {t.takeAgain}
             </UButton>
           </>
         ) : (
           <UButton size="xl" full onClick={() => setPhase("reading")}>
-            <Camera size={24} aria-hidden /> Take the photo
+            <Camera size={24} aria-hidden /> {t.takeThePhoto}
           </UButton>
         )}
       </Screen>
