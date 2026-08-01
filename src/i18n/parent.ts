@@ -99,6 +99,18 @@ const en = {
   walkingOver: (helper: string) => `${helper} is walking over now.`,
   metresAway: (helper: string) => `${helper} is 200 metres away.`,
   imOkayNow: "I am okay now",
+
+  // profile
+  myDetails: "My details",
+  fullName: "Full name",
+  age: "Age",
+  phone: "Phone number",
+  email: "Email",
+  readingLanguage: "Language I read best",
+  saveChanges: "Save changes",
+  nameNeeded: "Please keep your name here.",
+  detailsSaved: "Saved. Your details are updated.",
+  detailsPrivate: "Only your family plan can see these details.",
 };
 
 type Dict = typeof en;
@@ -182,6 +194,17 @@ const hi: Dict = {
   walkingOver: (helper: string) => `${helper} अभी चलकर आ रही हैं।`,
   metresAway: (helper: string) => `${helper} 200 मीटर दूर हैं।`,
   imOkayNow: "मैं अब ठीक हूँ",
+
+  myDetails: "मेरी जानकारी",
+  fullName: "पूरा नाम",
+  age: "उम्र",
+  phone: "फ़ोन नंबर",
+  email: "ईमेल",
+  readingLanguage: "जो भाषा मैं सबसे अच्छी पढ़ती हूँ",
+  saveChanges: "बदलाव सहेजिए",
+  nameNeeded: "कृपया अपना नाम रहने दीजिए।",
+  detailsSaved: "सहेज लिया। आपकी जानकारी बदल गई है।",
+  detailsPrivate: "यह जानकारी सिर्फ़ आपके परिवार को दिखती है।",
 };
 
 const DICTS: Record<ParentLocale, Dict> = { en, hi };

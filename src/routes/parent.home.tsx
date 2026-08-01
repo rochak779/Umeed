@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Camera, Check, Clock, HeartHandshake, Mic, Pill, Users, Volume2 } from "lucide-react";
+import { Camera, Check, Clock, HeartHandshake, Mic, Pill, UserRound, Volume2 } from "lucide-react";
 import { toast } from "sonner";
 import { Screen, UButton, UCard } from "@/components/umeed/primitives";
 import { Wordmark } from "@/components/umeed/Wordmark";
@@ -39,11 +39,11 @@ function ParentHome() {
       <header className="flex items-center justify-between px-5 pt-7">
         <Wordmark />
         <Link
-          to="/parent/help"
-          aria-label={t.family}
+          to="/parent/profile"
+          aria-label={t.myDetails}
           className="flex size-14 items-center justify-center rounded-full bg-container-high text-text"
         >
-          <Users size={26} aria-hidden />
+          <UserRound size={26} aria-hidden />
         </Link>
       </header>
 
