@@ -22,17 +22,18 @@ type ButtonVariant = "primary" | "secondary" | "ghost" | "danger";
 type ButtonSize = "md" | "lg" | "xl";
 
 const variantClass: Record<ButtonVariant, string> = {
-  primary: "bg-sage text-white border border-sage active:bg-sage-dark",
-  secondary: "bg-surface text-sage border border-sage active:bg-sage-tint",
-  ghost: "bg-transparent text-text-soft border border-transparent active:bg-sage-tint",
-  danger: "bg-critical/10 text-critical border border-critical/40 active:bg-critical/20",
+  primary: "bg-sage text-white border border-sage shadow-calm active:bg-sage-dark",
+  secondary: "bg-surface text-trust border-2 border-trust active:bg-trust-tint",
+  ghost: "bg-transparent text-text-soft border border-transparent active:bg-container",
+  danger: "bg-critical-tint text-critical border border-critical/25 active:bg-critical/20",
 };
 
 const sizeClass: Record<ButtonSize, string> = {
-  md: "min-h-12 px-4",
+  md: "min-h-12 px-5",
   lg: "min-h-14 px-6",
   xl: "min-h-16 px-6",
 };
+
 
 export function UButton({
   variant = "primary",
