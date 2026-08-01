@@ -36,10 +36,6 @@ function PersonaChooser() {
     navigate({ to: data.onboardingDone ? "/child/home" : "/child/onboarding" });
   };
 
-  const chooseParent = () => {
-    setPersona("parent");
-    navigate({ to: data.parentOnboarded ? "/parent/home" : "/parent/login" });
-  };
 
   return (
     <main className="flex flex-1 flex-col px-6 pb-8 pt-16">
@@ -78,23 +74,6 @@ function PersonaChooser() {
           <ChevronRight aria-hidden size={22} className="text-sage" />
         </motion.button>
 
-        <motion.button
-          onClick={chooseParent}
-          whileTap={{ scale: 0.98 }}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.16, duration: 0.35 }}
-          className="card-calm flex w-full items-center gap-4 p-4 text-left"
-        >
-          <Avatar initials="AN" size={56} tone="marigold" />
-          <span className="min-w-0 flex-1">
-            <span className="t-card-title block font-semibold text-text">I am the parent</span>
-            <span className="t-caption block text-text-soft">
-              Anuradha, 68 · Kota · big buttons, voice first
-            </span>
-          </span>
-          <ChevronRight aria-hidden size={22} className="text-sage" />
-        </motion.button>
       </div>
 
       <div className="mt-8 space-y-4 rounded-[1rem] border border-line bg-sage-tint/60 p-4">
