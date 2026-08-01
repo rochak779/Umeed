@@ -365,7 +365,7 @@ export function DotStrip({
 
 export function WhyPanel({ lines }: { lines: string[] }) {
   return (
-    <details className="mt-4 rounded-[0.875rem] border border-line bg-bg px-4 py-3">
+    <details className="mt-4 rounded-[1.25rem] border border-line/50 bg-container-low px-4 py-3">
       <summary className="t-body flex min-h-12 cursor-pointer list-none items-center justify-between font-medium text-trust">
         Why we are saying this
         <span aria-hidden className="t-caption text-text-soft">
