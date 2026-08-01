@@ -81,13 +81,73 @@ function PersonRow({
 }
 
 
+const LANGUAGES = ["English", "हिन्दी", "मराठी", "தமிழ்", "తెలుగు", "ಕನ್ನಡ", "বাংলা"];
+
+type Draft = {
+  name: string;
+  shortName: string;
+  relationship: string;
+  age: string;
+  city: string;
+  phone: string;
+  language: string;
+};
+
 function Family() {
-  const { data } = useUmeed();
+  const { data, updatePerson } = useUmeed();
   const [ladder, setLadder] = useState(false);
+  const [editId, setEditId] = useState<string | null>(null);
+  const [draft, setDraft] = useState<Draft | null>(null);
   const parents = data.family.filter((p) => p.role === "parent");
   const siblings = data.family.filter((p) => p.role === "sibling");
   const helper = data.family.find((p) => p.role === "helper");
   const you = data.family.find((p) => p.role === "child")!;
+
+  const openEdit = (id: string) => {
+    const p = data.family.find((m) => m.id === id);
+    if (!p) return;
+    setEditId(id);
+    setDraft({
+      name: p.name,
+      shortName: p.shortName,
+      relationship: p.relationship,
+      age: String(p.age),
+      city: p.city,
+      phone: p.phone,
+      language: p.language ?? "English",
+    });
+  };
+
+  const closeEdit = () => {
+    setEditId(null);
+    setDraft(null);
+  };
+
+  const saveEdit = () => {
+    if (!editId || !draft) return;
+    const trimmed = draft.name.trim();
+    if (!trimmed) {
+      toast.error("A name is needed");
+      return;
+    }
+    updatePerson(editId, {
+      name: trimmed,
+      shortName: draft.shortName.trim() || trimmed.split(" ")[0]!,
+      relationship: draft.relationship.trim(),
+      age: Number(draft.age) || 0,
+      city: draft.city.trim(),
+      phone: draft.phone.trim(),
+      language: draft.language,
+      initials: trimmed
+        .split(" ")
+        .filter(Boolean)
+        .slice(0, 2)
+        .map((w) => w[0]!.toUpperCase())
+        .join(""),
+    });
+    toast.success(`${trimmed} updated`);
+    closeEdit();
+  };
 
   return (
     <>
