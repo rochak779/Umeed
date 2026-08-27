@@ -13,7 +13,10 @@ export type CareCircleStatus = z.infer<typeof CareCircleStatusSchema>;
 export const CareCircleSchema = z.object({
   id: z.string().min(1),
   name: z.string().min(1),
-  olderAdultId: z.string().min(1),
+  // Null until the invited older adult registers/signs in and accepts
+  // (Implementation.md §7.3): their account id is not known when the
+  // coordinator starts the circle.
+  olderAdultId: z.string().min(1).nullable(),
   coordinatorId: z.string().min(1),
   status: CareCircleStatusSchema,
   createdAt: z.string().datetime(),
