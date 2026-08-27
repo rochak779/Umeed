@@ -1,8 +1,10 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect } from "react";
-import { LogOut, Shield, Users } from "lucide-react";
-import { Screen, TopBar, UCard } from "@/components/umeed/primitives";
+import { useEffect, useState } from "react";
+import { CalendarClock, LogOut, Shield, Users } from "lucide-react";
+import { Screen, SectionHeader, TopBar, UCard } from "@/components/umeed/primitives";
 import { useSession } from "@/features/authentication/SessionContext";
+import { container } from "@/features/authentication/container";
+import { getRecentActivity, type ActivityItem } from "@/application/use-cases/getRecentActivity";
 
 export const Route = createFileRoute("/app/")({
   head: () => ({ meta: [{ title: "Umeed" }] }),
@@ -25,12 +27,29 @@ const roleLabel: Record<string, string> = {
 function AppHome() {
   const navigate = useNavigate();
   const { loading, profile, memberships, signOut } = useSession();
+  const [activity, setActivity] = useState<ActivityItem[]>([]);
 
   useEffect(() => {
-    if (!loading && memberships.length === 0) {
+    const circleId = memberships[0]?.circle.id;
+    if (!circleId) return;
+    void getRecentActivity(
+      { audit: container.auditRepository },
+      { careCircleId: circleId, limit: 5 },
+    ).then(setActivity);
+  }, [memberships]);
+
+  useEffect(() => {
+    if (loading) return;
+    if (memberships.length === 0) {
       navigate({ to: "/onboarding" });
+      return;
     }
-  }, [loading, memberships, navigate]);
+    // The older adult's experience is deliberately its own, much simpler
+    // screen (Implementation.md §7.4) — she never lands on this dashboard.
+    if (memberships.some((m) => m.circle.olderAdultId === profile?.id)) {
+      navigate({ to: "/app/older-adult/home" });
+    }
+  }, [loading, memberships, profile, navigate]);
 
   if (loading || memberships.length === 0) {
     return (
@@ -79,6 +98,17 @@ function AppHome() {
           </UCard>
         </Link>
 
+        {memberships.some((m) => m.member.responderType === "coordinator") ? (
+          <Link to="/app/routines" className="block">
+            <UCard className="flex items-center gap-3">
+              <span className="flex size-10 items-center justify-center rounded-full bg-marigold-tint text-marigold">
+                <CalendarClock aria-hidden size={20} />
+              </span>
+              <span className="t-body font-medium text-text">Routines</span>
+            </UCard>
+          </Link>
+        ) : null}
+
         {memberships.some((m) => m.circle.olderAdultId === profile?.id) ? (
           <Link to="/app/consent" className="block">
             <UCard className="flex items-center gap-3">
@@ -88,6 +118,22 @@ function AppHome() {
               <span className="t-body font-medium text-text">Privacy &amp; consent</span>
             </UCard>
           </Link>
+        ) : null}
+
+        {activity.length > 0 ? (
+          <div>
+            <SectionHeader title="Recent activity" />
+            <div className="space-y-2">
+              {activity.map((item) => (
+                <UCard key={item.id} className="py-3">
+                  <p className="t-body text-text">{item.label}</p>
+                  <p className="t-caption text-text-soft">
+                    {new Date(item.timestamp).toLocaleString("en-GB")}
+                  </p>
+                </UCard>
+              ))}
+            </div>
+          </div>
         ) : null}
 
         <p className="t-caption text-center text-text-soft">

@@ -20,7 +20,9 @@ import { Route as VerifyEmailRouteImport } from './routes/verify-email'
 import { Route as AppIndexRouteImport } from './routes/app.index'
 import { Route as AppCircleRouteImport } from './routes/app.circle'
 import { Route as AppConsentRouteImport } from './routes/app.consent'
+import { Route as AppRoutinesRouteImport } from './routes/app.routines'
 import { Route as InviteTokenRouteImport } from './routes/invite.$token'
+import { Route as AppOlderAdultHomeRouteImport } from './routes/app.older-adult.home'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -77,10 +79,20 @@ const AppConsentRoute = AppConsentRouteImport.update({
   path: '/consent',
   getParentRoute: () => AppRoute,
 } as any)
+const AppRoutinesRoute = AppRoutinesRouteImport.update({
+  id: '/routines',
+  path: '/routines',
+  getParentRoute: () => AppRoute,
+} as any)
 const InviteTokenRoute = InviteTokenRouteImport.update({
   id: '/invite/$token',
   path: '/invite/$token',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AppOlderAdultHomeRoute = AppOlderAdultHomeRouteImport.update({
+  id: '/older-adult/home',
+  path: '/older-adult/home',
+  getParentRoute: () => AppRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
@@ -94,8 +106,10 @@ export interface FileRoutesByFullPath {
   '/verify-email': typeof VerifyEmailRoute
   '/app/circle': typeof AppCircleRoute
   '/app/consent': typeof AppConsentRoute
+  '/app/routines': typeof AppRoutinesRoute
   '/invite/$token': typeof InviteTokenRoute
   '/app/': typeof AppIndexRoute
+  '/app/older-adult/home': typeof AppOlderAdultHomeRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -107,8 +121,10 @@ export interface FileRoutesByTo {
   '/verify-email': typeof VerifyEmailRoute
   '/app/circle': typeof AppCircleRoute
   '/app/consent': typeof AppConsentRoute
+  '/app/routines': typeof AppRoutinesRoute
   '/invite/$token': typeof InviteTokenRoute
   '/app': typeof AppIndexRoute
+  '/app/older-adult/home': typeof AppOlderAdultHomeRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -122,8 +138,10 @@ export interface FileRoutesById {
   '/verify-email': typeof VerifyEmailRoute
   '/app/circle': typeof AppCircleRoute
   '/app/consent': typeof AppConsentRoute
+  '/app/routines': typeof AppRoutinesRoute
   '/invite/$token': typeof InviteTokenRoute
   '/app/': typeof AppIndexRoute
+  '/app/older-adult/home': typeof AppOlderAdultHomeRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -138,8 +156,10 @@ export interface FileRouteTypes {
     | '/verify-email'
     | '/app/circle'
     | '/app/consent'
+    | '/app/routines'
     | '/invite/$token'
     | '/app/'
+    | '/app/older-adult/home'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -151,8 +171,10 @@ export interface FileRouteTypes {
     | '/verify-email'
     | '/app/circle'
     | '/app/consent'
+    | '/app/routines'
     | '/invite/$token'
     | '/app'
+    | '/app/older-adult/home'
   id:
     | '__root__'
     | '/'
@@ -165,8 +187,10 @@ export interface FileRouteTypes {
     | '/verify-email'
     | '/app/circle'
     | '/app/consent'
+    | '/app/routines'
     | '/invite/$token'
     | '/app/'
+    | '/app/older-adult/home'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -260,6 +284,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppConsentRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/routines': {
+      id: '/app/routines'
+      path: '/routines'
+      fullPath: '/app/routines'
+      preLoaderRoute: typeof AppRoutinesRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/invite/$token': {
       id: '/invite/$token'
       path: '/invite/$token'
@@ -267,19 +298,30 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof InviteTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/app/older-adult/home': {
+      id: '/app/older-adult/home'
+      path: '/older-adult/home'
+      fullPath: '/app/older-adult/home'
+      preLoaderRoute: typeof AppOlderAdultHomeRouteImport
+      parentRoute: typeof AppRoute
+    }
   }
 }
 
 interface AppRouteChildren {
   AppCircleRoute: typeof AppCircleRoute
   AppConsentRoute: typeof AppConsentRoute
+  AppRoutinesRoute: typeof AppRoutinesRoute
   AppIndexRoute: typeof AppIndexRoute
+  AppOlderAdultHomeRoute: typeof AppOlderAdultHomeRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
   AppCircleRoute: AppCircleRoute,
   AppConsentRoute: AppConsentRoute,
+  AppRoutinesRoute: AppRoutinesRoute,
   AppIndexRoute: AppIndexRoute,
+  AppOlderAdultHomeRoute: AppOlderAdultHomeRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
