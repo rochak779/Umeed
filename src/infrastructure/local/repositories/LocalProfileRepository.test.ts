@@ -9,6 +9,7 @@ function makeProfile(overrides: Partial<UserProfile> = {}): UserProfile {
     displayName: "Sarah",
     preferredName: "Sarah",
     phone: null,
+    address: null,
     email: "sarah@example.com",
     timezone: "Europe/London",
     locale: "en-GB",

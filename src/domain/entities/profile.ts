@@ -19,6 +19,7 @@ export const UserProfileSchema = z.object({
   displayName: z.string().min(1),
   preferredName: z.string().min(1),
   phone: z.string().nullable(),
+  address: z.string().nullable(),
   email: z.string().email(),
   timezone: z.string().min(1),
   locale: z.string().min(1),

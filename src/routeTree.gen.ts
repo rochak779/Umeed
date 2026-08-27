@@ -18,6 +18,8 @@ import { Route as SignInRouteImport } from './routes/sign-in'
 import { Route as SignUpRouteImport } from './routes/sign-up'
 import { Route as VerifyEmailRouteImport } from './routes/verify-email'
 import { Route as AppIndexRouteImport } from './routes/app.index'
+import { Route as AppCircleRouteImport } from './routes/app.circle'
+import { Route as AppConsentRouteImport } from './routes/app.consent'
 import { Route as InviteTokenRouteImport } from './routes/invite.$token'
 
 const IndexRoute = IndexRouteImport.update({
@@ -65,6 +67,16 @@ const AppIndexRoute = AppIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AppRoute,
 } as any)
+const AppCircleRoute = AppCircleRouteImport.update({
+  id: '/circle',
+  path: '/circle',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppConsentRoute = AppConsentRouteImport.update({
+  id: '/consent',
+  path: '/consent',
+  getParentRoute: () => AppRoute,
+} as any)
 const InviteTokenRoute = InviteTokenRouteImport.update({
   id: '/invite/$token',
   path: '/invite/$token',
@@ -80,6 +92,8 @@ export interface FileRoutesByFullPath {
   '/sign-in': typeof SignInRoute
   '/sign-up': typeof SignUpRoute
   '/verify-email': typeof VerifyEmailRoute
+  '/app/circle': typeof AppCircleRoute
+  '/app/consent': typeof AppConsentRoute
   '/invite/$token': typeof InviteTokenRoute
   '/app/': typeof AppIndexRoute
 }
@@ -91,6 +105,8 @@ export interface FileRoutesByTo {
   '/sign-in': typeof SignInRoute
   '/sign-up': typeof SignUpRoute
   '/verify-email': typeof VerifyEmailRoute
+  '/app/circle': typeof AppCircleRoute
+  '/app/consent': typeof AppConsentRoute
   '/invite/$token': typeof InviteTokenRoute
   '/app': typeof AppIndexRoute
 }
@@ -104,6 +120,8 @@ export interface FileRoutesById {
   '/sign-in': typeof SignInRoute
   '/sign-up': typeof SignUpRoute
   '/verify-email': typeof VerifyEmailRoute
+  '/app/circle': typeof AppCircleRoute
+  '/app/consent': typeof AppConsentRoute
   '/invite/$token': typeof InviteTokenRoute
   '/app/': typeof AppIndexRoute
 }
@@ -118,6 +136,8 @@ export interface FileRouteTypes {
     | '/sign-in'
     | '/sign-up'
     | '/verify-email'
+    | '/app/circle'
+    | '/app/consent'
     | '/invite/$token'
     | '/app/'
   fileRoutesByTo: FileRoutesByTo
@@ -129,6 +149,8 @@ export interface FileRouteTypes {
     | '/sign-in'
     | '/sign-up'
     | '/verify-email'
+    | '/app/circle'
+    | '/app/consent'
     | '/invite/$token'
     | '/app'
   id:
@@ -141,6 +163,8 @@ export interface FileRouteTypes {
     | '/sign-in'
     | '/sign-up'
     | '/verify-email'
+    | '/app/circle'
+    | '/app/consent'
     | '/invite/$token'
     | '/app/'
   fileRoutesById: FileRoutesById
@@ -222,6 +246,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppIndexRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/circle': {
+      id: '/app/circle'
+      path: '/circle'
+      fullPath: '/app/circle'
+      preLoaderRoute: typeof AppCircleRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/consent': {
+      id: '/app/consent'
+      path: '/consent'
+      fullPath: '/app/consent'
+      preLoaderRoute: typeof AppConsentRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/invite/$token': {
       id: '/invite/$token'
       path: '/invite/$token'
@@ -233,10 +271,14 @@ declare module '@tanstack/react-router' {
 }
 
 interface AppRouteChildren {
+  AppCircleRoute: typeof AppCircleRoute
+  AppConsentRoute: typeof AppConsentRoute
   AppIndexRoute: typeof AppIndexRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
+  AppCircleRoute: AppCircleRoute,
+  AppConsentRoute: AppConsentRoute,
   AppIndexRoute: AppIndexRoute,
 }
 

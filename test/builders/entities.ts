@@ -26,6 +26,7 @@ export function buildUserProfile(overrides: Partial<UserProfile> = {}): UserProf
     displayName: "Test User",
     preferredName: "Test",
     phone: null,
+    address: null,
     email: "test@example.com",
     timezone: "Europe/London",
     locale: "en-GB",

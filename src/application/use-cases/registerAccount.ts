@@ -28,6 +28,7 @@ export async function registerAccount(
     displayName: input.displayName,
     preferredName: input.displayName,
     phone: null,
+    address: null,
     email: input.email,
     timezone: "Europe/London",
     locale: "en-GB",
