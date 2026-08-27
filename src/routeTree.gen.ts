@@ -18,6 +18,7 @@ import { Route as SignInRouteImport } from './routes/sign-in'
 import { Route as SignUpRouteImport } from './routes/sign-up'
 import { Route as VerifyEmailRouteImport } from './routes/verify-email'
 import { Route as AppIndexRouteImport } from './routes/app.index'
+import { Route as AppAlertsRouteImport } from './routes/app.alerts'
 import { Route as AppCircleRouteImport } from './routes/app.circle'
 import { Route as AppConsentRouteImport } from './routes/app.consent'
 import { Route as AppRoutinesRouteImport } from './routes/app.routines'
@@ -69,6 +70,11 @@ const AppIndexRoute = AppIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AppRoute,
 } as any)
+const AppAlertsRoute = AppAlertsRouteImport.update({
+  id: '/alerts',
+  path: '/alerts',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppCircleRoute = AppCircleRouteImport.update({
   id: '/circle',
   path: '/circle',
@@ -104,6 +110,7 @@ export interface FileRoutesByFullPath {
   '/sign-in': typeof SignInRoute
   '/sign-up': typeof SignUpRoute
   '/verify-email': typeof VerifyEmailRoute
+  '/app/alerts': typeof AppAlertsRoute
   '/app/circle': typeof AppCircleRoute
   '/app/consent': typeof AppConsentRoute
   '/app/routines': typeof AppRoutinesRoute
@@ -119,6 +126,7 @@ export interface FileRoutesByTo {
   '/sign-in': typeof SignInRoute
   '/sign-up': typeof SignUpRoute
   '/verify-email': typeof VerifyEmailRoute
+  '/app/alerts': typeof AppAlertsRoute
   '/app/circle': typeof AppCircleRoute
   '/app/consent': typeof AppConsentRoute
   '/app/routines': typeof AppRoutinesRoute
@@ -136,6 +144,7 @@ export interface FileRoutesById {
   '/sign-in': typeof SignInRoute
   '/sign-up': typeof SignUpRoute
   '/verify-email': typeof VerifyEmailRoute
+  '/app/alerts': typeof AppAlertsRoute
   '/app/circle': typeof AppCircleRoute
   '/app/consent': typeof AppConsentRoute
   '/app/routines': typeof AppRoutinesRoute
@@ -154,6 +163,7 @@ export interface FileRouteTypes {
     | '/sign-in'
     | '/sign-up'
     | '/verify-email'
+    | '/app/alerts'
     | '/app/circle'
     | '/app/consent'
     | '/app/routines'
@@ -169,6 +179,7 @@ export interface FileRouteTypes {
     | '/sign-in'
     | '/sign-up'
     | '/verify-email'
+    | '/app/alerts'
     | '/app/circle'
     | '/app/consent'
     | '/app/routines'
@@ -185,6 +196,7 @@ export interface FileRouteTypes {
     | '/sign-in'
     | '/sign-up'
     | '/verify-email'
+    | '/app/alerts'
     | '/app/circle'
     | '/app/consent'
     | '/app/routines'
@@ -270,6 +282,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppIndexRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/alerts': {
+      id: '/app/alerts'
+      path: '/alerts'
+      fullPath: '/app/alerts'
+      preLoaderRoute: typeof AppAlertsRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/circle': {
       id: '/app/circle'
       path: '/circle'
@@ -309,6 +328,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AppRouteChildren {
+  AppAlertsRoute: typeof AppAlertsRoute
   AppCircleRoute: typeof AppCircleRoute
   AppConsentRoute: typeof AppConsentRoute
   AppRoutinesRoute: typeof AppRoutinesRoute
@@ -317,6 +337,7 @@ interface AppRouteChildren {
 }
 
 const AppRouteChildren: AppRouteChildren = {
+  AppAlertsRoute: AppAlertsRoute,
   AppCircleRoute: AppCircleRoute,
   AppConsentRoute: AppConsentRoute,
   AppRoutinesRoute: AppRoutinesRoute,

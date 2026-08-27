@@ -1,10 +1,11 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { CalendarClock, LogOut, Shield, Users } from "lucide-react";
+import { AlertTriangle, CalendarClock, LogOut, Shield, Users } from "lucide-react";
 import { Screen, SectionHeader, TopBar, UCard } from "@/components/umeed/primitives";
 import { useSession } from "@/features/authentication/SessionContext";
 import { container } from "@/features/authentication/container";
 import { getRecentActivity, type ActivityItem } from "@/application/use-cases/getRecentActivity";
+import { getAlertsForCircle, type AlertView } from "@/application/use-cases/getAlertsForCircle";
 
 export const Route = createFileRoute("/app/")({
   head: () => ({ meta: [{ title: "Umeed" }] }),
@@ -28,6 +29,7 @@ function AppHome() {
   const navigate = useNavigate();
   const { loading, profile, memberships, signOut } = useSession();
   const [activity, setActivity] = useState<ActivityItem[]>([]);
+  const [openAlerts, setOpenAlerts] = useState<AlertView[]>([]);
 
   useEffect(() => {
     const circleId = memberships[0]?.circle.id;
@@ -36,6 +38,16 @@ function AppHome() {
       { audit: container.auditRepository },
       { careCircleId: circleId, limit: 5 },
     ).then(setActivity);
+    void getAlertsForCircle(
+      {
+        alerts: container.alertRepository,
+        careCircles: container.careCircleRepository,
+        profiles: container.profileRepository,
+      },
+      { careCircleId: circleId },
+    ).then((all) =>
+      setOpenAlerts(all.filter((a) => !["resolved", "unresolved", "cancelled"].includes(a.status))),
+    );
   }, [memberships]);
 
   useEffect(() => {
@@ -77,6 +89,26 @@ function AppHome() {
         }
       />
       <Screen>
+        {openAlerts.length > 0 ? (
+          <Link to="/app/alerts" className="block">
+            <UCard className="flex items-center gap-3 border-critical/40 bg-critical-tint">
+              <AlertTriangle className="text-critical" size={22} aria-hidden />
+              <span>
+                <span className="t-body block font-semibold text-critical">
+                  {openAlerts.length === 1
+                    ? "1 active alert"
+                    : `${openAlerts.length} active alerts`}
+                </span>
+                <span className="t-caption text-critical">
+                  {openAlerts.some((a) => a.status === "claimed")
+                    ? `${openAlerts.find((a) => a.status === "claimed")?.claimedByName ?? "Someone"} is handling it`
+                    : "Needs someone to respond"}
+                </span>
+              </span>
+            </UCard>
+          </Link>
+        ) : null}
+
         {memberships.map(({ circle, member }) => (
           <UCard key={circle.id} className="space-y-1">
             <p className="t-card-title font-semibold text-text">{circle.name}</p>
