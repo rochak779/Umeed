@@ -8,7 +8,8 @@ import { useSession } from "@/features/authentication/SessionContext";
 import { getAlertsForCircle, type AlertView } from "@/application/use-cases/getAlertsForCircle";
 import { claimAlert } from "@/application/use-cases/claimAlert";
 import { resolveAlert } from "@/application/use-cases/resolveAlert";
-import type { ResolutionCode } from "@/domain/entities/alert";
+import type { AlertRecipient, DeliveryStatus, ResolutionCode } from "@/domain/entities/alert";
+import type { ResponderType } from "@/domain/entities/careCircle";
 
 export const Route = createFileRoute("/app/alerts")({
   head: () => ({ meta: [{ title: "Alerts — Umeed" }] }),
@@ -24,24 +25,73 @@ const resolutionOptions: { value: ResolutionCode; label: string }[] = [
   { value: "false_or_accidental", label: "False or accidental alert" },
 ];
 
+const responderTypeLabel: Record<ResponderType, string> = {
+  older_adult: "older adult",
+  coordinator: "coordinator",
+  family: "family",
+  nearby_responder: "nearby responder",
+};
+
+function deliveryStatusLabel(status: DeliveryStatus): string {
+  switch (status) {
+    case "queued":
+      return "Queued";
+    case "sent":
+      return "Sent";
+    case "delivered":
+      return "Delivered";
+    case "failed":
+      return "Delivery failed";
+    case "accepted":
+      return "Accepted";
+    case "declined":
+      return "Declined";
+    default:
+      return status;
+  }
+}
+
 function AlertsScreen() {
   const { session, memberships } = useSession();
   const circleId = memberships[0]?.circle.id;
   const [alerts, setAlerts] = useState<AlertView[]>([]);
   const [resolvingId, setResolvingId] = useState<string | null>(null);
+  const [recipientsByAlert, setRecipientsByAlert] = useState<Record<string, AlertRecipient[]>>({});
+  const [memberLabels, setMemberLabels] = useState<Record<string, string>>({});
+
+  const memberName = (circleMemberId: string): string => memberLabels[circleMemberId] ?? "Someone";
 
   const load = async () => {
     if (!circleId) return;
-    setAlerts(
-      await getAlertsForCircle(
-        {
-          alerts: container.alertRepository,
-          careCircles: container.careCircleRepository,
-          profiles: container.profileRepository,
-        },
-        { careCircleId: circleId },
+    const views = await getAlertsForCircle(
+      {
+        alerts: container.alertRepository,
+        careCircles: container.careCircleRepository,
+        profiles: container.profileRepository,
+      },
+      { careCircleId: circleId },
+    );
+    setAlerts(views);
+
+    const openAlerts = views.filter(
+      (a) => !["resolved", "unresolved", "cancelled"].includes(a.status),
+    );
+
+    const members = await container.careCircleRepository.findMembers(circleId);
+    const labelByMemberId: Record<string, string> = {};
+    for (const m of members) {
+      const profile = await container.profileRepository.findById(m.userId);
+      labelByMemberId[m.id] =
+        `${profile?.preferredName ?? m.relationship} (${responderTypeLabel[m.responderType]})`;
+    }
+    setMemberLabels(labelByMemberId);
+
+    const recipientEntries = await Promise.all(
+      openAlerts.map(
+        async (a) => [a.id, await container.alertRepository.findRecipients(a.id)] as const,
       ),
     );
+    setRecipientsByAlert(Object.fromEntries(recipientEntries));
   };
 
   useEffect(() => {
@@ -171,6 +221,32 @@ function AlertsScreen() {
                 </a>
               </div>
             ) : null}
+
+            <p className="t-caption text-text-soft">Escalation stage {alert.currentStage}</p>
+
+            <div className="space-y-2">
+              <h3 className="t-caption text-text-soft">Who's been contacted</h3>
+              <ul className="space-y-1">
+                {(recipientsByAlert[alert.id] ?? []).map((r) => (
+                  <li key={r.id} className="t-body flex items-center justify-between gap-2">
+                    <span>
+                      {memberName(r.circleMemberId)} · stage {r.stage} · {r.channel}
+                    </span>
+                    <span
+                      className={
+                        r.deliveryStatus === "failed"
+                          ? "t-caption text-critical"
+                          : r.deliveryStatus === "accepted" || r.deliveryStatus === "declined"
+                            ? "t-caption text-text"
+                            : "t-caption text-text-soft"
+                      }
+                    >
+                      {deliveryStatusLabel(r.deliveryStatus)}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </UCard>
         ))}
 
