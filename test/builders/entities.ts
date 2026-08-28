@@ -15,8 +15,13 @@ import type {
   Routine,
   RoutineOccurrence,
 } from "../../src/domain/entities/routine";
-import type { Alert } from "../../src/domain/entities/alert";
+import type { Alert, CommunicationEvent } from "../../src/domain/entities/alert";
 import type { Invitation } from "../../src/domain/entities/invitation";
+import type {
+  AuditEvent,
+  ConsentRecord,
+  NotificationPreference,
+} from "../../src/domain/entities/consent";
 
 const NOW = "2026-01-01T00:00:00.000Z";
 
@@ -192,6 +197,76 @@ export function buildAlert(overrides: Partial<Alert> = {}): Alert {
     resolvedBy: null,
     resolutionCode: null,
     resolutionNote: null,
+    updatedAt: NOW,
+    ...overrides,
+  };
+}
+
+export function buildConsentRecord(overrides: Partial<ConsentRecord> = {}): ConsentRecord {
+  return {
+    id: "consent-1",
+    careCircleId: "circle-1",
+    subjectUserId: "older-adult-1",
+    consentType: "circle_participation",
+    policyVersion: "1.0",
+    status: "granted",
+    grantedAt: NOW,
+    revokedAt: null,
+    recordedBy: "coordinator-1",
+    ...overrides,
+  };
+}
+
+export function buildNotificationPreference(
+  overrides: Partial<NotificationPreference> = {},
+): NotificationPreference {
+  return {
+    id: "pref-1",
+    userId: "user-1",
+    careCircleId: "circle-1",
+    channel: "in_app",
+    enabled: true,
+    quietHoursStart: null,
+    quietHoursEnd: null,
+    timezone: "Europe/London",
+    urgentAlertsOverrideQuietHours: true,
+    createdAt: NOW,
+    updatedAt: NOW,
+    ...overrides,
+  };
+}
+
+export function buildAuditEvent(overrides: Partial<AuditEvent> = {}): AuditEvent {
+  return {
+    id: "audit-1",
+    careCircleId: "circle-1",
+    actorId: "coordinator-1",
+    actorType: "user",
+    action: "member.reordered",
+    entityType: "CircleMember",
+    entityId: "member-1",
+    timestamp: NOW,
+    metadata: {},
+    ...overrides,
+  };
+}
+
+export function buildCommunicationEvent(
+  overrides: Partial<CommunicationEvent> = {},
+): CommunicationEvent {
+  return {
+    id: "comm-1",
+    alertId: "alert-1",
+    occurrenceId: null,
+    recipientId: "member-1",
+    channel: "in_app",
+    direction: "outbound",
+    providerReference: null,
+    status: "queued",
+    attemptNumber: 1,
+    errorCode: null,
+    idempotencyKey: "idempotency-1",
+    createdAt: NOW,
     updatedAt: NOW,
     ...overrides,
   };
