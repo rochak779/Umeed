@@ -82,4 +82,25 @@ describe("sendAlertNotifications", () => {
     });
     expect(deps._sent).toHaveLength(1);
   });
+
+  it("falls back to SMS when a voice send fails", async () => {
+    const deps = makeDeps();
+    deps.notificationGateway.send = (async (input: {
+      channel: string;
+      idempotencyKey: string;
+    }) => ({
+      providerReference: "ref-1",
+      status: input.channel === "voice" ? ("failed" as const) : ("sent" as const),
+    })) as typeof deps.notificationGateway.send;
+    const voiceRecipient = { ...recipient, channel: "voice" as const };
+    await sendAlertNotifications(deps, {
+      alertId: "alert-1",
+      occurrenceId: "occ-1",
+      recipients: [voiceRecipient],
+      templateId: "welfare_check",
+      templateData: {},
+    });
+    expect(deps._events.some((e) => e.channel === "sms")).toBe(true);
+    expect(deps._recipients.get("recipient-1")?.deliveryStatus).toBe("sent");
+  });
 });

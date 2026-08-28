@@ -62,6 +62,41 @@ export async function sendAlertNotifications(
       updatedAt: nowIso,
     });
 
+    if (recipient.channel === "voice" && result.status === "failed") {
+      const fallbackKey = `${idempotencyKey}:sms_fallback`;
+      const fallbackResult = await deps.notificationGateway.send({
+        channel: "sms",
+        recipientId: recipient.circleMemberId,
+        idempotencyKey: fallbackKey,
+        templateId: input.templateId,
+        templateData: input.templateData,
+      });
+      const fallbackNowIso = deps.clock.now().toISOString();
+      await deps.communications.save({
+        id: deps.idGenerator.nextId(),
+        alertId: input.alertId,
+        occurrenceId: input.occurrenceId,
+        recipientId: recipient.circleMemberId,
+        channel: "sms",
+        direction: "outbound",
+        providerReference: fallbackResult.providerReference,
+        status: fallbackResult.status,
+        attemptNumber: 1,
+        errorCode: fallbackResult.status === "failed" ? "provider_failure" : null,
+        idempotencyKey: fallbackKey,
+        createdAt: fallbackNowIso,
+        updatedAt: fallbackNowIso,
+      });
+
+      await deps.alerts.saveRecipient({
+        ...recipient,
+        deliveryStatus: fallbackResult.status === "failed" ? "failed" : "sent",
+        providerReference: fallbackResult.providerReference,
+        sentAt: fallbackNowIso,
+      });
+      continue;
+    }
+
     await deps.alerts.saveRecipient({
       ...recipient,
       deliveryStatus: result.status === "failed" ? "failed" : "sent",
