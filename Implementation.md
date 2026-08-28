@@ -1543,7 +1543,7 @@ The implementation agent must not attempt all phases in one uncontrolled change.
 - [ ] Phase 4 — Routines and acknowledgements
 - [ ] Phase 5 — Escalation engine and alert ownership
 - [x] Phase 6 — Mock communications and direct help
-- [ ] Phase 7 — Complete real-world journeys and experience polish
+- [x] Phase 7 — Complete real-world journeys and experience polish
 - [ ] Phase 8 — Test hardening and local release gate
 - [ ] Phase 9 — Supabase design without cutover
 - [ ] Phase 10 — Supabase cutover and server scheduling

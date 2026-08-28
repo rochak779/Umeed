@@ -1,6 +1,6 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { ArrowDown, ArrowUp, Ban, UserPlus } from "lucide-react";
+import { ArrowDown, ArrowUp, Ban, LogOut, UserPlus } from "lucide-react";
 import { toast } from "sonner";
 import { Screen, TopBar, UButton, UCard } from "@/components/umeed/primitives";
 import { Field } from "@/shared/components/Field";
@@ -13,6 +13,18 @@ import {
 import { inviteMember } from "@/application/use-cases/inviteMember";
 import { reorderMemberPriority } from "@/application/use-cases/reorderMemberPriority";
 import { revokeMemberPermission } from "@/application/use-cases/revokeMemberPermission";
+import { setCareCirclePaused } from "@/application/use-cases/setCareCirclePaused";
+import { requestLeaveCircle } from "@/application/use-cases/requestLeaveCircle";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import type { ResponderType } from "@/domain/entities/careCircle";
 
 export const Route = createFileRoute("/app/circle")({
@@ -29,12 +41,16 @@ const roleLabel: Record<ResponderType, string> = {
 
 function CircleScreen() {
   const { session, memberships, activeCircleId } = useSession();
-  const circleId = resolveActiveMembership(memberships, activeCircleId)?.circle.id;
+  const navigate = useNavigate();
+  const membership = resolveActiveMembership(memberships, activeCircleId);
+  const circleId = membership?.circle.id;
   const [roster, setRoster] = useState<GetCircleRosterResult | null>(null);
+  const [circleStatus, setCircleStatus] = useState<string | null>(null);
   const [inviting, setInviting] = useState(false);
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteRelationship, setInviteRelationship] = useState("");
   const [inviteType, setInviteType] = useState<"family" | "nearby_responder">("family");
+  const [leaving, setLeaving] = useState(false);
 
   const load = async () => {
     if (!session || !circleId) return;
@@ -43,6 +59,8 @@ function CircleScreen() {
       { careCircleId: circleId, actorUserId: session.userId },
     );
     setRoster(result);
+    const circle = await container.careCircleRepository.findById(circleId);
+    setCircleStatus(circle?.status ?? null);
   };
 
   useEffect(() => {
@@ -73,6 +91,8 @@ function CircleScreen() {
   }
 
   if (roster.view.kind === "minimal") {
+    const canLeave =
+      roster.view.actorRole === "family" || roster.view.actorRole === "nearby_responder";
     return (
       <>
         <TopBar title="Care circle" back="/app" />
@@ -86,6 +106,47 @@ function CircleScreen() {
               Only the coordinator can see the full circle and manage members.
             </p>
           </UCard>
+
+          {canLeave ? (
+            <>
+              <UButton variant="secondary" size="lg" full onClick={() => setLeaving(true)}>
+                <LogOut aria-hidden size={18} /> Leave this circle
+              </UButton>
+              <AlertDialog open={leaving} onOpenChange={setLeaving}>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Leave this care circle?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      You'll no longer see routines, alerts, or updates for{" "}
+                      {roster.view.olderAdultPreferredName}. Someone in the circle can invite you
+                      back later if needed.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={async () => {
+                        if (!session || !circleId) return;
+                        await requestLeaveCircle(
+                          {
+                            careCircles: container.careCircleRepository,
+                            audit: container.auditRepository,
+                            clock: container.clock,
+                            idGenerator: container.idGenerator,
+                          },
+                          { careCircleId: circleId, userId: session.userId },
+                        );
+                        toast.success("You've left the circle");
+                        navigate({ to: "/app" });
+                      }}
+                    >
+                      Leave circle
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </>
+          ) : null}
         </Screen>
       </>
     );
@@ -95,6 +156,41 @@ function CircleScreen() {
     <>
       <TopBar title="Care circle" back="/app" />
       <Screen>
+        <UCard className="flex items-center justify-between gap-2">
+          <div>
+            <p className="t-card-title font-semibold text-text">Circle status</p>
+            <p className="t-caption text-text-soft">
+              {circleStatus === "paused" ? "Paused — routines and alerts are on hold" : "Active"}
+            </p>
+          </div>
+          <UButton
+            variant="secondary"
+            size="md"
+            onClick={async () => {
+              if (!session || !circleId) return;
+              await setCareCirclePaused(
+                {
+                  careCircles: container.careCircleRepository,
+                  audit: container.auditRepository,
+                  clock: container.clock,
+                  idGenerator: container.idGenerator,
+                },
+                {
+                  careCircleId: circleId,
+                  actorUserId: session.userId,
+                  paused: circleStatus !== "paused",
+                },
+              );
+              await load();
+            }}
+          >
+            {circleStatus === "paused" ? "Resume circle" : "Pause circle"}
+          </UButton>
+        </UCard>
+
+        {roster.view.members.length === 0 ? (
+          <p className="t-body text-text-soft">No members in this circle yet.</p>
+        ) : null}
         {roster.view.members.map((m) => (
           <UCard key={m.circleMemberId} className="space-y-2">
             <div className="flex items-center justify-between">

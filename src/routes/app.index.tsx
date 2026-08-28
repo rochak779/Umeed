@@ -161,9 +161,11 @@ function AppHome() {
           </UCard>
         </Link>
 
-        {activity.length > 0 ? (
-          <div>
-            <SectionHeader title="Recent activity" />
+        <div>
+          <SectionHeader title="Recent activity" />
+          {activity.length === 0 ? (
+            <p className="t-body text-text-soft">Nothing to show yet.</p>
+          ) : (
             <div className="space-y-2">
               {activity.map((item) => (
                 <UCard key={item.id} className="py-3">
@@ -174,8 +176,8 @@ function AppHome() {
                 </UCard>
               ))}
             </div>
-          </div>
-        ) : null}
+          )}
+        </div>
 
         <p className="t-caption text-center text-text-soft">
           Umeed helps families coordinate check-ins. It is not an emergency or medical service and

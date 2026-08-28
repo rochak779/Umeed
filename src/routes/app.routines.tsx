@@ -6,6 +6,8 @@ import { Field } from "@/shared/components/Field";
 import { container } from "@/features/authentication/container";
 import { resolveActiveMembership, useSession } from "@/features/authentication/SessionContext";
 import { createRoutine } from "@/application/use-cases/createRoutine";
+import { setRoutinePaused } from "@/application/use-cases/setRoutinePaused";
+import { hasPermission } from "@/domain/policies/permissionGuard";
 import type { Routine, RoutineType } from "@/domain/entities/routine";
 
 export const Route = createFileRoute("/app/routines")({
@@ -29,6 +31,7 @@ function RoutinesScreen() {
   const { session, memberships, activeCircleId } = useSession();
   const membership = resolveActiveMembership(memberships, activeCircleId);
   const [routines, setRoutines] = useState<Routine[]>([]);
+  const [canManageRoutines, setCanManageRoutines] = useState(false);
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -40,6 +43,8 @@ function RoutinesScreen() {
   const load = async () => {
     if (!membership) return;
     setRoutines(await container.routineRepository.findByCareCircle(membership.circle.id));
+    const permission = await container.careCircleRepository.findPermission(membership.member.id);
+    setCanManageRoutines(hasPermission(permission, "canManageRoutines"));
   };
 
   useEffect(() => {
@@ -62,17 +67,53 @@ function RoutinesScreen() {
     <>
       <TopBar title="Routines" back="/app" />
       <Screen>
-        {routines.map((r) => (
-          <UCard key={r.id} className="space-y-1">
-            <p className="t-card-title font-semibold text-text">{r.title}</p>
-            <p className="t-caption text-text-soft">
-              {routineTypes.find((t) => t.value === r.type)?.label} · {r.localTime} ·{" "}
-              {r.daysOfWeek.length === 7
-                ? "Every day"
-                : r.daysOfWeek.map((d) => DAYS[d]).join(", ")}
-            </p>
-          </UCard>
-        ))}
+        {routines.length === 0 ? (
+          <p className="t-body text-text-soft">No routines yet — add one to get started.</p>
+        ) : (
+          routines.map((r) => (
+            <UCard key={r.id} className="space-y-1">
+              <div className="flex items-center justify-between gap-2">
+                <p className="t-card-title font-semibold text-text">{r.title}</p>
+                {!r.enabled ? (
+                  <span className="t-caption rounded-full border border-line px-2 py-0.5 text-text-soft">
+                    Paused
+                  </span>
+                ) : null}
+              </div>
+              <p className="t-caption text-text-soft">
+                {routineTypes.find((t) => t.value === r.type)?.label} · {r.localTime} ·{" "}
+                {r.daysOfWeek.length === 7
+                  ? "Every day"
+                  : r.daysOfWeek.map((d) => DAYS[d]).join(", ")}
+              </p>
+              {canManageRoutines ? (
+                <UButton
+                  variant="secondary"
+                  size="md"
+                  onClick={async () => {
+                    await setRoutinePaused(
+                      {
+                        routines: container.routineRepository,
+                        careCircles: container.careCircleRepository,
+                        audit: container.auditRepository,
+                        clock: container.clock,
+                        idGenerator: container.idGenerator,
+                      },
+                      {
+                        routineId: r.id,
+                        actorUserId: session.userId,
+                        paused: r.enabled,
+                      },
+                    );
+                    await load();
+                  }}
+                >
+                  {r.enabled ? "Pause routine" : "Resume routine"}
+                </UButton>
+              ) : null}
+            </UCard>
+          ))
+        )}
 
         {creating ? (
           <UCard>
