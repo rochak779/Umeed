@@ -1542,7 +1542,7 @@ The implementation agent must not attempt all phases in one uncontrolled change.
 - [ ] Phase 3 — Care circle, consent and permissions
 - [ ] Phase 4 — Routines and acknowledgements
 - [ ] Phase 5 — Escalation engine and alert ownership
-- [ ] Phase 6 — Mock communications and direct help
+- [x] Phase 6 — Mock communications and direct help
 - [ ] Phase 7 — Complete real-world journeys and experience polish
 - [ ] Phase 8 — Test hardening and local release gate
 - [ ] Phase 9 — Supabase design without cutover
