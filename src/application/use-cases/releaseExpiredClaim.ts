@@ -85,6 +85,17 @@ export async function releaseExpiredClaim(
     return { ok: true, released: true };
   }
 
+  // A routine or circle paused since this alert was opened should not
+  // trigger a new escalation notification — the claim is still released
+  // above, but no further stage is notified (Implementation.md §16 Phase 7).
+  if (!routine.enabled) {
+    return { ok: true, released: true };
+  }
+  const careCircle = await deps.careCircles.findById(routine.careCircleId);
+  if (!careCircle || careCircle.status !== "active") {
+    return { ok: true, released: true };
+  }
+
   const nextStep = getEscalationStepForStage(policy, nextStage);
 
   if (!nextStep) {

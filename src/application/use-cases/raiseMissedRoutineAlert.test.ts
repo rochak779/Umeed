@@ -91,6 +91,35 @@ describe("raiseMissedRoutineAlert", () => {
     expect(await repos.alerts.findOpenByCareCircle("circle-margaret")).toHaveLength(1);
   });
 
+  it("does not open an alert for a disabled routine's occurrence", async () => {
+    const repos = buildMargaretScenarioRepositories();
+    const occurrence = await seedDueOccurrence(repos);
+    const routine = await repos.routines.findById(occurrence.routineId);
+    await repos.routines.save({ ...routine!, enabled: false });
+    const deps = makeDeps(repos, "2026-01-05T09:31:00.000Z");
+
+    const result = await raiseMissedRoutineAlert(deps, { occurrenceId: occurrence.id });
+
+    expect(result).toEqual({ ok: false, reason: "routine_paused" });
+    expect((await repos.occurrences.findById(occurrence.id))?.status).not.toBe("missed");
+    expect(await repos.alerts.findOpenByCareCircle("circle-margaret")).toHaveLength(0);
+  });
+
+  it("does not open an alert for a routine whose care circle is paused", async () => {
+    const repos = buildMargaretScenarioRepositories();
+    const occurrence = await seedDueOccurrence(repos);
+    const routine = await repos.routines.findById(occurrence.routineId);
+    const circle = await repos.careCircles.findById(routine!.careCircleId);
+    await repos.careCircles.save({ ...circle!, status: "paused" });
+    const deps = makeDeps(repos, "2026-01-05T09:31:00.000Z");
+
+    const result = await raiseMissedRoutineAlert(deps, { occurrenceId: occurrence.id });
+
+    expect(result).toEqual({ ok: false, reason: "routine_paused" });
+    expect((await repos.occurrences.findById(occurrence.id))?.status).not.toBe("missed");
+    expect(await repos.alerts.findOpenByCareCircle("circle-margaret")).toHaveLength(0);
+  });
+
   it("dispatches notifications and marks recipients as sent", async () => {
     const repos = buildMargaretScenarioRepositories();
     const occurrence = await seedDueOccurrence(repos);

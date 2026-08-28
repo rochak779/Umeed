@@ -30,7 +30,7 @@ export type RaiseMissedRoutineAlertDeps = {
 
 export type RaiseMissedRoutineAlertResult =
   | { ok: true; alertId: string }
-  | { ok: false; reason: "not_yet_due" | "already_resolved" | "not_found" };
+  | { ok: false; reason: "not_yet_due" | "already_resolved" | "not_found" | "routine_paused" };
 
 const OPEN_OCCURRENCE_STATUSES = new Set(["scheduled", "awaiting_response"]);
 
@@ -54,6 +54,14 @@ export async function raiseMissedRoutineAlert(
 
   const routine = await deps.routines.findById(occurrence.routineId);
   if (!routine) return { ok: false, reason: "not_found" };
+
+  if (!routine.enabled) {
+    return { ok: false, reason: "routine_paused" };
+  }
+  const careCircle = await deps.careCircles.findById(routine.careCircleId);
+  if (!careCircle || careCircle.status !== "active") {
+    return { ok: false, reason: "routine_paused" };
+  }
 
   const nowIso = deps.clock.now().toISOString();
   const dueAt = new Date(

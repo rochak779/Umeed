@@ -55,8 +55,12 @@ export async function pollDueWork(
     }
   }
 
-  // findDue is not scoped per circle, so it's queried once regardless of
-  // how many circles are being polled.
+  // Unlike generateOccurrences/releaseExpiredClaim above, findDue is not
+  // scoped per circle — it's queried once globally regardless of how many
+  // circles are being polled. That's intentional-for-now: this app is
+  // single-tenant local dev (one household's data per store), so there is
+  // no cross-tenant leakage risk here. Revisit if pollDueWork ever needs to
+  // poll a subset of circles within a larger, multi-tenant store.
   const due = await deps.occurrences.findDue(nowUtc);
   for (const occurrence of due) {
     const result = await raiseMissedRoutineAlert(deps, { occurrenceId: occurrence.id });

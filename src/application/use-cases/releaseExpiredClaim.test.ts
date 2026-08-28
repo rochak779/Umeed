@@ -183,6 +183,42 @@ describe("releaseExpiredClaim — escalation continuation", () => {
     expect(auditAppendSpy.mock.calls.some(([e]) => e.action === "alert.unresolved")).toBe(true);
   });
 
+  it("releases a paused routine's expired claim without dispatching a new-stage notification", async () => {
+    const repos = buildMargaretScenarioRepositories();
+    const { routine, circle } = await seedMargaretScenario(repos);
+    await repos.routines.save({ ...routine, enabled: false });
+    const occurrence = buildOccurrence({
+      id: "occ-1",
+      routineId: routine.id,
+      scheduledForUtc: "2026-01-05T09:00:00.000Z",
+      scheduledLocalDate: "2026-01-05",
+      status: "missed",
+    });
+    await repos.occurrences.save(occurrence);
+    await repos.alerts.save(
+      buildAlert({
+        id: "alert-1",
+        careCircleId: circle.id,
+        occurrenceId: occurrence.id,
+        status: "claimed",
+        claimedBy: "member-priya",
+        claimedAt: "2026-01-05T09:35:00.000Z",
+        claimExpiresAt: "2026-01-05T09:50:00.000Z",
+        currentStage: 1,
+      }),
+    );
+    const deps = makeDeps(repos, "2026-01-05T09:51:00.000Z");
+    const sendSpy = vi.spyOn(deps.notificationGateway, "send");
+
+    const result = await releaseExpiredClaim(deps, { alertId: "alert-1" });
+
+    expect(result).toEqual({ ok: true, released: true });
+    const alert = await repos.alerts.findById("alert-1");
+    expect(alert?.status).toBe("unclaimed");
+    expect(alert?.claimedBy).toBeNull();
+    expect(sendSpy).not.toHaveBeenCalled();
+  });
+
   it("direct-help alerts (no occurrenceId) release the claim without further escalation", async () => {
     const repos = buildMargaretScenarioRepositories();
     const { circle } = await seedMargaretScenario(repos);
