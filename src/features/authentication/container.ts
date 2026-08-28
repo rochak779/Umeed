@@ -19,6 +19,7 @@ import { LocalOccurrenceRepository } from "../../infrastructure/local/repositori
 import { LocalAlertRepository } from "../../infrastructure/local/repositories/LocalAlertRepository";
 import { LocalCommunicationRepository } from "../../infrastructure/local/repositories/LocalCommunicationRepository";
 import { LocalEventBus } from "../../infrastructure/local/LocalEventBus";
+import { MockNotificationGateway } from "../../infrastructure/mock-communications/MockNotificationGateway";
 
 const store = new BrowserLocalStorageStore();
 
@@ -26,6 +27,7 @@ export const container = {
   clock: new SystemClock(),
   idGenerator: new UuidIdGenerator(),
   eventBus: new LocalEventBus(),
+  notificationGateway: new MockNotificationGateway(new SystemClock(), new UuidIdGenerator()),
   authProvider: new LocalAuthProvider(store, new SystemClock()),
   profileRepository: new LocalProfileRepository(store),
   careCircleRepository: new LocalCareCircleRepository(store),
