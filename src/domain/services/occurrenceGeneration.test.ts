@@ -110,4 +110,23 @@ describe("generateOccurrenceCandidates", () => {
       expect(local).toBe("09:00");
     }
   });
+
+  it("keeps 09:00 local across the autumn DST transition (clocks go back)", () => {
+    // 2026-10-25 is the last Sunday of October (UK clocks go back at 01:00 UTC),
+    // so 09:00 local time is already GMT again on the transition day itself.
+    const candidates = generateOccurrenceCandidates(baseRoutine, "2026-10-24", "2026-10-26");
+    const utcHours = candidates.map((c) => new Date(c.scheduledForUtc).getUTCHours());
+    // Before the transition: 09:00 BST = 08:00 UTC. From the transition day on: 09:00 GMT = 09:00 UTC.
+    expect(utcHours).toEqual([8, 9, 9]);
+
+    for (const c of candidates) {
+      const local = new Intl.DateTimeFormat("en-GB", {
+        timeZone: "Europe/London",
+        hourCycle: "h23",
+        hour: "2-digit",
+        minute: "2-digit",
+      }).format(new Date(c.scheduledForUtc));
+      expect(local).toBe("09:00");
+    }
+  });
 });

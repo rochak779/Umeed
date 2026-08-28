@@ -9,6 +9,7 @@ import { pollDueWork, type PollDueWorkDeps } from "../../application/use-cases/p
  */
 export class LocalScheduler {
   private timer: ReturnType<typeof setInterval> | null = null;
+  private inFlight = false;
 
   constructor(
     private readonly deps: PollDueWorkDeps,
@@ -18,7 +19,11 @@ export class LocalScheduler {
   start(intervalMs: number): void {
     if (this.timer) return;
     this.timer = setInterval(() => {
-      void pollDueWork(this.deps, { careCircleIds: this.getCareCircleIds() });
+      if (this.inFlight) return;
+      this.inFlight = true;
+      void pollDueWork(this.deps, { careCircleIds: this.getCareCircleIds() }).finally(() => {
+        this.inFlight = false;
+      });
     }, intervalMs);
   }
 
