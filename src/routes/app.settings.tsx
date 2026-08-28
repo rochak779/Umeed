@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Screen, SectionHeader, TopBar, UButton, UCard } from "@/components/umeed/primitives";
 import { container } from "@/features/authentication/container";
-import { useSession } from "@/features/authentication/SessionContext";
+import { resolveActiveMembership, useSession } from "@/features/authentication/SessionContext";
 import { updateNotificationPreference } from "@/application/use-cases/updateNotificationPreference";
 import type { NotificationPreference } from "@/domain/entities/consent";
 import type { Channel } from "@/domain/entities/careCircle";
@@ -45,8 +45,8 @@ function ToggleSwitch({
 }
 
 function SettingsScreen() {
-  const { session, profile, memberships, refresh } = useSession();
-  const membership = memberships[0];
+  const { session, profile, memberships, activeCircleId, refresh } = useSession();
+  const membership = resolveActiveMembership(memberships, activeCircleId);
 
   const [displayName, setDisplayName] = useState("");
   const [preferredName, setPreferredName] = useState("");

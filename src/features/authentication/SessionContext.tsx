@@ -6,17 +6,44 @@ import { container } from "./container";
 
 export type ActiveMembership = { circle: CareCircle; member: CircleMember };
 
+const ACTIVE_CIRCLE_STORAGE_KEY = "umeed.active_circle_id";
+
 type SessionState = {
   loading: boolean;
   session: Session | null;
   profile: UserProfile | null;
   /** Every active circle this account belongs to, with this account's membership in it. */
   memberships: ActiveMembership[];
+  /**
+   * Which care circle is currently being viewed. This is purely a display
+   * preference for multi-circle accounts — which circle's data is shown —
+   * and must never be confused with a role switcher (Implementation.md
+   * §7.2: role/navigation comes from membership, never a client-controlled
+   * dropdown). A user's role is still derived from their membership record
+   * in whichever circle is active, not chosen here.
+   */
+  activeCircleId: string | null;
+  setActiveCircleId: (id: string) => void;
   refresh: () => Promise<void>;
   signOut: () => Promise<void>;
 };
 
 const SessionCtx = createContext<SessionState | null>(null);
+
+/**
+ * Pure resolution of "which membership is currently active" — given the
+ * account's memberships and the currently-selected circle id, returns the
+ * matching membership, falling back to the first membership when the
+ * selected id is null or no longer present (e.g. access was revoked).
+ * Kept as a standalone export so it can be unit-tested without rendering
+ * React.
+ */
+export function resolveActiveMembership(
+  memberships: ActiveMembership[],
+  activeCircleId: string | null,
+): ActiveMembership | undefined {
+  return memberships.find((m) => m.circle.id === activeCircleId) ?? memberships[0];
+}
 
 /**
  * Loads the current session, profile and active care-circle memberships from
@@ -29,6 +56,17 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [memberships, setMemberships] = useState<ActiveMembership[]>([]);
+  const [activeCircleId, setActiveCircleIdState] = useState<string | null>(() => {
+    if (typeof window === "undefined") return null;
+    return window.localStorage.getItem(ACTIVE_CIRCLE_STORAGE_KEY);
+  });
+
+  const setActiveCircleId = (id: string) => {
+    setActiveCircleIdState(id);
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem(ACTIVE_CIRCLE_STORAGE_KEY, id);
+    }
+  };
 
   const load = async () => {
     const currentSession = await container.authProvider.getSession();
@@ -53,7 +91,8 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         return member ? { circle, member } : null;
       }),
     );
-    setMemberships(withMembers.filter((m): m is ActiveMembership => m !== null));
+    const loadedMemberships = withMembers.filter((m): m is ActiveMembership => m !== null);
+    setMemberships(loadedMemberships);
     setLoading(false);
   };
 
@@ -64,12 +103,39 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
+  // Default (or repair) the active circle whenever memberships change: if
+  // nothing is selected yet, or the previously-selected circle is no longer
+  // one this account belongs to, fall back to the first membership.
+  useEffect(() => {
+    if (memberships.length === 0) return;
+    const stillValid = memberships.some((m) => m.circle.id === activeCircleId);
+    if (activeCircleId === null || !stillValid) {
+      const fallback = memberships[0]?.circle.id ?? null;
+      setActiveCircleIdState(fallback);
+      if (typeof window !== "undefined" && fallback) {
+        window.localStorage.setItem(ACTIVE_CIRCLE_STORAGE_KEY, fallback);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [memberships]);
+
   const signOut = async () => {
     await container.authProvider.signOut();
   };
 
   return (
-    <SessionCtx.Provider value={{ loading, session, profile, memberships, refresh: load, signOut }}>
+    <SessionCtx.Provider
+      value={{
+        loading,
+        session,
+        profile,
+        memberships,
+        activeCircleId,
+        setActiveCircleId,
+        refresh: load,
+        signOut,
+      }}
+    >
       {children}
     </SessionCtx.Provider>
   );

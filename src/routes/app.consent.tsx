@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Screen, TopBar, UCard } from "@/components/umeed/primitives";
 import { container } from "@/features/authentication/container";
-import { useSession } from "@/features/authentication/SessionContext";
+import { resolveActiveMembership, useSession } from "@/features/authentication/SessionContext";
 import { setConsent } from "@/application/use-cases/setConsent";
 import type { ConsentRecord, ConsentType } from "@/domain/entities/consent";
 
@@ -25,8 +25,14 @@ const toggles: { type: ConsentType; label: string; hint: string }[] = [
 ];
 
 function ConsentScreen() {
-  const { session, memberships } = useSession();
-  const membership = memberships.find((m) => m.circle.olderAdultId === session?.userId);
+  const { session, memberships, activeCircleId } = useSession();
+  // This screen only applies to circles where the signed-in account is the
+  // older adult being supported; scope to those, then prefer whichever one
+  // is the active circle (falls back to the first if none is active/found).
+  const olderAdultMemberships = memberships.filter(
+    (m) => m.circle.olderAdultId === session?.userId,
+  );
+  const membership = resolveActiveMembership(olderAdultMemberships, activeCircleId);
   const [records, setRecords] = useState<ConsentRecord[]>([]);
 
   const load = async () => {

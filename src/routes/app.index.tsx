@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { AlertTriangle, CalendarClock, LogOut, Settings, Shield, Users } from "lucide-react";
 import { Screen, SectionHeader, TopBar, UCard } from "@/components/umeed/primitives";
-import { useSession } from "@/features/authentication/SessionContext";
+import { resolveActiveMembership, useSession } from "@/features/authentication/SessionContext";
 import { container } from "@/features/authentication/container";
 import { getRecentActivity, type ActivityItem } from "@/application/use-cases/getRecentActivity";
 import { getAlertsForCircle, type AlertView } from "@/application/use-cases/getAlertsForCircle";
@@ -27,12 +27,12 @@ const roleLabel: Record<string, string> = {
  */
 function AppHome() {
   const navigate = useNavigate();
-  const { loading, profile, memberships, signOut } = useSession();
+  const { loading, profile, memberships, activeCircleId, signOut } = useSession();
   const [activity, setActivity] = useState<ActivityItem[]>([]);
   const [openAlerts, setOpenAlerts] = useState<AlertView[]>([]);
 
   useEffect(() => {
-    const circleId = memberships[0]?.circle.id;
+    const circleId = resolveActiveMembership(memberships, activeCircleId)?.circle.id;
     if (!circleId) return;
     void getRecentActivity(
       { audit: container.auditRepository },
@@ -48,7 +48,7 @@ function AppHome() {
     ).then((all) =>
       setOpenAlerts(all.filter((a) => !["resolved", "unresolved", "cancelled"].includes(a.status))),
     );
-  }, [memberships]);
+  }, [memberships, activeCircleId]);
 
   useEffect(() => {
     if (loading) return;

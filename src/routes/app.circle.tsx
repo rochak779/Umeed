@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { Screen, TopBar, UButton, UCard } from "@/components/umeed/primitives";
 import { Field } from "@/shared/components/Field";
 import { container } from "@/features/authentication/container";
-import { useSession } from "@/features/authentication/SessionContext";
+import { resolveActiveMembership, useSession } from "@/features/authentication/SessionContext";
 import {
   getCircleRoster,
   type GetCircleRosterResult,
@@ -28,8 +28,8 @@ const roleLabel: Record<ResponderType, string> = {
 };
 
 function CircleScreen() {
-  const { session, memberships } = useSession();
-  const circleId = memberships[0]?.circle.id;
+  const { session, memberships, activeCircleId } = useSession();
+  const circleId = resolveActiveMembership(memberships, activeCircleId)?.circle.id;
   const [roster, setRoster] = useState<GetCircleRosterResult | null>(null);
   const [inviting, setInviting] = useState(false);
   const [inviteEmail, setInviteEmail] = useState("");

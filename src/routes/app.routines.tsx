@@ -4,7 +4,7 @@ import { Plus } from "lucide-react";
 import { Screen, TopBar, UButton, UCard } from "@/components/umeed/primitives";
 import { Field } from "@/shared/components/Field";
 import { container } from "@/features/authentication/container";
-import { useSession } from "@/features/authentication/SessionContext";
+import { resolveActiveMembership, useSession } from "@/features/authentication/SessionContext";
 import { createRoutine } from "@/application/use-cases/createRoutine";
 import type { Routine, RoutineType } from "@/domain/entities/routine";
 
@@ -26,8 +26,8 @@ const routineTypes: { value: RoutineType; label: string }[] = [
 const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 function RoutinesScreen() {
-  const { session, memberships } = useSession();
-  const membership = memberships[0];
+  const { session, memberships, activeCircleId } = useSession();
+  const membership = resolveActiveMembership(memberships, activeCircleId);
   const [routines, setRoutines] = useState<Routine[]>([]);
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);

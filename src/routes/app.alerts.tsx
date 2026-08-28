@@ -4,7 +4,7 @@ import { AlertTriangle, PhoneCall } from "lucide-react";
 import { toast } from "sonner";
 import { Screen, TopBar, UButton, UCard } from "@/components/umeed/primitives";
 import { container } from "@/features/authentication/container";
-import { useSession } from "@/features/authentication/SessionContext";
+import { resolveActiveMembership, useSession } from "@/features/authentication/SessionContext";
 import { getAlertsForCircle, type AlertView } from "@/application/use-cases/getAlertsForCircle";
 import { claimAlert } from "@/application/use-cases/claimAlert";
 import { resolveAlert } from "@/application/use-cases/resolveAlert";
@@ -52,8 +52,8 @@ function deliveryStatusLabel(status: DeliveryStatus): string {
 }
 
 function AlertsScreen() {
-  const { session, memberships } = useSession();
-  const circleId = memberships[0]?.circle.id;
+  const { session, memberships, activeCircleId } = useSession();
+  const circleId = resolveActiveMembership(memberships, activeCircleId)?.circle.id;
   const [alerts, setAlerts] = useState<AlertView[]>([]);
   const [resolvingId, setResolvingId] = useState<string | null>(null);
   const [recipientsByAlert, setRecipientsByAlert] = useState<Record<string, AlertRecipient[]>>({});
