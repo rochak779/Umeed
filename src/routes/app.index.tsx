@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { AlertTriangle, CalendarClock, LogOut, Shield, Users } from "lucide-react";
+import { AlertTriangle, CalendarClock, LogOut, Settings, Shield, Users } from "lucide-react";
 import { Screen, SectionHeader, TopBar, UCard } from "@/components/umeed/primitives";
 import { useSession } from "@/features/authentication/SessionContext";
 import { container } from "@/features/authentication/container";
@@ -151,6 +151,15 @@ function AppHome() {
             </UCard>
           </Link>
         ) : null}
+
+        <Link to="/app/settings" className="block">
+          <UCard className="flex items-center gap-3">
+            <span className="flex size-10 items-center justify-center rounded-full bg-container text-text-soft">
+              <Settings aria-hidden size={20} />
+            </span>
+            <span className="t-body font-medium text-text">Settings</span>
+          </UCard>
+        </Link>
 
         {activity.length > 0 ? (
           <div>

@@ -22,6 +22,7 @@ import { Route as AppAlertsRouteImport } from './routes/app.alerts'
 import { Route as AppCircleRouteImport } from './routes/app.circle'
 import { Route as AppConsentRouteImport } from './routes/app.consent'
 import { Route as AppRoutinesRouteImport } from './routes/app.routines'
+import { Route as AppSettingsRouteImport } from './routes/app.settings'
 import { Route as InviteTokenRouteImport } from './routes/invite.$token'
 import { Route as AppOlderAdultHomeRouteImport } from './routes/app.older-adult.home'
 
@@ -90,6 +91,11 @@ const AppRoutinesRoute = AppRoutinesRouteImport.update({
   path: '/routines',
   getParentRoute: () => AppRoute,
 } as any)
+const AppSettingsRoute = AppSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AppRoute,
+} as any)
 const InviteTokenRoute = InviteTokenRouteImport.update({
   id: '/invite/$token',
   path: '/invite/$token',
@@ -114,6 +120,7 @@ export interface FileRoutesByFullPath {
   '/app/circle': typeof AppCircleRoute
   '/app/consent': typeof AppConsentRoute
   '/app/routines': typeof AppRoutinesRoute
+  '/app/settings': typeof AppSettingsRoute
   '/invite/$token': typeof InviteTokenRoute
   '/app/': typeof AppIndexRoute
   '/app/older-adult/home': typeof AppOlderAdultHomeRoute
@@ -130,6 +137,7 @@ export interface FileRoutesByTo {
   '/app/circle': typeof AppCircleRoute
   '/app/consent': typeof AppConsentRoute
   '/app/routines': typeof AppRoutinesRoute
+  '/app/settings': typeof AppSettingsRoute
   '/invite/$token': typeof InviteTokenRoute
   '/app': typeof AppIndexRoute
   '/app/older-adult/home': typeof AppOlderAdultHomeRoute
@@ -148,6 +156,7 @@ export interface FileRoutesById {
   '/app/circle': typeof AppCircleRoute
   '/app/consent': typeof AppConsentRoute
   '/app/routines': typeof AppRoutinesRoute
+  '/app/settings': typeof AppSettingsRoute
   '/invite/$token': typeof InviteTokenRoute
   '/app/': typeof AppIndexRoute
   '/app/older-adult/home': typeof AppOlderAdultHomeRoute
@@ -167,6 +176,7 @@ export interface FileRouteTypes {
     | '/app/circle'
     | '/app/consent'
     | '/app/routines'
+    | '/app/settings'
     | '/invite/$token'
     | '/app/'
     | '/app/older-adult/home'
@@ -183,6 +193,7 @@ export interface FileRouteTypes {
     | '/app/circle'
     | '/app/consent'
     | '/app/routines'
+    | '/app/settings'
     | '/invite/$token'
     | '/app'
     | '/app/older-adult/home'
@@ -200,6 +211,7 @@ export interface FileRouteTypes {
     | '/app/circle'
     | '/app/consent'
     | '/app/routines'
+    | '/app/settings'
     | '/invite/$token'
     | '/app/'
     | '/app/older-adult/home'
@@ -310,6 +322,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppRoutinesRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/settings': {
+      id: '/app/settings'
+      path: '/settings'
+      fullPath: '/app/settings'
+      preLoaderRoute: typeof AppSettingsRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/invite/$token': {
       id: '/invite/$token'
       path: '/invite/$token'
@@ -332,6 +351,7 @@ interface AppRouteChildren {
   AppCircleRoute: typeof AppCircleRoute
   AppConsentRoute: typeof AppConsentRoute
   AppRoutinesRoute: typeof AppRoutinesRoute
+  AppSettingsRoute: typeof AppSettingsRoute
   AppIndexRoute: typeof AppIndexRoute
   AppOlderAdultHomeRoute: typeof AppOlderAdultHomeRoute
 }
@@ -341,6 +361,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppCircleRoute: AppCircleRoute,
   AppConsentRoute: AppConsentRoute,
   AppRoutinesRoute: AppRoutinesRoute,
+  AppSettingsRoute: AppSettingsRoute,
   AppIndexRoute: AppIndexRoute,
   AppOlderAdultHomeRoute: AppOlderAdultHomeRoute,
 }
