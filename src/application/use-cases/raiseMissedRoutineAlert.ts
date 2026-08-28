@@ -12,6 +12,7 @@ import type { NotificationGateway } from "../ports/infra";
 import { transitionOccurrence } from "../../domain/state-machines/occurrenceStateMachine";
 import { transitionAlert } from "../../domain/state-machines/alertStateMachine";
 import { selectNextRecipients } from "../../domain/policies/escalationRecipients";
+import { getEscalationStepForStage } from "../../domain/policies/escalationStageLookup";
 import type { Alert, AlertRecipient } from "../../domain/entities/alert";
 import { sendAlertNotifications } from "../services/sendAlertNotifications";
 
@@ -88,7 +89,7 @@ export async function raiseMissedRoutineAlert(
   await deps.alerts.save(alert);
 
   const policy = await deps.routines.findEscalationPolicy(routine.id);
-  const firstResponderStep = policy?.steps.find((s) => s.recipientType !== "older_adult");
+  const firstResponderStep = policy ? getEscalationStepForStage(policy, 1) : null;
   if (firstResponderStep) {
     const members = await deps.careCircles.findMembers(routine.careCircleId);
     const recipients = selectNextRecipients(members, firstResponderStep, nowIso, routine.timezone);
