@@ -143,6 +143,8 @@ function OlderAdultHome() {
                 careCircles: container.careCircleRepository,
                 alerts: container.alertRepository,
                 audit: container.auditRepository,
+                communications: container.communicationRepository,
+                notificationGateway: container.notificationGateway,
                 clock: container.clock,
                 idGenerator: container.idGenerator,
               },

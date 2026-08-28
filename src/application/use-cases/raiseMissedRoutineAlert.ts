@@ -4,13 +4,16 @@ import type {
   CareCircleRepository,
   AlertRepository,
   AuditRepository,
+  CommunicationRepository,
 } from "../ports/repositories";
 import type { Clock } from "../../shared/time/Clock";
 import type { IdGenerator } from "../../shared/id/IdGenerator";
+import type { NotificationGateway } from "../ports/infra";
 import { transitionOccurrence } from "../../domain/state-machines/occurrenceStateMachine";
 import { transitionAlert } from "../../domain/state-machines/alertStateMachine";
 import { selectNextRecipients } from "../../domain/policies/escalationRecipients";
-import type { Alert } from "../../domain/entities/alert";
+import type { Alert, AlertRecipient } from "../../domain/entities/alert";
+import { sendAlertNotifications } from "../services/sendAlertNotifications";
 
 export type RaiseMissedRoutineAlertDeps = {
   occurrences: OccurrenceRepository;
@@ -18,6 +21,8 @@ export type RaiseMissedRoutineAlertDeps = {
   careCircles: CareCircleRepository;
   alerts: AlertRepository;
   audit: AuditRepository;
+  communications: CommunicationRepository;
+  notificationGateway: NotificationGateway;
   clock: Clock;
   idGenerator: IdGenerator;
 };
@@ -87,8 +92,9 @@ export async function raiseMissedRoutineAlert(
   if (firstResponderStep) {
     const members = await deps.careCircles.findMembers(routine.careCircleId);
     const recipients = selectNextRecipients(members, firstResponderStep, nowIso, routine.timezone);
+    const savedRecipients: AlertRecipient[] = [];
     for (const member of recipients) {
-      await deps.alerts.saveRecipient({
+      const recipient: AlertRecipient = {
         id: deps.idGenerator.nextId(),
         alertId: alert.id,
         circleMemberId: member.id,
@@ -100,8 +106,17 @@ export async function raiseMissedRoutineAlert(
         deliveredAt: null,
         respondedAt: null,
         response: null,
-      });
+      };
+      await deps.alerts.saveRecipient(recipient);
+      savedRecipients.push(recipient);
     }
+    await sendAlertNotifications(deps, {
+      alertId: alert.id,
+      occurrenceId: occurrence.id,
+      recipients: savedRecipients,
+      templateId: "welfare_check_requested",
+      templateData: { routineTitle: routine.title },
+    });
   }
 
   await deps.audit.append({

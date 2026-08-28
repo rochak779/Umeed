@@ -29,6 +29,10 @@ function makeDeps(repos: ReturnType<typeof buildMargaretScenarioRepositories>, n
     careCircles: repos.careCircles,
     alerts: repos.alerts,
     audit: repos.audit,
+    communications: { findByIdempotencyKey: async () => null, save: async () => {} },
+    notificationGateway: {
+      send: async () => ({ providerReference: "ref", status: "sent" as const }),
+    },
     clock: new FakeClock(new Date(nowUtc)),
     idGenerator: new SequentialIdGenerator("alert"),
   };
@@ -85,5 +89,21 @@ describe("raiseMissedRoutineAlert", () => {
 
     expect(result).toEqual({ ok: false, reason: "already_resolved" });
     expect(await repos.alerts.findOpenByCareCircle("circle-margaret")).toHaveLength(1);
+  });
+
+  it("dispatches notifications and marks recipients as sent", async () => {
+    const repos = buildMargaretScenarioRepositories();
+    const occurrence = await seedDueOccurrence(repos);
+    const deps = makeDeps(repos, "2026-01-05T09:31:00.000Z");
+
+    const result = await raiseMissedRoutineAlert(deps, { occurrenceId: occurrence.id });
+
+    expect(result.ok).toBe(true);
+    const alerts = await repos.alerts.findOpenByCareCircle("circle-margaret");
+    const recipients = await repos.alerts.findRecipients(alerts[0]!.id);
+    expect(recipients.length).toBeGreaterThan(0);
+    for (const recipient of recipients) {
+      expect(recipient.deliveryStatus).toBe("sent");
+    }
   });
 });

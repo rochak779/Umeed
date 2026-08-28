@@ -1,13 +1,22 @@
-import type { CareCircleRepository, AlertRepository, AuditRepository } from "../ports/repositories";
+import type {
+  CareCircleRepository,
+  AlertRepository,
+  AuditRepository,
+  CommunicationRepository,
+} from "../ports/repositories";
 import type { Clock } from "../../shared/time/Clock";
 import type { IdGenerator } from "../../shared/id/IdGenerator";
+import type { NotificationGateway } from "../ports/infra";
 import { PermissionDeniedError } from "../../domain/errors/DomainError";
-import type { Alert } from "../../domain/entities/alert";
+import type { Alert, AlertRecipient } from "../../domain/entities/alert";
+import { sendAlertNotifications } from "../services/sendAlertNotifications";
 
 export type RaiseDirectHelpAlertDeps = {
   careCircles: CareCircleRepository;
   alerts: AlertRepository;
   audit: AuditRepository;
+  communications: CommunicationRepository;
+  notificationGateway: NotificationGateway;
   clock: Clock;
   idGenerator: IdGenerator;
 };
@@ -52,8 +61,9 @@ export async function raiseDirectHelpAlert(
     (m) =>
       m.responderType === "coordinator" || (m.responderType === "nearby_responder" && m.isNearby),
   );
+  const savedRecipients: AlertRecipient[] = [];
   for (const member of immediateRecipients) {
-    await deps.alerts.saveRecipient({
+    const recipient: AlertRecipient = {
       id: deps.idGenerator.nextId(),
       alertId: alert.id,
       circleMemberId: member.id,
@@ -65,8 +75,17 @@ export async function raiseDirectHelpAlert(
       deliveredAt: null,
       respondedAt: null,
       response: null,
-    });
+    };
+    await deps.alerts.saveRecipient(recipient);
+    savedRecipients.push(recipient);
   }
+  await sendAlertNotifications(deps, {
+    alertId: alert.id,
+    occurrenceId: null,
+    recipients: savedRecipients,
+    templateId: "direct_help_requested",
+    templateData: {},
+  });
 
   await deps.audit.append({
     id: deps.idGenerator.nextId(),

@@ -13,6 +13,10 @@ function makeDeps(repos: ReturnType<typeof buildMargaretScenarioRepositories>) {
     careCircles: repos.careCircles,
     alerts: repos.alerts,
     audit: repos.audit,
+    communications: { findByIdempotencyKey: async () => null, save: async () => {} },
+    notificationGateway: {
+      send: async () => ({ providerReference: "ref", status: "sent" as const }),
+    },
     clock: new FakeClock(new Date("2026-01-05T14:00:00.000Z")),
     idGenerator: new SequentialIdGenerator("id"),
   };
@@ -61,5 +65,20 @@ describe("raiseDirectHelpAlert", () => {
     await expect(raiseDirectHelpAlert(deps, { olderAdultUserId: "sarah" })).rejects.toThrow(
       PermissionDeniedError,
     );
+  });
+
+  it("dispatches notifications and marks recipients as sent", async () => {
+    const repos = buildMargaretScenarioRepositories();
+    await seedMargaretScenario(repos);
+    const deps = makeDeps(repos);
+
+    await raiseDirectHelpAlert(deps, { olderAdultUserId: "margaret" });
+
+    const [alert] = await repos.alerts.findOpenByCareCircle("circle-margaret");
+    const recipients = await repos.alerts.findRecipients(alert!.id);
+    expect(recipients.length).toBeGreaterThan(0);
+    for (const recipient of recipients) {
+      expect(recipient.deliveryStatus).toBe("sent");
+    }
   });
 });
