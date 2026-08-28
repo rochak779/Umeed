@@ -12,8 +12,7 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
-import { UmeedProvider } from "@/state/UmeedProvider";
-import { PushNotification } from "@/components/umeed/PushNotification";
+import { SessionProvider } from "@/features/authentication/SessionContext";
 import { HomeIndicator, StatusBar } from "@/components/umeed/DeviceChrome";
 import { Toaster } from "@/components/ui/sonner";
 
@@ -99,7 +98,10 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function PhoneFrame({ children }: { children: ReactNode }) {
   const path = useRouterState({ select: (s) => s.location.pathname });
-  const effective: "child" | "parent" = path.startsWith("/parent") ? "parent" : "child";
+  // "parent" is this design system's existing name for the giant-type,
+  // minimal-navigation persona scale — reused here for the older-adult
+  // experience so styles.css does not need to change (see design.md).
+  const effective: "child" | "parent" = path.startsWith("/app/older-adult") ? "parent" : "child";
 
   return (
     <div className="flex min-h-[100dvh] justify-center bg-frame sm:items-center sm:py-8">
@@ -124,7 +126,6 @@ function PhoneFrame({ children }: { children: ReactNode }) {
         >
           <StatusBar persona={effective} />
           <div className="relative flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain">
-            <PushNotification />
             {children}
           </div>
           <HomeIndicator />
@@ -134,13 +135,12 @@ function PhoneFrame({ children }: { children: ReactNode }) {
   );
 }
 
-
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
   return (
     <QueryClientProvider client={queryClient}>
-      <UmeedProvider>
+      <SessionProvider>
         <PhoneFrame>
           {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
           <Outlet />
@@ -152,7 +152,7 @@ function RootComponent() {
               "t-body !rounded-[0.875rem] !border !border-line !bg-surface !text-text !shadow-calm",
           }}
         />
-      </UmeedProvider>
+      </SessionProvider>
     </QueryClientProvider>
   );
 }
