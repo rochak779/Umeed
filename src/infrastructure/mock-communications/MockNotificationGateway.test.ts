@@ -49,6 +49,6 @@ describe("MockNotificationGateway", () => {
       templateData: {},
     });
     expect(gateway.getLog()).toHaveLength(1);
-    expect(gateway.getLog()[0].channel).toBe("sms");
+    expect(gateway.getLog()[0]?.channel).toBe("sms");
   });
 });
