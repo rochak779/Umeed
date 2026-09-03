@@ -7,6 +7,12 @@ import {
   runProfileRepositoryContract,
   runInvitationRepositoryContract,
 } from "./repositoryContract";
+import { SupabaseCareCircleRepository } from "@/infrastructure/supabase/repositories/SupabaseCareCircleRepository";
+import { SupabaseConsentRepository } from "@/infrastructure/supabase/repositories/SupabaseConsentRepository";
+import {
+  runCareCircleRepositoryContract,
+  runConsentRepositoryContract,
+} from "./repositoryContract";
 
 const client = createSupabaseServiceClient();
 
@@ -17,3 +23,5 @@ beforeAll(async () => {
 
 runProfileRepositoryContract(() => new SupabaseProfileRepository(client));
 runInvitationRepositoryContract(() => new SupabaseInvitationRepository(client));
+runCareCircleRepositoryContract(() => new SupabaseCareCircleRepository(client));
+runConsentRepositoryContract(() => new SupabaseConsentRepository(client));
