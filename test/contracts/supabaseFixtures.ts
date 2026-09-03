@@ -30,17 +30,15 @@ export async function seedFixedContractParents(client: SupabaseClient): Promise<
     .upsert([routineRow("routine-1"), routineRow("r-1"), routineRow("r-2")]);
   if (routinesError) throw routinesError;
 
-  const { error: membersError } = await client
-    .from("circle_members")
-    .upsert([
-      // Deliberately not user-1/user-2: CareCircleRepository's
-      // findByUserId contract (Task 8) asserts the exact set of circles
-      // those two users actively belong to, so this parent-fixture
-      // membership must not leak circle-1 into either user's results.
-      memberRow("member-1", "circle-1", "coordinator-1"),
-      memberRow("m-1", "c-1", "user-1"),
-      memberRow("m-2", "c-2", "user-2"),
-    ]);
+  const { error: membersError } = await client.from("circle_members").upsert([
+    // Deliberately not user-1/user-2: CareCircleRepository's
+    // findByUserId contract (Task 8) asserts the exact set of circles
+    // those two users actively belong to, so this parent-fixture
+    // membership must not leak circle-1 into either user's results.
+    memberRow("member-1", "circle-1", "coordinator-1"),
+    memberRow("m-1", "c-1", "user-1"),
+    memberRow("m-2", "c-2", "user-2"),
+  ]);
   if (membersError) throw membersError;
 
   const { error: occurrenceError } = await client.from("occurrences").upsert([
