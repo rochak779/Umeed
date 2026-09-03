@@ -45,9 +45,20 @@ export async function seedFixedContractParents(client: SupabaseClient): Promise<
     {
       id: "occ-1",
       routine_id: "routine-1",
-      scheduled_for_utc: "2026-01-05T09:00:00.000Z",
-      scheduled_local_date: "2026-01-05",
-      status: "scheduled",
+      // Deliberately not 2026-01-05T09:00 / 2026-01-06T09:00 on routine-1:
+      // buildOccurrence()'s and the OccurrenceRepository contract's own
+      // test cases use those exact (routineId, scheduledForUtc) pairs, and
+      // occurrences_routine_scheduled_idx is a real unique index — colliding
+      // here would make an unrelated fixture row trip ConflictError inside
+      // the contract's own "round-trips"/"findDue" cases.
+      scheduled_for_utc: "2025-12-01T09:00:00.000Z",
+      scheduled_local_date: "2025-12-01",
+      // "resolved" (not "scheduled"): OccurrenceRepository#findDue has no
+      // routine/circle scoping — it's a genuinely global "every unresolved
+      // occurrence" query — so a persistent fixture row here would leak
+      // into the OccurrenceRepository contract's findDue assertions
+      // otherwise.
+      status: "resolved",
       created_at: NOW,
       updated_at: NOW,
     },
