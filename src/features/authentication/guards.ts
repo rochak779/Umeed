@@ -4,17 +4,17 @@ import { container } from "./container";
 /**
  * Protects a route: redirects to /sign-in when there is no session.
  *
- * Known limitation (local-dev only): LocalAuthProvider's session lives in
- * browser localStorage, which does not exist during TanStack Start's
- * server-side render. Guarding is therefore a no-op on the server and only
- * takes effect once the route mounts in the browser — session.tsx's
- * SessionProvider performs the same check client-side immediately after
- * hydration, so an unauthenticated visitor still never sees protected
- * content, just after a first paint rather than before it. Supabase Auth's
- * cookie-based session (Phase 10) removes this gap entirely.
+ * LocalAuthProvider's session lives in browser localStorage, which does not
+ * exist during server-side rendering — checking it there would always see
+ * "no session" and wrongly redirect a signed-in user before hydration ever
+ * runs client-side (where session.tsx's SessionProvider does the same
+ * check correctly). SupabaseAuthProvider has no such gap (Phase 10): its
+ * session is cookie-backed and resolves identically on server and browser.
+ * The bail below is therefore scoped to local mode only.
  */
 export async function requireSession() {
-  if (typeof window === "undefined") return null;
+  const isLocalMode = process.env["DATA_ADAPTER"] !== "supabase";
+  if (typeof window === "undefined" && isLocalMode) return null;
   const session = await container.authProvider.getSession();
   if (!session) {
     throw redirect({ to: "/sign-in" });
@@ -24,7 +24,8 @@ export async function requireSession() {
 
 /** Redirects an already-authenticated visitor away from public-only screens (sign-in, sign-up). */
 export async function redirectIfAuthenticated() {
-  if (typeof window === "undefined") return;
+  const isLocalMode = process.env["DATA_ADAPTER"] !== "supabase";
+  if (typeof window === "undefined" && isLocalMode) return;
   const session = await container.authProvider.getSession();
   if (session) {
     throw redirect({ to: "/app" });

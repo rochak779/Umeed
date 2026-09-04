@@ -48,8 +48,11 @@ export function resolveActiveMembership(
 /**
  * Loads the current session, profile and active care-circle memberships from
  * the local adapters (Implementation.md §7.2: role/navigation comes from
- * membership, never a client-controlled dropdown). Runs client-side only —
- * see the "known limitation" note on the route guard for why.
+ * membership, never a client-controlled dropdown). Runs client-side for the
+ * interactive session state (memberships, active-circle switching);
+ * `requireSession`/`redirectIfAuthenticated` in guards.ts now also enforce
+ * server-side under Supabase mode (Phase 10) — this provider's job is the
+ * richer client state, not the initial gate.
  */
 export function SessionProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
