@@ -71,19 +71,4 @@ describe("getSupabaseAuthClient", () => {
     expect(mockServerClientInstances[0].id).toBe("server-client-1");
     expect(mockServerClientInstances[1].id).toBe("server-client-2");
   });
-
-  it("browser client factory is configured to cache (verified via mock)", async () => {
-    // This test verifies the mock is set up to support browser-side caching:
-    // the createBrowserClient mock returns a single instance on repeated calls.
-
-    const { createBrowserClient } = await import("@supabase/ssr");
-
-    // Call the mocked createBrowserClient twice
-    const browserClient1 = createBrowserClient("https://test.supabase.co", "test-anon-key");
-    const browserClient2 = createBrowserClient("https://test.supabase.co", "test-anon-key");
-
-    // The mock is configured to return the same instance on both calls
-    expect(browserClient1).toBe(browserClient2);
-    expect(browserClient1.id).toBe("browser-client-instance");
-  });
 });

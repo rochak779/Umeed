@@ -40,6 +40,15 @@ export function toCookieMethods(
 let browserClient: SupabaseClient | undefined;
 
 /**
+ * Browser-cache branch (.client()) has no unit test: createIsomorphicFn's fallback
+ * (when not processed by TanStack Start's Vite compiler transform) always resolves
+ * to .server(), even in tests. The browser branch is only reachable when the file
+ * is processed through vite.config.ts with TanStack Start enabled. Its correctness
+ * is verified by: (1) the build + bundle-grep smoke check below resolveClient, and
+ * (2) manual two-tab testing once auth is wired end-to-end in later tasks (Task 4/7).
+ */
+
+/**
  * Per-platform Supabase Auth client resolver.
  *
  * Server-side (SSR, route guards): creates a fresh client per call, bound to the
