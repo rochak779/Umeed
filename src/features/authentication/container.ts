@@ -3,12 +3,14 @@
  * Everything here is a singleton wired to the browser's localStorage — this
  * is the one file allowed to know about concrete Local* implementations.
  * Supabase adapters will be wired up the same way, behind the same ports,
- * in Phase 9/10, without any feature code changing.
+ * in Phase 9 (data) and Phase 10 (auth), without any feature code changing.
  */
 import { BrowserLocalStorageStore } from "../../infrastructure/local/KeyValueStore";
 import { SystemClock } from "../../shared/time/Clock";
 import { UuidIdGenerator } from "../../shared/id/IdGenerator";
 import { LocalAuthProvider } from "../../infrastructure/local/auth/LocalAuthProvider";
+import { getSupabaseAuthClient } from "../../infrastructure/supabase/authClient";
+import { SupabaseAuthProvider } from "../../infrastructure/supabase/auth/SupabaseAuthProvider";
 import { LocalProfileRepository } from "../../infrastructure/local/repositories/LocalProfileRepository";
 import { LocalCareCircleRepository } from "../../infrastructure/local/repositories/LocalCareCircleRepository";
 import { LocalInvitationRepository } from "../../infrastructure/local/repositories/LocalInvitationRepository";
@@ -67,11 +69,18 @@ function buildRepositories() {
   };
 }
 
+function buildAuthProvider() {
+  if (process.env["DATA_ADAPTER"] === "supabase") {
+    return new SupabaseAuthProvider(getSupabaseAuthClient);
+  }
+  return new LocalAuthProvider(store, new SystemClock());
+}
+
 export const container = {
   clock: new SystemClock(),
   idGenerator: new UuidIdGenerator(),
   eventBus: new LocalEventBus(),
   notificationGateway: new MockNotificationGateway(new SystemClock(), new UuidIdGenerator()),
-  authProvider: new LocalAuthProvider(store, new SystemClock()),
+  authProvider: buildAuthProvider(),
   ...buildRepositories(),
 };
