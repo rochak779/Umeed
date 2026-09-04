@@ -1537,11 +1537,11 @@ The implementation agent must not attempt all phases in one uncontrolled change.
 ## 22. Implementation status checklist
 
 - [x] Phase 0 — Repository audit and baseline (see `docs/phase-0-audit.md`)
-- [ ] Phase 1 — Domain foundations and local adapters
-- [ ] Phase 2 — Product shell, authentication and onboarding
-- [ ] Phase 3 — Care circle, consent and permissions
-- [ ] Phase 4 — Routines and acknowledgements
-- [ ] Phase 5 — Escalation engine and alert ownership
+- [x] Phase 1 — Domain foundations and local adapters
+- [x] Phase 2 — Product shell, authentication and onboarding
+- [x] Phase 3 — Care circle, consent and permissions
+- [x] Phase 4 — Routines and acknowledgements
+- [x] Phase 5 — Escalation engine and alert ownership
 - [x] Phase 6 — Mock communications and direct help
 - [x] Phase 7 — Complete real-world journeys and experience polish
 - [x] Phase 8 — Test hardening and local release gate
