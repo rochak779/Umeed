@@ -1,7 +1,7 @@
-import type { AlertRecipient, CommunicationEvent } from "../../domain/entities/alert";
-import type { Clock } from "../../shared/time/Clock";
-import type { IdGenerator } from "../../shared/id/IdGenerator";
-import type { NotificationGateway } from "../ports/infra";
+import type { AlertRecipient, CommunicationEvent } from "../../domain/entities/alert.ts";
+import type { Clock } from "../../shared/time/Clock.ts";
+import type { IdGenerator } from "../../shared/id/IdGenerator.ts";
+import type { NotificationGateway } from "../ports/infra.ts";
 
 export type SendAlertNotificationsDeps = {
   alerts: { saveRecipient(recipient: AlertRecipient): Promise<void> };

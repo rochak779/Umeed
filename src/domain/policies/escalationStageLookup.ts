@@ -1,4 +1,4 @@
-import type { EscalationPolicy, EscalationStep } from "../entities/routine";
+import type { EscalationPolicy, EscalationStep } from "../entities/routine.ts";
 
 /**
  * The alert-worthy subset of an escalation policy (Implementation.md §10):

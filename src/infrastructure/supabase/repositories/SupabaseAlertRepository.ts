@@ -1,6 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { AlertRepository } from "@/application/ports/repositories";
-import type { Alert, AlertRecipient } from "@/domain/entities/alert";
+import type { AlertRepository } from "@/application/ports/repositories.ts";
+import type { Alert, AlertRecipient } from "@/domain/entities/alert.ts";
 import {
   alertToRow,
   rowToAlert,
@@ -8,7 +8,7 @@ import {
   alertRecipientToRow,
   rowToAlertRecipient,
   type AlertRecipientRow,
-} from "../mappers/alertMapper";
+} from "../mappers/alertMapper.ts";
 
 const CLOSED_STATUSES = ["resolved", "unresolved", "cancelled"];
 

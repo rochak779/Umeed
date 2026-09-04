@@ -1,12 +1,12 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { CommunicationRepository } from "@/application/ports/repositories";
-import type { CommunicationEvent } from "@/domain/entities/alert";
-import { ConflictError } from "@/domain/errors/DomainError";
+import type { CommunicationRepository } from "@/application/ports/repositories.ts";
+import type { CommunicationEvent } from "@/domain/entities/alert.ts";
+import { ConflictError } from "@/domain/errors/DomainError.ts";
 import {
   communicationEventToRow,
   rowToCommunicationEvent,
   type CommunicationEventRow,
-} from "../mappers/communicationMapper";
+} from "../mappers/communicationMapper.ts";
 
 export class SupabaseCommunicationRepository implements CommunicationRepository {
   constructor(private readonly client: SupabaseClient) {}

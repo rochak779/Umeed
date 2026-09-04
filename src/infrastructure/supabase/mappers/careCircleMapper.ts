@@ -1,4 +1,4 @@
-import type { CareCircle, CircleMember, MemberPermission } from "@/domain/entities/careCircle";
+import type { CareCircle, CircleMember, MemberPermission } from "@/domain/entities/careCircle.ts";
 
 export type CareCircleRow = {
   id: string;

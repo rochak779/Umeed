@@ -3,16 +3,16 @@
  * implementations must satisfy the same contract tests
  * (see test/contracts/repositoryContract.ts).
  */
-import type { UserProfile } from "../../domain/entities/profile";
-import type { CareCircle, CircleMember, MemberPermission } from "../../domain/entities/careCircle";
-import type { Invitation } from "../../domain/entities/invitation";
-import type { EscalationPolicy, Routine, RoutineOccurrence } from "../../domain/entities/routine";
-import type { Alert, AlertRecipient, CommunicationEvent } from "../../domain/entities/alert";
+import type { UserProfile } from "../../domain/entities/profile.ts";
+import type { CareCircle, CircleMember, MemberPermission } from "../../domain/entities/careCircle.ts";
+import type { Invitation } from "../../domain/entities/invitation.ts";
+import type { EscalationPolicy, Routine, RoutineOccurrence } from "../../domain/entities/routine.ts";
+import type { Alert, AlertRecipient, CommunicationEvent } from "../../domain/entities/alert.ts";
 import type {
   AuditEvent,
   ConsentRecord,
   NotificationPreference,
-} from "../../domain/entities/consent";
+} from "../../domain/entities/consent.ts";
 
 export interface ProfileRepository {
   findById(id: string): Promise<UserProfile | null>;

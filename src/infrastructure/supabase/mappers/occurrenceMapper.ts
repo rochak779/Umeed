@@ -1,4 +1,4 @@
-import type { RoutineOccurrence } from "@/domain/entities/routine";
+import type { RoutineOccurrence } from "@/domain/entities/routine.ts";
 
 export type OccurrenceRow = {
   id: string;

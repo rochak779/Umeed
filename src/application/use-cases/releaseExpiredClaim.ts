@@ -5,15 +5,15 @@ import type {
   RoutineRepository,
   CareCircleRepository,
   CommunicationRepository,
-} from "../ports/repositories";
-import type { NotificationGateway } from "../ports/infra";
-import type { Clock } from "../../shared/time/Clock";
-import type { IdGenerator } from "../../shared/id/IdGenerator";
-import { transitionAlert } from "../../domain/state-machines/alertStateMachine";
-import { getEscalationStepForStage } from "../../domain/policies/escalationStageLookup";
-import { selectNextRecipients } from "../../domain/policies/escalationRecipients";
-import { sendAlertNotifications } from "../services/sendAlertNotifications";
-import type { AlertRecipient } from "../../domain/entities/alert";
+} from "../ports/repositories.ts";
+import type { NotificationGateway } from "../ports/infra.ts";
+import type { Clock } from "../../shared/time/Clock.ts";
+import type { IdGenerator } from "../../shared/id/IdGenerator.ts";
+import { transitionAlert } from "../../domain/state-machines/alertStateMachine.ts";
+import { getEscalationStepForStage } from "../../domain/policies/escalationStageLookup.ts";
+import { selectNextRecipients } from "../../domain/policies/escalationRecipients.ts";
+import { sendAlertNotifications } from "../services/sendAlertNotifications.ts";
+import type { AlertRecipient } from "../../domain/entities/alert.ts";
 
 export type ReleaseExpiredClaimDeps = {
   alerts: AlertRepository;

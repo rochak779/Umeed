@@ -1,6 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { RoutineRepository } from "@/application/ports/repositories";
-import type { EscalationPolicy, Routine } from "@/domain/entities/routine";
+import type { RoutineRepository } from "@/application/ports/repositories.ts";
+import type { EscalationPolicy, Routine } from "@/domain/entities/routine.ts";
 import {
   routineToRow,
   rowToRoutine,
@@ -8,7 +8,7 @@ import {
   escalationPolicyToRow,
   rowToEscalationPolicy,
   type EscalationPolicyRow,
-} from "../mappers/routineMapper";
+} from "../mappers/routineMapper.ts";
 
 export class SupabaseRoutineRepository implements RoutineRepository {
   constructor(private readonly client: SupabaseClient) {}

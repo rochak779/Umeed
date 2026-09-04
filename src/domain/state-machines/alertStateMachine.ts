@@ -1,5 +1,5 @@
-import { InvalidTransitionError } from "../errors/DomainError";
-import type { AlertStatus } from "../entities/alert";
+import { InvalidTransitionError } from "../errors/DomainError.ts";
+import type { AlertStatus } from "../entities/alert.ts";
 
 /** Allowed alert transitions (Implementation.md §9.2). */
 const ALLOWED_TRANSITIONS: Record<AlertStatus, ReadonlyArray<AlertStatus>> = {

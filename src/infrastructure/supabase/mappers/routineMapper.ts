@@ -1,4 +1,4 @@
-import type { Routine, EscalationPolicy } from "@/domain/entities/routine";
+import type { Routine, EscalationPolicy } from "@/domain/entities/routine.ts";
 
 export type RoutineRow = {
   id: string;

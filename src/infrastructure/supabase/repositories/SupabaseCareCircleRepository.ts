@@ -1,6 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { CareCircleRepository } from "@/application/ports/repositories";
-import type { CareCircle, CircleMember, MemberPermission } from "@/domain/entities/careCircle";
+import type { CareCircleRepository } from "@/application/ports/repositories.ts";
+import type { CareCircle, CircleMember, MemberPermission } from "@/domain/entities/careCircle.ts";
 import {
   careCircleToRow,
   rowToCareCircle,
@@ -11,7 +11,7 @@ import {
   memberPermissionToRow,
   rowToMemberPermission,
   type MemberPermissionRow,
-} from "../mappers/careCircleMapper";
+} from "../mappers/careCircleMapper.ts";
 
 export class SupabaseCareCircleRepository implements CareCircleRepository {
   constructor(private readonly client: SupabaseClient) {}

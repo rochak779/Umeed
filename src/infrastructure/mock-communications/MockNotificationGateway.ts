@@ -1,7 +1,7 @@
-import type { Channel } from "../../domain/entities/careCircle";
-import type { NotificationGateway, NotificationSendResult } from "../../application/ports/infra";
-import type { Clock } from "../../shared/time/Clock";
-import type { IdGenerator } from "../../shared/id/IdGenerator";
+import type { Channel } from "../../domain/entities/careCircle.ts";
+import type { NotificationGateway, NotificationSendResult } from "../../application/ports/infra.ts";
+import type { Clock } from "../../shared/time/Clock.ts";
+import type { IdGenerator } from "../../shared/id/IdGenerator.ts";
 
 export type MockChannelConfig = {
   /** 0..1 — probability this send simulates a provider failure. Default 0. */

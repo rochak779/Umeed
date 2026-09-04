@@ -1,5 +1,5 @@
-import type { CircleMember } from "../entities/careCircle";
-import type { EscalationStep } from "../entities/routine";
+import type { CircleMember } from "../entities/careCircle.ts";
+import type { EscalationStep } from "../entities/routine.ts";
 
 function isWithinAvailability(member: CircleMember, nowUtc: string, timezone: string): boolean {
   if (!member.availability) return true;

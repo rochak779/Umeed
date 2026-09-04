@@ -1,5 +1,5 @@
-import { InvalidTransitionError } from "../errors/DomainError";
-import type { OccurrenceStatus } from "../entities/routine";
+import { InvalidTransitionError } from "../errors/DomainError.ts";
+import type { OccurrenceStatus } from "../entities/routine.ts";
 
 /**
  * Allowed occurrence transitions (Implementation.md §9.1). Invalid

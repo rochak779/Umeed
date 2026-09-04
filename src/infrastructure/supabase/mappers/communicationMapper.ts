@@ -1,4 +1,4 @@
-import type { CommunicationEvent } from "@/domain/entities/alert";
+import type { CommunicationEvent } from "@/domain/entities/alert.ts";
 
 export type CommunicationEventRow = {
   id: string;

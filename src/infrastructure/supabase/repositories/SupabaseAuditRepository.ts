@@ -1,8 +1,8 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { AuditRepository } from "@/application/ports/repositories";
-import type { AuditEvent } from "@/domain/entities/consent";
-import { ConflictError } from "@/domain/errors/DomainError";
-import { auditEventToRow, rowToAuditEvent, type AuditEventRow } from "../mappers/auditMapper";
+import type { AuditRepository } from "@/application/ports/repositories.ts";
+import type { AuditEvent } from "@/domain/entities/consent.ts";
+import { ConflictError } from "@/domain/errors/DomainError.ts";
+import { auditEventToRow, rowToAuditEvent, type AuditEventRow } from "../mappers/auditMapper.ts";
 
 /**
  * Must be constructed with the service-role client: Task 6's RLS migration

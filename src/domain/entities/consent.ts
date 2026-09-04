@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { ChannelSchema } from "./careCircle";
+import { ChannelSchema } from "./careCircle.ts";
 
 export const ConsentTypeSchema = z.enum([
   "circle_participation",

@@ -1,8 +1,8 @@
-import type { OccurrenceRepository, RoutineRepository } from "../ports/repositories";
-import type { IdGenerator } from "../../shared/id/IdGenerator";
-import type { Clock } from "../../shared/time/Clock";
-import { generateOccurrenceCandidates } from "../../domain/services/occurrenceGeneration";
-import { NotFoundError } from "../../domain/errors/DomainError";
+import type { OccurrenceRepository, RoutineRepository } from "../ports/repositories.ts";
+import type { IdGenerator } from "../../shared/id/IdGenerator.ts";
+import type { Clock } from "../../shared/time/Clock.ts";
+import { generateOccurrenceCandidates } from "../../domain/services/occurrenceGeneration.ts";
+import { NotFoundError } from "../../domain/errors/DomainError.ts";
 
 export type GenerateOccurrencesDeps = {
   routines: RoutineRepository;

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { ChannelSchema } from "./careCircle";
+import { ChannelSchema } from "./careCircle.ts";
 
 export const AlertSourceSchema = z.enum(["missed_routine", "direct_help", "manual"]);
 export type AlertSource = z.infer<typeof AlertSourceSchema>;

@@ -1,4 +1,4 @@
-import type { AuditEvent } from "@/domain/entities/consent";
+import type { AuditEvent } from "@/domain/entities/consent.ts";
 
 export type AuditEventRow = {
   id: string;

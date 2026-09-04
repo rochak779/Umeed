@@ -1,8 +1,8 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { OccurrenceRepository } from "@/application/ports/repositories";
-import type { RoutineOccurrence } from "@/domain/entities/routine";
-import { ConflictError } from "@/domain/errors/DomainError";
-import { occurrenceToRow, rowToOccurrence, type OccurrenceRow } from "../mappers/occurrenceMapper";
+import type { OccurrenceRepository } from "@/application/ports/repositories.ts";
+import type { RoutineOccurrence } from "@/domain/entities/routine.ts";
+import { ConflictError } from "@/domain/errors/DomainError.ts";
+import { occurrenceToRow, rowToOccurrence, type OccurrenceRow } from "../mappers/occurrenceMapper.ts";
 
 const RESOLVED_STATUSES = new Set<RoutineOccurrence["status"]>(["resolved", "cancelled"]);
 

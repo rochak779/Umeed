@@ -1,4 +1,4 @@
-import type { Routine } from "../entities/routine";
+import type { Routine } from "../entities/routine.ts";
 
 /**
  * Timezone-aware local-wall-time -> UTC conversion (Implementation.md §12).

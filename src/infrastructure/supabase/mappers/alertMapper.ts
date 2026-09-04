@@ -1,4 +1,4 @@
-import type { Alert, AlertRecipient } from "@/domain/entities/alert";
+import type { Alert, AlertRecipient } from "@/domain/entities/alert.ts";
 
 export type AlertRow = {
   id: string;

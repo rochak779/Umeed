@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { ResponderTypeSchema } from "./careCircle";
+import { ResponderTypeSchema } from "./careCircle.ts";
 
 export const InvitationStatusSchema = z.enum([
   "pending",

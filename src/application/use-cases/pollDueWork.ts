@@ -1,10 +1,10 @@
-import type { Clock } from "../../shared/time/Clock";
-import { generateOccurrences, type GenerateOccurrencesDeps } from "./generateOccurrences";
+import type { Clock } from "../../shared/time/Clock.ts";
+import { generateOccurrences, type GenerateOccurrencesDeps } from "./generateOccurrences.ts";
 import {
   raiseMissedRoutineAlert,
   type RaiseMissedRoutineAlertDeps,
-} from "./raiseMissedRoutineAlert";
-import { releaseExpiredClaim, type ReleaseExpiredClaimDeps } from "./releaseExpiredClaim";
+} from "./raiseMissedRoutineAlert.ts";
+import { releaseExpiredClaim, type ReleaseExpiredClaimDeps } from "./releaseExpiredClaim.ts";
 
 const LOOKAHEAD_DAYS = 14;
 

@@ -3,7 +3,7 @@
  * eventing, session/auth. Clock and IdGenerator live in src/shared/ and are
  * imported directly since they have no domain-shaped payload.
  */
-import type { Channel } from "../../domain/entities/careCircle";
+import type { Channel } from "../../domain/entities/careCircle.ts";
 
 export type NotificationSendResult = {
   providerReference: string;
