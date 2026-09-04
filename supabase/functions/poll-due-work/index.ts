@@ -31,9 +31,19 @@ import { MockNotificationGateway } from "../../../src/infrastructure/mock-commun
 //   used elsewhere in this codebase, e.g. by `createSupabaseServiceClient()`)
 //   — never use it for caller authentication, only for the Supabase client.
 Deno.serve(async (req) => {
+  const invokeSecret = Deno.env.get("POLL_DUE_WORK_INVOKE_SECRET");
+  if (!invokeSecret) {
+    // Fail closed, not open: an unset/misspelled secret must never fall
+    // through to a literal "Bearer undefined" comparison that anyone could
+    // satisfy by sending that exact header.
+    console.error("poll-due-work misconfigured: POLL_DUE_WORK_INVOKE_SECRET is not set");
+    return new Response(JSON.stringify({ error: "internal_error" }), {
+      status: 500,
+      headers: { "content-type": "application/json" },
+    });
+  }
   const authHeader = req.headers.get("Authorization") ?? "";
-  const expected = `Bearer ${Deno.env.get("POLL_DUE_WORK_INVOKE_SECRET")}`;
-  if (authHeader !== expected) {
+  if (authHeader !== `Bearer ${invokeSecret}`) {
     return new Response("Unauthorized", { status: 401 });
   }
 

@@ -684,8 +684,9 @@ controlled by the `DATA_ADAPTER` environment variable, read once at module load 
 - `DATA_ADAPTER=supabase`: every repository (`profileRepository`, `careCircleRepository`,
   `invitationRepository`, `consentRepository`, `auditRepository`, `routineRepository`,
   `occurrenceRepository`, `alertRepository`, `communicationRepository`) is backed by its
-  `Supabase*Repository` implementation instead. `authProvider` is unaffected — it stays on
-  `LocalAuthProvider` in both modes; wiring real Supabase Auth is Phase 10 scope.
+  `Supabase*Repository` implementation instead. `authProvider` also switches: it's backed
+  by `SupabaseAuthProvider` (real Supabase Auth, wired in Phase 10) instead of
+  `LocalAuthProvider`.
 
 `supabase` mode requires `SUPABASE_URL`, `SUPABASE_ANON_KEY`, and
 `SUPABASE_SERVICE_ROLE_KEY` set in `.env.local` (gitignored), pointing at a Supabase project

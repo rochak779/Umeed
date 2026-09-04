@@ -2,8 +2,10 @@
  * Composition root for the local-first adapters (Implementation.md §11).
  * Everything here is a singleton wired to the browser's localStorage — this
  * is the one file allowed to know about concrete Local* implementations.
- * Supabase adapters will be wired up the same way, behind the same ports,
- * in Phase 9 (data) and Phase 10 (auth), without any feature code changing.
+ * Supabase adapters are wired up the same way, behind the same ports, when
+ * `DATA_ADAPTER=supabase`: repositories (Phase 9) and `authProvider` via
+ * `SupabaseAuthProvider` (Phase 10) both branch on it here, without any
+ * feature code changing.
  */
 import { BrowserLocalStorageStore } from "../../infrastructure/local/KeyValueStore";
 import { SystemClock } from "../../shared/time/Clock";
@@ -36,10 +38,11 @@ import { SupabaseCommunicationRepository } from "../../infrastructure/supabase/r
 const store = new BrowserLocalStorageStore();
 
 /**
- * Repository set only branches on `DATA_ADAPTER` — everything else
- * (clock, idGenerator, eventBus, notificationGateway, authProvider) stays
- * on the local/mock adapters regardless. Linking `AuthProvider` to real
- * Supabase Auth is Phase 10 scope, not this one.
+ * Repository set only branches on `DATA_ADAPTER` — everything else (clock,
+ * idGenerator, eventBus, notificationGateway) stays on the local/mock
+ * adapters regardless. `authProvider` also branches on `DATA_ADAPTER`, but
+ * separately, in `buildAuthProvider()` below (Phase 10: `SupabaseAuthProvider`
+ * when `DATA_ADAPTER=supabase`, `LocalAuthProvider` otherwise).
  */
 function buildRepositories() {
   if (process.env["DATA_ADAPTER"] === "supabase") {

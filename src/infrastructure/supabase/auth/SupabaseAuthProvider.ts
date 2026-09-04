@@ -36,7 +36,11 @@ export class SupabaseAuthProvider implements AuthProvider {
       options: { data: { display_name: input.displayName } },
     });
     if (error) {
-      if (error.status === 422 || error.code === "user_already_exists") {
+      // Supabase returns 422 for several distinct problems (weak password,
+      // other validation failures — not just a duplicate email), so status
+      // alone can't disambiguate; only the specific error code means the
+      // email is actually taken.
+      if (error.code === "user_already_exists") {
         return { ok: false, code: "email_taken" };
       }
       return { ok: false, code: "unknown_error" };
