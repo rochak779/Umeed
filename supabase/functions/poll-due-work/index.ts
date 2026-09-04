@@ -1,3 +1,13 @@
+// NOTE: this function and the src/ files it transitively imports (29 of
+// them — application use-cases/ports, domain entities/services/policies/
+// state-machines, the Supabase repository adapters and mappers,
+// MockNotificationGateway, Clock, IdGenerator) use explicit `.ts` extensions
+// on their relative/alias imports, unlike the rest of src/. That's
+// intentional: Deno's module resolver, unlike Vite/tsc's "Bundler" mode,
+// does not probe for extensionless local specifiers, so these imports must
+// carry the extension to be importable here. If you edit one of those
+// files, keep its import extensions — this is deliberate Deno-compat
+// infrastructure, not stylistic drift to be "cleaned up".
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import { pollDueWork } from "../../../src/application/use-cases/pollDueWork.ts";
 import { SystemClock } from "../../../src/shared/time/Clock.ts";
