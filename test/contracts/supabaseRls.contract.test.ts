@@ -5,7 +5,17 @@ import {
 } from "@/infrastructure/supabase/client";
 import { createTestAuthUser, deleteTestAuthUser } from "../infrastructure/supabase/testAuthUsers";
 
-const service = createSupabaseServiceClient();
+// Phase 8's release gate requires `bun run test` to pass with no Supabase
+// dependency configured. createSupabaseServiceClient() throws when
+// SUPABASE_URL/SUPABASE_SERVICE_ROLE_KEY are missing, so this whole suite
+// must be skipped — not merely fail — on a fresh clone or CI without
+// secrets. Guard both the env check and the client construction: even a
+// skipped describe body is still evaluated by Vitest to discover its
+// `it()`s, so the throwing call must never run unconditionally at module
+// scope.
+const hasSupabaseEnv =
+  Boolean(process.env["SUPABASE_URL"]) && Boolean(process.env["SUPABASE_SERVICE_ROLE_KEY"]);
+const service = hasSupabaseEnv ? createSupabaseServiceClient() : undefined!;
 
 async function signInAs(userId: string, email: string) {
   const { data, error } = await service.auth.admin.generateLink({ type: "magiclink", email });
@@ -20,7 +30,7 @@ async function signInAs(userId: string, email: string) {
   return createSupabaseAnonClient(session.session.access_token);
 }
 
-describe("RLS negative cases", () => {
+describe.skipIf(!hasSupabaseEnv)("RLS negative cases", () => {
   const cleanupUserIds: string[] = [];
   // signInAs must be called with the exact email each auth user was
   // registered under — generateLink({type:"magiclink", email}) for an

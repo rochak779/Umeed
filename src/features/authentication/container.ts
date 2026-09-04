@@ -40,7 +40,7 @@ const store = new BrowserLocalStorageStore();
  * Supabase Auth is Phase 10 scope, not this one.
  */
 function buildRepositories() {
-  if (process.env.DATA_ADAPTER === "supabase") {
+  if (process.env["DATA_ADAPTER"] === "supabase") {
     const client = createSupabaseServiceClient();
     return {
       profileRepository: new SupabaseProfileRepository(client),

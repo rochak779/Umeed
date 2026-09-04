@@ -705,10 +705,20 @@ bun run vitest run test/contracts/supabaseRepositories.contract.test.ts test/con
 
 `supabaseRepositories.contract.test.ts` reruns the same shared repository contract suite
 used by the Local adapters against the real Supabase adapters. `supabaseRls.contract.test.ts`
-exercises Row Level Security negative cases directly (e.g. a nearby responder cannot read a
-medication label, a removed circle member loses read access, a user outside a circle cannot
-see its alerts, and only the service role can insert audit events) using real authenticated
-Supabase sessions for synthetic test users.
+exercises Row Level Security negative cases directly (e.g. a nearby responder correctly sees
+`can_view_medication_labels: false` on their own permission row, a removed circle member loses
+read access, a user outside a circle cannot see its alerts, and only the service role can
+insert audit events) using real authenticated Supabase sessions for synthetic test users. Note
+this only confirms the permission *flag* round-trips correctly through RLS — RLS scopes which
+rows are visible per circle, it does not redact individual sensitive columns (e.g. a nearby
+responder without `canViewMedicationLabels` can still read `routines.title`/`description` for
+a medication routine today). Column-level redaction is not implemented in Phase 9; it's a
+known gap tracked for Phase 10.
+
+Neither Supabase contract test file requires credentials to run `bun run test` locally: both
+skip cleanly (via `describe.skipIf`) when `SUPABASE_URL`/`SUPABASE_SERVICE_ROLE_KEY` aren't
+set, so a fresh clone or CI without secrets still gets a fully green, Supabase-free local test
+suite (Phase 8's release gate).
 
 ### Known limitations
 

@@ -1,3 +1,11 @@
+-- INVARIANT: every policy below compares auth.uid()::text against
+-- profiles.id / circle_members.user_id. Phase 9 does not enforce that
+-- profiles.id equals the corresponding auth.users.id (no FK to auth.users
+-- yet — UuidIdGenerator mints profile ids independently of Supabase Auth;
+-- see Architecture notes in the Phase 9 plan). Phase 10's auth cutover
+-- MUST reconcile profile ids with real Supabase Auth user ids, or every
+-- policy here will silently return zero rows instead of erroring.
+
 -- True if the calling JWT's user is an active member of the given circle.
 create or replace function is_active_circle_member(p_circle_id text)
 returns boolean
@@ -49,11 +57,15 @@ create policy care_circles_select on care_circles for select
 create policy circle_members_select on circle_members for select
   using (is_active_circle_member(care_circle_id));
 
--- member_permissions: nearby responders must not read medication/notes
--- columns. Row-level RLS can't hide individual columns, so the sensitive
--- fields are additionally redacted application-side in the repository
--- mapper (Task 10) using this same permission row; RLS here only scopes
--- *which rows* (i.e. which circle) are visible at all.
+-- member_permissions: this policy scopes which ROWS are visible (i.e.
+-- which circle) per active member. It does NOT redact individual sensitive
+-- COLUMNS — e.g. routines.title/description for medication routines are
+-- still fully readable by any active circle member via routines_select,
+-- regardless of their canViewMedicationLabels flag on this row. Row-level
+-- RLS cannot hide individual columns; no repository mapper performs any
+-- redaction today either. Column-level protection (a permission-aware view
+-- or RPC) is not implemented in Phase 9 — this is a known gap tracked for
+-- Phase 10, not this phase's scope.
 create policy member_permissions_select on member_permissions for select
   using (
     exists (
