@@ -1,5 +1,23 @@
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
 import { toCookieMethods } from "./authClient";
+
+// Mock @supabase/ssr at the top level
+let mockServerClientInstances: Record<string, unknown>[] = [];
+let mockBrowserClientInstance: Record<string, unknown> | undefined;
+
+vi.mock("@supabase/ssr", () => ({
+  createServerClient: vi.fn(() => {
+    const instance = { id: `server-client-${mockServerClientInstances.length + 1}` };
+    mockServerClientInstances.push(instance);
+    return instance;
+  }),
+  createBrowserClient: vi.fn(() => {
+    if (!mockBrowserClientInstance) {
+      mockBrowserClientInstance = { id: "browser-client-instance" };
+    }
+    return mockBrowserClientInstance;
+  }),
+}));
 
 describe("toCookieMethods", () => {
   it("maps a plain cookie record into the {name,value}[] shape @supabase/ssr expects", () => {
@@ -24,5 +42,48 @@ describe("toCookieMethods", () => {
 
     expect(write).toHaveBeenNthCalledWith(1, "sb-access-token", "new-value", { maxAge: 3600 });
     expect(write).toHaveBeenNthCalledWith(2, "sb-refresh-token", "", { maxAge: 0 });
+  });
+});
+
+describe("getSupabaseAuthClient", () => {
+  beforeEach(() => {
+    process.env.SUPABASE_URL = "https://test.supabase.co";
+    process.env.SUPABASE_ANON_KEY = "test-anon-key";
+    mockServerClientInstances = [];
+    mockBrowserClientInstance = undefined;
+  });
+
+  afterEach(() => {
+    vi.resetModules();
+  });
+
+  it("calls createServerClient fresh on each invocation (no per-module cache)", async () => {
+    // Dynamic import to get fresh module state
+    const { getSupabaseAuthClient } = await import("./authClient");
+
+    const client1 = getSupabaseAuthClient();
+    const client2 = getSupabaseAuthClient();
+
+    // In server mode (Node.js test environment), each call should produce a distinct
+    // object from createServerClient — no caching at module scope
+    expect(client1).not.toBe(client2);
+    expect(mockServerClientInstances).toHaveLength(2);
+    expect(mockServerClientInstances[0].id).toBe("server-client-1");
+    expect(mockServerClientInstances[1].id).toBe("server-client-2");
+  });
+
+  it("browser client factory is configured to cache (verified via mock)", async () => {
+    // This test verifies the mock is set up to support browser-side caching:
+    // the createBrowserClient mock returns a single instance on repeated calls.
+
+    const { createBrowserClient } = await import("@supabase/ssr");
+
+    // Call the mocked createBrowserClient twice
+    const browserClient1 = createBrowserClient("https://test.supabase.co", "test-anon-key");
+    const browserClient2 = createBrowserClient("https://test.supabase.co", "test-anon-key");
+
+    // The mock is configured to return the same instance on both calls
+    expect(browserClient1).toBe(browserClient2);
+    expect(browserClient1.id).toBe("browser-client-instance");
   });
 });

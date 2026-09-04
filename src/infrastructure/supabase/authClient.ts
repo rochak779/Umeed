@@ -1,4 +1,6 @@
+import { createIsomorphicFn } from "@tanstack/react-start";
 import { createBrowserClient, createServerClient } from "@supabase/ssr";
+import { getCookies, setCookie } from "@tanstack/react-start/server";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 function requireEnv(name: string): string {
@@ -38,39 +40,43 @@ export function toCookieMethods(
 let browserClient: SupabaseClient | undefined;
 
 /**
- * Returns the Supabase Auth client to use for the current call:
- * - Server-side (SSR, route guards): a fresh client per call, bound to the
- *   *current request's* cookies via TanStack Start's AsyncLocalStorage-scoped
- *   cookie helpers. Must be constructed per call, never cached at module
- *   scope — this app's server runtime (Cloudflare Workers, per
- *   .output/server/wrangler.json) reuses one module instance across
- *   concurrent requests, so a cached client here would leak one visitor's
- *   session into another's request.
- * - Browser-side: a single cached client bound to document.cookie, safe to
- *   reuse for the lifetime of the tab.
+ * Per-platform Supabase Auth client resolver.
+ *
+ * Server-side (SSR, route guards): creates a fresh client per call, bound to the
+ * *current request's* cookies via TanStack Start's AsyncLocalStorage-scoped
+ * cookie helpers. Must be constructed per call, never cached at module
+ * scope — this app's server runtime (Cloudflare Workers, per
+ * .output/server/wrangler.json) reuses one module instance across
+ * concurrent requests, so a cached client here would leak one visitor's
+ * session into another's request.
+ *
+ * Browser-side: creates a single cached client bound to document.cookie, safe to
+ * reuse for the lifetime of the tab.
  *
  * Only ever uses the anon key — this file must never import or construct a
  * service-role client (Implementation.md §13.3, §18: service-role key never
  * reaches the browser, and there is no reason an end-user auth flow needs
  * elevated privileges).
  */
-export function getSupabaseAuthClient(): SupabaseClient {
-  const url = requireEnv("SUPABASE_URL");
-  const anonKey = requireEnv("SUPABASE_ANON_KEY");
-
-  if (typeof window === "undefined") {
-    // Lazy import: this pulls in @tanstack/react-start/server's
-    // AsyncLocalStorage-backed helpers, which must not be evaluated in a
-    // browser bundle.
-    const { getCookies, setCookie } = require("@tanstack/react-start/server") as {
-      getCookies: () => Record<string, string>;
-      setCookie: (name: string, value: string, options?: Record<string, unknown>) => void;
-    };
+const resolveClient = createIsomorphicFn()
+  .server((): SupabaseClient => {
+    const url = requireEnv("SUPABASE_URL");
+    const anonKey = requireEnv("SUPABASE_ANON_KEY");
     return createServerClient(url, anonKey, {
       cookies: toCookieMethods(getCookies, setCookie),
     });
-  }
+  })
+  .client((): SupabaseClient => {
+    const url = requireEnv("SUPABASE_URL");
+    const anonKey = requireEnv("SUPABASE_ANON_KEY");
+    browserClient ??= createBrowserClient(url, anonKey);
+    return browserClient;
+  });
 
-  browserClient ??= createBrowserClient(url, anonKey);
-  return browserClient;
+/**
+ * Returns the Supabase Auth client to use for the current call.
+ * See resolveClient() above for platform-specific behavior.
+ */
+export function getSupabaseAuthClient(): SupabaseClient {
+  return resolveClient();
 }
