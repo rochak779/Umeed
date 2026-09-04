@@ -96,6 +96,14 @@ describe.skipIf(!hasSupabaseEnv)("Supabase repository contracts", () => {
       .delete()
       .in("id", ["a-1", "a-2"]);
     if (auditError) throw auditError;
+
+    // CareCircleRepository's findAllActive contract test creates c-3.
+    // c-1 and c-2 are seeded as fixed parents in beforeAll (do not delete).
+    const { error: careCircleError } = await client
+      .from("care_circles")
+      .delete()
+      .in("id", ["c-3"]);
+    if (careCircleError) throw careCircleError;
   });
 
   runProfileRepositoryContract(() => new SupabaseProfileRepository(client));

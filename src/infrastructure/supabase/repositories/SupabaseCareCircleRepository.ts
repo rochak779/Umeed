@@ -37,6 +37,16 @@ export class SupabaseCareCircleRepository implements CareCircleRepository {
     return (data ?? []).map((row) => rowToCareCircle(row.care_circles));
   }
 
+  async findAllActive(): Promise<CareCircle[]> {
+    const { data, error } = await this.client
+      .from("care_circles")
+      .select("*")
+      .eq("status", "active")
+      .returns<CareCircleRow[]>();
+    if (error) throw error;
+    return (data ?? []).map(rowToCareCircle);
+  }
+
   async save(circle: CareCircle): Promise<void> {
     const { error } = await this.client
       .from("care_circles")

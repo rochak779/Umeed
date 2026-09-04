@@ -40,6 +40,10 @@ export class LocalCareCircleRepository implements CareCircleRepository {
     return this.circles.all().filter((c) => memberCircleIds.has(c.id));
   }
 
+  async findAllActive(): Promise<CareCircle[]> {
+    return this.circles.all().filter((c) => c.status === "active");
+  }
+
   async save(circle: CareCircle): Promise<void> {
     this.circles.save(circle);
   }

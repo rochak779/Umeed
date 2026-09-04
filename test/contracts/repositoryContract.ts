@@ -166,6 +166,23 @@ export function runCareCircleRepositoryContract(makeRepository: () => CareCircle
       expect(circles.map((c) => c.id)).toEqual(["c-1"]);
     });
 
+    it("findAllActive returns only circles with status active", async () => {
+      const repo = makeRepository();
+      await repo.save(buildCareCircle({ id: "c-1", status: "active" }));
+      await repo.save(buildCareCircle({ id: "c-2", status: "paused" }));
+      await repo.save(buildCareCircle({ id: "c-3", status: "active" }));
+      const circles = await repo.findAllActive();
+      const ids = circles.map((c) => c.id);
+      // Should include the active circles and exclude the paused one
+      expect(ids).toContain("c-1");
+      expect(ids).toContain("c-3");
+      expect(ids).not.toContain("c-2");
+      // Verify all returned circles have status "active"
+      circles.forEach((circle) => {
+        expect(circle.status).toBe("active");
+      });
+    });
+
     it("round-trips members and isolates them by care circle", async () => {
       const repo = makeRepository();
       await repo.saveMember(

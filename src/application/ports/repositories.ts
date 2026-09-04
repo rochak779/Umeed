@@ -23,6 +23,7 @@ export interface ProfileRepository {
 export interface CareCircleRepository {
   findById(id: string): Promise<CareCircle | null>;
   findByUserId(userId: string): Promise<CareCircle[]>;
+  findAllActive(): Promise<CareCircle[]>;
   save(circle: CareCircle): Promise<void>;
   findMembers(careCircleId: string): Promise<CircleMember[]>;
   findMemberById(id: string): Promise<CircleMember | null>;
