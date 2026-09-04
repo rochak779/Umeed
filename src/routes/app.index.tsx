@@ -1,11 +1,12 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { AlertTriangle, CalendarClock, LogOut, Settings, Shield, Users } from "lucide-react";
 import { Screen, SectionHeader, TopBar, UCard } from "@/components/umeed/primitives";
 import { resolveActiveMembership, useSession } from "@/features/authentication/SessionContext";
 import { container } from "@/features/authentication/container";
 import { getRecentActivity, type ActivityItem } from "@/application/use-cases/getRecentActivity";
 import { getAlertsForCircle, type AlertView } from "@/application/use-cases/getAlertsForCircle";
+import { useAlertsRealtime } from "@/features/alerts/useAlertsRealtime";
 
 export const Route = createFileRoute("/app/")({
   head: () => ({ meta: [{ title: "Umeed" }] }),
@@ -31,8 +32,9 @@ function AppHome() {
   const [activity, setActivity] = useState<ActivityItem[]>([]);
   const [openAlerts, setOpenAlerts] = useState<AlertView[]>([]);
 
-  useEffect(() => {
-    const circleId = resolveActiveMembership(memberships, activeCircleId)?.circle.id;
+  const circleId = resolveActiveMembership(memberships, activeCircleId)?.circle.id;
+
+  const refresh = useCallback(() => {
     if (!circleId) return;
     void getRecentActivity(
       { audit: container.auditRepository },
@@ -48,7 +50,13 @@ function AppHome() {
     ).then((all) =>
       setOpenAlerts(all.filter((a) => !["resolved", "unresolved", "cancelled"].includes(a.status))),
     );
-  }, [memberships, activeCircleId]);
+  }, [circleId]);
+
+  useEffect(() => {
+    refresh();
+  }, [refresh]);
+
+  useAlertsRealtime(circleId, refresh);
 
   useEffect(() => {
     if (loading) return;

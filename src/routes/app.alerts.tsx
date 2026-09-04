@@ -8,6 +8,7 @@ import { resolveActiveMembership, useSession } from "@/features/authentication/S
 import { getAlertsForCircle, type AlertView } from "@/application/use-cases/getAlertsForCircle";
 import { claimAlert } from "@/application/use-cases/claimAlert";
 import { resolveAlert } from "@/application/use-cases/resolveAlert";
+import { useAlertsRealtime } from "@/features/alerts/useAlertsRealtime";
 import type { AlertRecipient, DeliveryStatus, ResolutionCode } from "@/domain/entities/alert";
 import type { ResponderType } from "@/domain/entities/careCircle";
 
@@ -98,6 +99,8 @@ function AlertsScreen() {
     void load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [circleId]);
+
+  useAlertsRealtime(circleId, load);
 
   if (!session || !circleId) {
     return (
