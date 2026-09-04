@@ -672,6 +672,44 @@ implementation honours the same port contract):
 bun run test test/contracts
 ```
 
+### Supabase adapters
+
+Phase 9 added a Supabase-backed implementation of every repository port alongside the
+existing Local* adapters, without changing any product code path. Which set is used is
+controlled by the `DATA_ADAPTER` environment variable, read once at module load in
+`src/features/authentication/container.ts`:
+
+- `DATA_ADAPTER` unset or `local` (the default): local, `localStorage`-backed adapters, same
+  as before this phase — no behavior change.
+- `DATA_ADAPTER=supabase`: every repository (`profileRepository`, `careCircleRepository`,
+  `invitationRepository`, `consentRepository`, `auditRepository`, `routineRepository`,
+  `occurrenceRepository`, `alertRepository`, `communicationRepository`) is backed by its
+  `Supabase*Repository` implementation instead. `authProvider` is unaffected — it stays on
+  `LocalAuthProvider` in both modes; wiring real Supabase Auth is Phase 10 scope.
+
+`supabase` mode requires `SUPABASE_URL`, `SUPABASE_ANON_KEY`, and
+`SUPABASE_SERVICE_ROLE_KEY` set in `.env.local` (gitignored), pointing at a Supabase project
+with the migrations in `supabase/migrations` applied. To apply migrations to a linked
+project:
+
+```sh
+supabase db push --linked
+```
+
+To run the Supabase-specific test suites — these hit a real (non-production) hosted Supabase
+project and require the three env vars above to be set locally:
+
+```sh
+bun run vitest run test/contracts/supabaseRepositories.contract.test.ts test/contracts/supabaseRls.contract.test.ts
+```
+
+`supabaseRepositories.contract.test.ts` reruns the same shared repository contract suite
+used by the Local adapters against the real Supabase adapters. `supabaseRls.contract.test.ts`
+exercises Row Level Security negative cases directly (e.g. a nearby responder cannot read a
+medication label, a removed circle member loses read access, a user outside a circle cannot
+see its alerts, and only the service role can insert audit events) using real authenticated
+Supabase sessions for synthetic test users.
+
 ### Known limitations
 
 These are intentional, documented scope decisions or work explicitly deferred to a later
@@ -681,9 +719,11 @@ phase — not bugs:
   in-browser scheduler (`LocalScheduler`). It only advances while a browser tab with the app
   open is running; there is no background job that fires when the tab is closed. A real
   scheduler arrives in Phase 10.
-- **No real Twilio or Supabase integration yet.** Notifications go through a mock gateway and
-  persistence is local-only (`localStorage`), by design, until Phases 9–11 wire up the real
-  backend and messaging provider behind the same interfaces.
+- **No real Twilio integration yet, and Supabase is not the default.** Notifications still go
+  through a mock gateway. Supabase-backed repositories exist behind `DATA_ADAPTER=supabase`
+  (see "Supabase adapters" above) but the app still defaults to local-only (`localStorage`)
+  persistence — there is no cutover yet. That, plus the messaging provider, is Phase 10/11
+  scope.
 - **Quiet hours are shared across all notification channels.** A user/circle has one quiet-hours
   window that applies to every channel (SMS, push, call, etc.), not a separate window per
   channel. This was a deliberate MVP scope decision, not a gap.

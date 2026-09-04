@@ -20,8 +20,52 @@ import { LocalAlertRepository } from "../../infrastructure/local/repositories/Lo
 import { LocalCommunicationRepository } from "../../infrastructure/local/repositories/LocalCommunicationRepository";
 import { LocalEventBus } from "../../infrastructure/local/LocalEventBus";
 import { MockNotificationGateway } from "../../infrastructure/mock-communications/MockNotificationGateway";
+import { createSupabaseServiceClient } from "../../infrastructure/supabase/client";
+import { SupabaseProfileRepository } from "../../infrastructure/supabase/repositories/SupabaseProfileRepository";
+import { SupabaseCareCircleRepository } from "../../infrastructure/supabase/repositories/SupabaseCareCircleRepository";
+import { SupabaseInvitationRepository } from "../../infrastructure/supabase/repositories/SupabaseInvitationRepository";
+import { SupabaseConsentRepository } from "../../infrastructure/supabase/repositories/SupabaseConsentRepository";
+import { SupabaseAuditRepository } from "../../infrastructure/supabase/repositories/SupabaseAuditRepository";
+import { SupabaseRoutineRepository } from "../../infrastructure/supabase/repositories/SupabaseRoutineRepository";
+import { SupabaseOccurrenceRepository } from "../../infrastructure/supabase/repositories/SupabaseOccurrenceRepository";
+import { SupabaseAlertRepository } from "../../infrastructure/supabase/repositories/SupabaseAlertRepository";
+import { SupabaseCommunicationRepository } from "../../infrastructure/supabase/repositories/SupabaseCommunicationRepository";
 
 const store = new BrowserLocalStorageStore();
+
+/**
+ * Repository set only branches on `DATA_ADAPTER` — everything else
+ * (clock, idGenerator, eventBus, notificationGateway, authProvider) stays
+ * on the local/mock adapters regardless. Linking `AuthProvider` to real
+ * Supabase Auth is Phase 10 scope, not this one.
+ */
+function buildRepositories() {
+  if (process.env.DATA_ADAPTER === "supabase") {
+    const client = createSupabaseServiceClient();
+    return {
+      profileRepository: new SupabaseProfileRepository(client),
+      careCircleRepository: new SupabaseCareCircleRepository(client),
+      invitationRepository: new SupabaseInvitationRepository(client),
+      consentRepository: new SupabaseConsentRepository(client),
+      auditRepository: new SupabaseAuditRepository(client),
+      routineRepository: new SupabaseRoutineRepository(client),
+      occurrenceRepository: new SupabaseOccurrenceRepository(client),
+      alertRepository: new SupabaseAlertRepository(client),
+      communicationRepository: new SupabaseCommunicationRepository(client),
+    };
+  }
+  return {
+    profileRepository: new LocalProfileRepository(store),
+    careCircleRepository: new LocalCareCircleRepository(store),
+    invitationRepository: new LocalInvitationRepository(store),
+    consentRepository: new LocalConsentRepository(store),
+    auditRepository: new LocalAuditRepository(store),
+    routineRepository: new LocalRoutineRepository(store),
+    occurrenceRepository: new LocalOccurrenceRepository(store),
+    alertRepository: new LocalAlertRepository(store),
+    communicationRepository: new LocalCommunicationRepository(store),
+  };
+}
 
 export const container = {
   clock: new SystemClock(),
@@ -29,13 +73,5 @@ export const container = {
   eventBus: new LocalEventBus(),
   notificationGateway: new MockNotificationGateway(new SystemClock(), new UuidIdGenerator()),
   authProvider: new LocalAuthProvider(store, new SystemClock()),
-  profileRepository: new LocalProfileRepository(store),
-  careCircleRepository: new LocalCareCircleRepository(store),
-  invitationRepository: new LocalInvitationRepository(store),
-  consentRepository: new LocalConsentRepository(store),
-  auditRepository: new LocalAuditRepository(store),
-  routineRepository: new LocalRoutineRepository(store),
-  occurrenceRepository: new LocalOccurrenceRepository(store),
-  alertRepository: new LocalAlertRepository(store),
-  communicationRepository: new LocalCommunicationRepository(store),
+  ...buildRepositories(),
 };
