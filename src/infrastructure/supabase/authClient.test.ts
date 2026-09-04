@@ -47,8 +47,8 @@ describe("toCookieMethods", () => {
 
 describe("getSupabaseAuthClient", () => {
   beforeEach(() => {
-    process.env.SUPABASE_URL = "https://test.supabase.co";
-    process.env.SUPABASE_ANON_KEY = "test-anon-key";
+    process.env["SUPABASE_URL"] = "https://test.supabase.co";
+    process.env["SUPABASE_ANON_KEY"] = "test-anon-key";
     mockServerClientInstances = [];
     mockBrowserClientInstance = undefined;
   });
@@ -68,7 +68,7 @@ describe("getSupabaseAuthClient", () => {
     // object from createServerClient — no caching at module scope
     expect(client1).not.toBe(client2);
     expect(mockServerClientInstances).toHaveLength(2);
-    expect(mockServerClientInstances[0].id).toBe("server-client-1");
-    expect(mockServerClientInstances[1].id).toBe("server-client-2");
+    expect(mockServerClientInstances[0]!["id"]).toBe("server-client-1");
+    expect(mockServerClientInstances[1]!["id"]).toBe("server-client-2");
   });
 });
