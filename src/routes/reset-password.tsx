@@ -7,13 +7,16 @@ import { container } from "@/features/authentication/container";
 import { useSession } from "@/features/authentication/SessionContext";
 
 export const Route = createFileRoute("/reset-password")({
-  validateSearch: z.object({ token: z.string().min(1) }),
+  validateSearch: z
+    .object({ token: z.string().min(1).optional(), code: z.string().min(1).optional() })
+    .refine((v) => v.token ?? v.code, { message: "Missing reset token" }),
   head: () => ({ meta: [{ title: "Reset your password — Umeed" }] }),
   component: ResetPassword,
 });
 
 function ResetPassword() {
-  const { token } = Route.useSearch();
+  const { token, code } = Route.useSearch();
+  const resetToken = token ?? code!;
   const navigate = useNavigate();
   const { refresh } = useSession();
   const [newPassword, setNewPassword] = useState("");
@@ -22,7 +25,7 @@ function ResetPassword() {
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    const result = await container.authProvider.resetPassword({ token, newPassword });
+    const result = await container.authProvider.resetPassword({ token: resetToken, newPassword });
     if (!result.ok) {
       setError("This reset link is invalid or has expired. Request a new one.");
       return;
