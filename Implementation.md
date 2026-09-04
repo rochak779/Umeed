@@ -1546,6 +1546,13 @@ The implementation agent must not attempt all phases in one uncontrolled change.
 - [x] Phase 7 — Complete real-world journeys and experience polish
 - [x] Phase 8 — Test hardening and local release gate
 - [x] Phase 9 — Supabase design without cutover (see `docs/superpowers/plans/2026-09-03-supabase-schema-design.md`)
-- [ ] Phase 10 — Supabase cutover and server scheduling
+- [x] Phase 10 — Supabase cutover and server scheduling, with known gaps (see below; plan: `docs/superpowers/plans/2026-09-04-phase-10-supabase-cutover.md`)
 - [ ] Phase 11 — Real communications integration
 - [ ] Phase 12 — Final verification and deployment readiness
+
+### Phase 10 known gaps (found during implementation, not yet closed)
+
+- **Local `.env.local` not yet flipped to `DATA_ADAPTER=supabase` for day-to-day dev**, and the README's "Running against Supabase" section is not yet written. `SupabaseAuthProvider`, Realtime, and the scheduler all exist and are verified working — this is the one remaining mechanical step (plan's Task 11) plus its documentation, not an open design question.
+- **The `poll-due-work` cron job is deployed but deliberately left unscheduled (paused).** It was verified working end-to-end (a live `cron.job_run_details` row shows `status: succeeded`) and then turned off, because at verification time it immediately began generating alerts against leftover dev/test-fixture care circles (no real users exist yet). Before relying on this in production: purge stale dev fixture data from the live project, then re-run `select cron.schedule('poll-due-work-every-minute', '* * * * *', ...)` (SQL is in `supabase/migrations/20260904133314_fix_poll_due_work_cron_secret.sql`) to turn it back on.
+- **Pre-existing test-hygiene gap in `test/contracts/repositoryContract.ts`'s Supabase-backed contract suites**, unrelated to Phase 10's own work: several contract tests (`RoutineRepository`, `OccurrenceRepository`, `AlertRepository`) use fixed fake IDs (e.g. `"r-1"`, `"routine-1"`, `"a-1"`) and rely on each test starting from an empty table — true for the in-memory local adapter, never true for the shared live Supabase database. Re-running these suites against the live project (without a full database reset in between) causes collisions and, since some of that fixture data is `enabled`/`active` by design, can also cause the scheduler to backfill months of occurrences for it. Needs proper per-test teardown (or randomized IDs, matching the pattern the auth/RLS contract tests already use) before this suite can be trusted as a repeatable CI gate.
+- **`test/infrastructure/supabase/pollDueWorkFunction.contract.test.ts` is currently unreliable**, as a direct consequence of the gap above — not a defect in the Edge Function itself, which was independently verified correct via direct database evidence.
