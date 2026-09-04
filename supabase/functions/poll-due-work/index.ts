@@ -20,9 +20,19 @@ import { SupabaseAuditRepository } from "../../../src/infrastructure/supabase/re
 import { SupabaseCommunicationRepository } from "../../../src/infrastructure/supabase/repositories/SupabaseCommunicationRepository.ts";
 import { MockNotificationGateway } from "../../../src/infrastructure/mock-communications/MockNotificationGateway.ts";
 
+// Two different secrets are in play below, deliberately not the same thing:
+// - POLL_DUE_WORK_INVOKE_SECRET: a developer-set, custom secret (set via
+//   `supabase secrets set`) that controls who may invoke this function —
+//   this is what pg_cron's request must present as a bearer token.
+// - SUPABASE_SERVICE_ROLE_KEY: Supabase-managed and auto-injected by the
+//   Edge Function runtime, used only to construct the internal
+//   `createClient(...)` call below. Its format is whatever the current
+//   Supabase SDK expects (it is not necessarily the legacy JWT-format key
+//   used elsewhere in this codebase, e.g. by `createSupabaseServiceClient()`)
+//   — never use it for caller authentication, only for the Supabase client.
 Deno.serve(async (req) => {
   const authHeader = req.headers.get("Authorization") ?? "";
-  const expected = `Bearer ${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")}`;
+  const expected = `Bearer ${Deno.env.get("POLL_DUE_WORK_INVOKE_SECRET")}`;
   if (authHeader !== expected) {
     return new Response("Unauthorized", { status: 401 });
   }
