@@ -35,6 +35,9 @@ export async function generateOccurrences(
       candidate.scheduledForUtc,
     );
     if (existing) continue;
+    // A routine can't be missed before it existed — e.g. one created at
+    // 21:00 with a 09:00 time must start tomorrow, not alert immediately.
+    if (candidate.scheduledForUtc < routine.createdAt) continue;
 
     await deps.occurrences.save({
       id: deps.idGenerator.nextId(),

@@ -135,4 +135,19 @@ describe("raiseMissedRoutineAlert", () => {
       expect(recipient.deliveryStatus).toBe("sent");
     }
   });
+
+  it("skips to the coordinator when the circle has no nearby responder", async () => {
+    const repos = buildMargaretScenarioRepositories();
+    const occurrence = await seedDueOccurrence(repos);
+    const priya = await repos.careCircles.findMemberByUserAndCircle("priya", "circle-margaret");
+    await repos.careCircles.saveMember({ ...priya!, isNearby: false });
+    const deps = makeDeps(repos, "2026-01-05T09:31:00.000Z");
+
+    await raiseMissedRoutineAlert(deps, { occurrenceId: occurrence.id });
+
+    const [alert] = await repos.alerts.findOpenByCareCircle("circle-margaret");
+    expect(alert?.currentStage).toBe(2);
+    const recipients = await repos.alerts.findRecipients(alert!.id);
+    expect(recipients.map((r) => r.circleMemberId)).toEqual(["member-sarah"]);
+  });
 });

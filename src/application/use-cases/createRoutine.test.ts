@@ -75,6 +75,32 @@ describe("createRoutine", () => {
     ]);
   });
 
+  it("does not create a slot earlier today that passed before the routine existed", async () => {
+    const repos = buildMargaretScenarioRepositories();
+    const { circle } = await seedMargaretScenario(repos);
+    // 20:00 UTC on 1 Jan is 20:00 in London — this morning's 09:00 is long gone.
+    const deps = { ...makeDeps(repos), clock: new FakeClock(new Date("2026-01-01T20:00:00.000Z")) };
+
+    const routine = await createRoutine(deps, {
+      actorUserId: "sarah",
+      careCircleId: circle.id,
+      olderAdultId: "margaret",
+      type: "medication",
+      title: "Morning tablets",
+      description: null,
+      timezone: "Europe/London",
+      localTime: "09:00",
+      daysOfWeek: [0, 1, 2, 3, 4, 5, 6],
+      startDate: "2026-01-01",
+      endDate: null,
+      gracePeriodMinutes: 30,
+    });
+
+    const occurrences = await repos.occurrences.findByRoutine(routine.id);
+    const dates = occurrences.map((o) => o.scheduledLocalDate).sort();
+    expect(dates[0]).toBe("2026-01-02");
+  });
+
   it("rejects an invalid local time", async () => {
     const repos = buildMargaretScenarioRepositories();
     const { circle } = await seedMargaretScenario(repos);

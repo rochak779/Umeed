@@ -1,4 +1,4 @@
-import { createFileRoute, Outlet } from "@tanstack/react-router";
+import { createFileRoute, Outlet, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef } from "react";
 import { requireSession } from "@/features/authentication/guards";
 import { useSession } from "@/features/authentication/SessionContext";
@@ -28,10 +28,18 @@ export const Route = createFileRoute("/app")({
 });
 
 function AppLayout() {
-  const { session, memberships, activeCircleId, setActiveCircleId } = useSession();
+  const navigate = useNavigate();
+  const { loading, session, memberships, activeCircleId, setActiveCircleId } = useSession();
   const schedulerRef = useRef<LocalScheduler | null>(null);
   const careCircleIdsRef = useRef<string[]>([]);
   careCircleIdsRef.current = memberships.map((m) => m.circle.id);
+
+  // requireSession can't see a local-mode session during server rendering and
+  // doesn't re-run on hydration, so a signed-out full page load of /app/*
+  // would otherwise sit on "Loading…" forever.
+  useEffect(() => {
+    if (!loading && !session) navigate({ to: "/sign-in" });
+  }, [loading, session, navigate]);
 
   useEffect(() => {
     if (!session || memberships.length === 0) return;

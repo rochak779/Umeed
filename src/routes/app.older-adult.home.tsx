@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { CheckCircle2, HeartHandshake, Phone, PhoneCall } from "lucide-react";
 import { Screen, UButton, UCard } from "@/components/umeed/primitives";
@@ -8,6 +8,7 @@ import {
   getNextRoutineForOlderAdult,
   type NextRoutineForOlderAdult,
 } from "@/application/use-cases/getNextRoutineForOlderAdult";
+import { relativeDayLabel } from "@/shared/time/relativeDayLabel";
 import { acknowledgeOccurrence } from "@/application/use-cases/acknowledgeOccurrence";
 import { raiseDirectHelpAlert } from "@/application/use-cases/raiseDirectHelpAlert";
 
@@ -19,7 +20,8 @@ export const Route = createFileRoute("/app/older-adult/home")({
 const today = new Intl.DateTimeFormat("en-GB", { weekday: "long", day: "numeric", month: "long" });
 
 function OlderAdultHome() {
-  const { session, profile, memberships } = useSession();
+  const navigate = useNavigate();
+  const { session, profile, memberships, signOut } = useSession();
   const [next, setNext] = useState<NextRoutineForOlderAdult | null | undefined>(undefined);
   const [justAcknowledged, setJustAcknowledged] = useState(false);
   const [helpRequested, setHelpRequested] = useState(false);
@@ -101,7 +103,9 @@ function OlderAdultHome() {
         <UCard className="text-center">
           <p className="t-caption text-text-soft">Next</p>
           <p className="t-card-title font-semibold text-text">{next.routineTitle}</p>
-          <p className="t-body text-text-soft">{next.localTime}</p>
+          <p className="t-body text-text-soft">
+            {relativeDayLabel(next.scheduledLocalDate, new Date(), next.timezone)}, {next.localTime}
+          </p>
         </UCard>
       ) : (
         <UCard className="text-center">
@@ -160,6 +164,19 @@ function OlderAdultHome() {
           <Phone aria-hidden size={18} /> Call my family
         </UButton>
       </div>
+
+      {/* Deliberately quiet — §7.4 keeps this screen free of navigation, but
+          she still needs a way off a shared device. */}
+      <button
+        type="button"
+        className="t-body mx-auto min-h-11 px-4 text-text-soft underline"
+        onClick={async () => {
+          await signOut();
+          navigate({ to: "/" });
+        }}
+      >
+        Sign out
+      </button>
     </Screen>
   );
 }

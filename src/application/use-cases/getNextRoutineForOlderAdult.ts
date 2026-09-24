@@ -15,6 +15,8 @@ export type NextRoutineForOlderAdult = {
   routineTitle: string;
   routineType: string;
   localTime: string;
+  scheduledLocalDate: string;
+  timezone: string;
   scheduledForUtc: string;
   status: string;
 };
@@ -48,6 +50,8 @@ export async function getNextRoutineForOlderAdult(
           routineTitle: routine.title,
           routineType: routine.type,
           localTime: routine.localTime,
+          scheduledLocalDate: occurrence.scheduledLocalDate,
+          timezone: routine.timezone,
           scheduledForUtc: occurrence.scheduledForUtc,
           status: occurrence.status,
         };

@@ -25,6 +25,8 @@ describe("getNextRoutineForOlderAdult", () => {
 
     expect(result?.routineTitle).toBe("Morning check-in and tablets");
     expect(result?.localTime).toBe("09:00");
+    expect(result?.timezone).toBe("Europe/London");
+    expect(result?.scheduledLocalDate).toMatch(/^\d{4}-\d{2}-\d{2}$/);
   });
 
   it("returns null when there are no circles for that user", async () => {

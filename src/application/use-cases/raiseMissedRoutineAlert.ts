@@ -94,13 +94,25 @@ export async function raiseMissedRoutineAlert(
     resolutionNote: null,
     updatedAt: nowIso,
   };
+  // Start at the first responder stage that actually has someone to notify —
+  // e.g. a circle with no nearby responder goes straight to the coordinator,
+  // instead of opening an alert nobody hears about.
+  const policy = await deps.routines.findEscalationPolicy(routine.id);
+  const members = await deps.careCircles.findMembers(routine.careCircleId);
+  let firstResponderStep = policy ? getEscalationStepForStage(policy, 1) : null;
+  let recipients = firstResponderStep
+    ? selectNextRecipients(members, firstResponderStep, nowIso, routine.timezone)
+    : [];
+  while (policy && firstResponderStep && recipients.length === 0) {
+    const nextStep = getEscalationStepForStage(policy, alert.currentStage + 1);
+    if (!nextStep) break;
+    alert.currentStage += 1;
+    firstResponderStep = nextStep;
+    recipients = selectNextRecipients(members, nextStep, nowIso, routine.timezone);
+  }
   await deps.alerts.save(alert);
 
-  const policy = await deps.routines.findEscalationPolicy(routine.id);
-  const firstResponderStep = policy ? getEscalationStepForStage(policy, 1) : null;
   if (firstResponderStep) {
-    const members = await deps.careCircles.findMembers(routine.careCircleId);
-    const recipients = selectNextRecipients(members, firstResponderStep, nowIso, routine.timezone);
     const savedRecipients: AlertRecipient[] = [];
     for (const member of recipients) {
       const recipient: AlertRecipient = {
