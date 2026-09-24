@@ -1,12 +1,14 @@
-import type { AlertRepository, AuditRepository } from "../ports/repositories";
+import type { AlertRepository, AuditRepository, OccurrenceRepository } from "../ports/repositories";
 import type { Clock } from "../../shared/time/Clock";
 import type { IdGenerator } from "../../shared/id/IdGenerator";
 import { NotFoundError, PermissionDeniedError } from "../../domain/errors/DomainError";
+import { transitionOccurrence } from "../../domain/state-machines/occurrenceStateMachine";
 import { transitionAlert } from "../../domain/state-machines/alertStateMachine";
 import type { ResolutionCode } from "../../domain/entities/alert";
 
 export type ResolveAlertDeps = {
   alerts: AlertRepository;
+  occurrences: OccurrenceRepository;
   audit: AuditRepository;
   clock: Clock;
   idGenerator: IdGenerator;
@@ -42,6 +44,23 @@ export async function resolveAlert(
     resolutionNote: input.resolutionNote,
     updatedAt: nowIso,
   });
+
+  // Close the routine slot the alert was about. Otherwise a "missed" slot
+  // stays unresolved forever — and keeps showing as her next routine.
+  const occurrence = alert.occurrenceId
+    ? await deps.occurrences.findById(alert.occurrenceId)
+    : null;
+  if (occurrence && (occurrence.status === "missed" || occurrence.status === "escalating")) {
+    const escalating =
+      occurrence.status === "missed"
+        ? transitionOccurrence(occurrence.status, "escalating")
+        : occurrence.status;
+    await deps.occurrences.save({
+      ...occurrence,
+      status: transitionOccurrence(escalating, "resolved"),
+      updatedAt: nowIso,
+    });
+  }
 
   await deps.audit.append({
     id: deps.idGenerator.nextId(),

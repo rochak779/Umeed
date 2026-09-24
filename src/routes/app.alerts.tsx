@@ -159,6 +159,7 @@ function AlertsScreen() {
                             await resolveAlert(
                               {
                                 alerts: container.alertRepository,
+                                occurrences: container.occurrenceRepository,
                                 audit: container.auditRepository,
                                 clock: container.clock,
                                 idGenerator: container.idGenerator,
