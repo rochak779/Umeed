@@ -4,25 +4,25 @@
 -- have), discovered when applying that setting live. Supabase's supported
 -- alternative for secrets referenced from SQL/pg_cron is Vault
 -- (https://supabase.com/docs/guides/database/vault) — a secret named
--- 'poll_due_work_invoke_secret' was created there directly (one-time,
+-- 'umeed_poll_due_work_invoke_secret' was created there directly (one-time,
 -- outside migrations, via `select vault.create_secret(...)`, never
 -- committed to this file). The Supabase project URL is not secret, so it's
 -- inlined directly rather than round-tripped through Vault.
 --
 -- cron.schedule() upserts by job name, so re-calling it with the same name
--- ('poll-due-work-every-minute') replaces the previous (non-working)
+-- ('umeed-poll-due-work') replaces the previous (non-working)
 -- command rather than creating a duplicate job.
 select cron.schedule(
-  'poll-due-work-every-minute',
+  'umeed-poll-due-work',
   '* * * * *',
   $$
   select net.http_post(
-    url := 'https://focqwbtnltixlzfvovcn.supabase.co/functions/v1/poll-due-work',
+    url := 'https://aqvpdfdfsterpdumjglx.supabase.co/functions/v1/umeed-poll-due-work',
     headers := jsonb_build_object(
       'Authorization',
       'Bearer ' || (
         select decrypted_secret from vault.decrypted_secrets
-        where name = 'poll_due_work_invoke_secret'
+        where name = 'umeed_poll_due_work_invoke_secret'
       )
     )
   );

@@ -3,25 +3,25 @@ import { describe, expect, it } from "vitest";
 const hasSupabaseEnv =
   Boolean(process.env["SUPABASE_URL"]) &&
   Boolean(process.env["SUPABASE_SERVICE_ROLE_KEY"]) &&
-  Boolean(process.env["POLL_DUE_WORK_INVOKE_SECRET"]);
+  Boolean(process.env["UMEED_POLL_DUE_WORK_INVOKE_SECRET"]);
 
 async function invoke(): Promise<{ occurrencesGenerated: number; alertsRaised: number; claimsReleased: number }> {
-  const response = await fetch(`${process.env["SUPABASE_URL"]}/functions/v1/poll-due-work`, {
+  const response = await fetch(`${process.env["SUPABASE_URL"]}/functions/v1/umeed-poll-due-work`, {
     method: "POST",
-    // The function checks POLL_DUE_WORK_INVOKE_SECRET, a deliberately separate
+    // The function checks UMEED_POLL_DUE_WORK_INVOKE_SECRET, a deliberately separate
     // secret from SUPABASE_SERVICE_ROLE_KEY (see the doc comment in
-    // supabase/functions/poll-due-work/index.ts) — sending the service-role
+    // supabase/functions/umeed-poll-due-work/index.ts) — sending the service-role
     // key here would 401 against a correctly configured deployment.
-    headers: { Authorization: `Bearer ${process.env["POLL_DUE_WORK_INVOKE_SECRET"]}` },
+    headers: { Authorization: `Bearer ${process.env["UMEED_POLL_DUE_WORK_INVOKE_SECRET"]}` },
   });
   if (!response.ok) {
     const body = await response.text();
-    throw new Error(`poll-due-work returned ${response.status}: ${body}`);
+    throw new Error(`umeed-poll-due-work returned ${response.status}: ${body}`);
   }
   return response.json();
 }
 
-describe.skipIf(!hasSupabaseEnv)("poll-due-work Edge Function", () => {
+describe.skipIf(!hasSupabaseEnv)("umeed-poll-due-work Edge Function", () => {
   it(
     "running twice back-to-back does not double-generate occurrences",
     async () => {

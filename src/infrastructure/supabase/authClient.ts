@@ -1,5 +1,6 @@
 import { createIsomorphicFn } from "@tanstack/react-start";
 import { createBrowserClient, createServerClient } from "@supabase/ssr";
+import { SUPABASE_DB_SCHEMA } from "./schema";
 import { getCookies, setCookie } from "@tanstack/react-start/server";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
@@ -72,13 +73,16 @@ const resolveClient = createIsomorphicFn()
     const url = requireEnv("SUPABASE_URL");
     const anonKey = requireEnv("SUPABASE_ANON_KEY");
     return createServerClient(url, anonKey, {
+      db: { schema: SUPABASE_DB_SCHEMA },
       cookies: toCookieMethods(getCookies, setCookie),
-    });
+    }) as unknown as SupabaseClient;
   })
   .client((): SupabaseClient => {
     const url = requireEnv("SUPABASE_URL");
     const anonKey = requireEnv("SUPABASE_ANON_KEY");
-    browserClient ??= createBrowserClient(url, anonKey);
+    browserClient ??= createBrowserClient(url, anonKey, {
+      db: { schema: SUPABASE_DB_SCHEMA },
+    }) as unknown as SupabaseClient;
     return browserClient;
   });
 

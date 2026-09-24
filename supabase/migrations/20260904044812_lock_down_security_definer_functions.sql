@@ -15,17 +15,17 @@
 --    `search_path`, which is the class of vulnerability Supabase's linter
 --    flags on SECURITY DEFINER functions: a caller able to influence the
 --    session's search_path could shadow an unqualified identifier with a
---    same-named object in another schema. Pinning `search_path = public,
---    pg_temp` on each closes that off. (`set_updated_at()` isn't itself
+--    same-named object in another schema. Pinning `search_path = umeed,
+--    extensions, pg_temp` on each closes that off. (`set_updated_at()` isn't itself
 --    security definer, but it is trigger-attached to every RLS-protected
 --    table, so it gets the same pin for defense in depth.)
 
 revoke execute on function claim_alert(text, text, timestamptz, timestamptz)
   from public, anon, authenticated;
 
-alter function set_updated_at() set search_path = public, pg_temp;
-alter function is_active_circle_member(text) set search_path = public, pg_temp;
-alter function claim_alert(text, text, timestamptz, timestamptz) set search_path = public, pg_temp;
+alter function set_updated_at() set search_path = umeed, extensions, pg_temp;
+alter function is_active_circle_member(text) set search_path = umeed, extensions, pg_temp;
+alter function claim_alert(text, text, timestamptz, timestamptz) set search_path = umeed, extensions, pg_temp;
 
 -- Documentation-only fix (Important 5 from the Phase 9 final review): the
 -- comment above `member_permissions_select` in

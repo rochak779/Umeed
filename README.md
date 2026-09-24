@@ -690,11 +690,12 @@ controlled by the `DATA_ADAPTER` environment variable, read once at module load 
 
 `supabase` mode requires `SUPABASE_URL`, `SUPABASE_ANON_KEY`, and
 `SUPABASE_SERVICE_ROLE_KEY` set in `.env.local` (gitignored), pointing at a Supabase project
-with the migrations in `supabase/migrations` applied. To apply migrations to a linked
-project:
+with the migrations in `supabase/migrations` applied. Umeed lives in the `umeed` schema of a
+Supabase project shared with other apps — see `docs/shared-supabase-db.md`. To apply
+migrations (needs `SUPABASE_DB_URL` in `.env.local`; never use `supabase db push`):
 
 ```sh
-supabase db push --linked
+bun run db:migrate
 ```
 
 To run the Supabase-specific test suites — these hit a real (non-production) hosted Supabase

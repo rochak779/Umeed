@@ -18,10 +18,11 @@ import { SupabaseCareCircleRepository } from "../../../src/infrastructure/supaba
 import { SupabaseAlertRepository } from "../../../src/infrastructure/supabase/repositories/SupabaseAlertRepository.ts";
 import { SupabaseAuditRepository } from "../../../src/infrastructure/supabase/repositories/SupabaseAuditRepository.ts";
 import { SupabaseCommunicationRepository } from "../../../src/infrastructure/supabase/repositories/SupabaseCommunicationRepository.ts";
+import { SUPABASE_DB_SCHEMA } from "../../../src/infrastructure/supabase/schema.ts";
 import { MockNotificationGateway } from "../../../src/infrastructure/mock-communications/MockNotificationGateway.ts";
 
 // Two different secrets are in play below, deliberately not the same thing:
-// - POLL_DUE_WORK_INVOKE_SECRET: a developer-set, custom secret (set via
+// - UMEED_POLL_DUE_WORK_INVOKE_SECRET: a developer-set, custom secret (set via
 //   `supabase secrets set`) that controls who may invoke this function —
 //   this is what pg_cron's request must present as a bearer token.
 // - SUPABASE_SERVICE_ROLE_KEY: Supabase-managed and auto-injected by the
@@ -31,12 +32,12 @@ import { MockNotificationGateway } from "../../../src/infrastructure/mock-commun
 //   used elsewhere in this codebase, e.g. by `createSupabaseServiceClient()`)
 //   — never use it for caller authentication, only for the Supabase client.
 Deno.serve(async (req) => {
-  const invokeSecret = Deno.env.get("POLL_DUE_WORK_INVOKE_SECRET");
+  const invokeSecret = Deno.env.get("UMEED_POLL_DUE_WORK_INVOKE_SECRET");
   if (!invokeSecret) {
     // Fail closed, not open: an unset/misspelled secret must never fall
     // through to a literal "Bearer undefined" comparison that anyone could
     // satisfy by sending that exact header.
-    console.error("poll-due-work misconfigured: POLL_DUE_WORK_INVOKE_SECRET is not set");
+    console.error("umeed-poll-due-work misconfigured: UMEED_POLL_DUE_WORK_INVOKE_SECRET is not set");
     return new Response(JSON.stringify({ error: "internal_error" }), {
       status: 500,
       headers: { "content-type": "application/json" },
@@ -50,6 +51,7 @@ Deno.serve(async (req) => {
   const client = createClient(
     Deno.env.get("SUPABASE_URL")!,
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+    { db: { schema: SUPABASE_DB_SCHEMA } },
   );
 
   const clock = new SystemClock();
@@ -77,7 +79,7 @@ Deno.serve(async (req) => {
     // Redacted the same way analytics events already are (Implementation.md
     // §15): log the error's message/stack only, never the full care-circle
     // or occurrence payload it might have been operating on when it threw.
-    console.error("poll-due-work failed:", error instanceof Error ? error.message : String(error));
+    console.error("umeed-poll-due-work failed:", error instanceof Error ? error.message : String(error));
     return new Response(JSON.stringify({ error: "internal_error" }), {
       status: 500,
       headers: { "content-type": "application/json" },
