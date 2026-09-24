@@ -160,32 +160,38 @@ function CircleScreen() {
           <div>
             <p className="t-card-title font-semibold text-text">Circle status</p>
             <p className="t-caption text-text-soft">
-              {circleStatus === "paused" ? "Paused — routines and alerts are on hold" : "Active"}
+              {circleStatus === "paused"
+                ? "Paused — routines and alerts are on hold"
+                : circleStatus === "pending_consent"
+                  ? "Waiting for consent — reminders aren't active yet"
+                  : "Active"}
             </p>
           </div>
-          <UButton
-            variant="secondary"
-            size="md"
-            onClick={async () => {
-              if (!session || !circleId) return;
-              await setCareCirclePaused(
-                {
-                  careCircles: container.careCircleRepository,
-                  audit: container.auditRepository,
-                  clock: container.clock,
-                  idGenerator: container.idGenerator,
-                },
-                {
-                  careCircleId: circleId,
-                  actorUserId: session.userId,
-                  paused: circleStatus !== "paused",
-                },
-              );
-              await load();
-            }}
-          >
-            {circleStatus === "paused" ? "Resume circle" : "Pause circle"}
-          </UButton>
+          {circleStatus === "active" || circleStatus === "paused" ? (
+            <UButton
+              variant="secondary"
+              size="md"
+              onClick={async () => {
+                if (!session || !circleId) return;
+                await setCareCirclePaused(
+                  {
+                    careCircles: container.careCircleRepository,
+                    audit: container.auditRepository,
+                    clock: container.clock,
+                    idGenerator: container.idGenerator,
+                  },
+                  {
+                    careCircleId: circleId,
+                    actorUserId: session.userId,
+                    paused: circleStatus !== "paused",
+                  },
+                );
+                await load();
+              }}
+            >
+              {circleStatus === "paused" ? "Resume circle" : "Pause circle"}
+            </UButton>
+          ) : null}
         </UCard>
 
         {roster.view.members.length === 0 ? (

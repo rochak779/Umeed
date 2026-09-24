@@ -92,6 +92,17 @@ describe("LocalAuthProvider session restoration", () => {
     expect(session?.email).toBe("sarah@example.com");
   });
 
+  it("stays signed out after a simulated refresh", async () => {
+    const store = new InMemoryKeyValueStore();
+    const clock = new FakeClock(new Date("2026-01-01T00:00:00.000Z"));
+    const first = new LocalAuthProvider(store, clock);
+    await first.register({ displayName: "Sarah", email: "sarah@example.com", password: "pw" });
+    await first.signOut();
+
+    const second = new LocalAuthProvider(store, clock);
+    expect(await second.getSession()).toBeNull();
+  });
+
   it("does not restore an expired session", async () => {
     const store = new InMemoryKeyValueStore();
     const clock = new FakeClock(new Date("2026-01-01T00:00:00.000Z"));

@@ -18,7 +18,10 @@ export type Visibility = z.infer<typeof VisibilitySchema>;
 export const RoutineSchema = z.object({
   id: z.string().min(1),
   careCircleId: z.string().min(1),
-  olderAdultId: z.string().min(1),
+  // Null while the circle is still waiting for the older adult to accept —
+  // the coordinator may set up routines before consent (Implementation.md
+  // §7.3 step 9); acceptInvitation fills it in.
+  olderAdultId: z.string().min(1).nullable(),
   type: RoutineTypeSchema,
   title: z.string().min(1),
   description: z.string().nullable(),

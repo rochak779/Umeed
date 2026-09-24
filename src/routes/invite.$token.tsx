@@ -61,6 +61,8 @@ function InviteAccept() {
         invitationRepository: container.invitationRepository,
         consentRepository: container.consentRepository,
         auditRepository: container.auditRepository,
+        routineRepository: container.routineRepository,
+        occurrenceRepository: container.occurrenceRepository,
         clock: container.clock,
         idGenerator: container.idGenerator,
       },

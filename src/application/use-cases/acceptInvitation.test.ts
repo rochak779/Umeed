@@ -4,11 +4,14 @@ import { LocalCareCircleRepository } from "../../infrastructure/local/repositori
 import { LocalInvitationRepository } from "../../infrastructure/local/repositories/LocalInvitationRepository";
 import { LocalConsentRepository } from "../../infrastructure/local/repositories/LocalConsentRepository";
 import { LocalAuditRepository } from "../../infrastructure/local/repositories/LocalAuditRepository";
+import { LocalRoutineRepository } from "../../infrastructure/local/repositories/LocalRoutineRepository";
+import { LocalOccurrenceRepository } from "../../infrastructure/local/repositories/LocalOccurrenceRepository";
 import { FakeClock } from "../../shared/time/Clock";
 import { SequentialIdGenerator } from "../../shared/id/IdGenerator";
 import { hashToken } from "../../shared/token/hashToken";
 import { startCareCircle } from "./startCareCircle";
 import { acceptInvitation } from "./acceptInvitation";
+import { createRoutine } from "./createRoutine";
 import { buildInvitation } from "../../../test/builders/entities";
 
 function makeDeps(clock = new FakeClock(new Date("2026-01-01T00:00:00.000Z"))) {
@@ -18,6 +21,8 @@ function makeDeps(clock = new FakeClock(new Date("2026-01-01T00:00:00.000Z"))) {
     invitationRepository: new LocalInvitationRepository(store),
     consentRepository: new LocalConsentRepository(store),
     auditRepository: new LocalAuditRepository(store),
+    routineRepository: new LocalRoutineRepository(store),
+    occurrenceRepository: new LocalOccurrenceRepository(store),
     clock,
     idGenerator: new SequentialIdGenerator("id"),
   };
@@ -53,6 +58,66 @@ describe("acceptInvitation — older adult", () => {
     expect(
       consents.some((c) => c.consentType === "circle_participation" && c.status === "granted"),
     ).toBe(true);
+  });
+});
+
+describe("acceptInvitation — routines set up before consent", () => {
+  it("attaches the older adult to existing routines and cancels times that passed while waiting", async () => {
+    const clock = new FakeClock(new Date("2026-01-01T00:00:00.000Z"));
+    const deps = makeDeps(clock);
+    const { plaintextToken, circle } = await startCareCircle(deps, {
+      coordinatorUserId: "sarah",
+      olderAdultPreferredName: "Margaret",
+      invitedEmail: "margaret@example.com",
+      invitedPhone: null,
+    });
+
+    const routine = await createRoutine(
+      {
+        careCircles: deps.careCircleRepository,
+        routines: deps.routineRepository,
+        occurrences: deps.occurrenceRepository,
+        audit: deps.auditRepository,
+        clock,
+        idGenerator: deps.idGenerator,
+      },
+      {
+        actorUserId: "sarah",
+        careCircleId: circle.id,
+        olderAdultId: null,
+        type: "medication",
+        title: "Morning tablets",
+        description: null,
+        timezone: "Europe/London",
+        localTime: "09:00",
+        daysOfWeek: [0, 1, 2, 3, 4, 5, 6],
+        startDate: "2026-01-01",
+        endDate: null,
+        gracePeriodMinutes: 30,
+      },
+    );
+    expect(routine.olderAdultId).toBeNull();
+
+    // Margaret accepts three days later — three 09:00 slots have passed.
+    clock.advanceMs(3 * 24 * 60 * 60 * 1000);
+    const result = await acceptInvitation(deps, {
+      token: plaintextToken,
+      userId: "margaret",
+      userEmail: "margaret@example.com",
+    });
+    expect(result).toEqual({ ok: true });
+
+    const updatedRoutine = await deps.routineRepository.findById(routine.id);
+    expect(updatedRoutine?.olderAdultId).toBe("margaret");
+
+    const nowIso = clock.now().toISOString();
+    const occurrences = await deps.occurrenceRepository.findByRoutine(routine.id);
+    const past = occurrences.filter((o) => o.scheduledForUtc <= nowIso);
+    const future = occurrences.filter((o) => o.scheduledForUtc > nowIso);
+    expect(past.length).toBe(3);
+    expect(past.every((o) => o.status === "cancelled")).toBe(true);
+    expect(future.length).toBeGreaterThan(0);
+    expect(future.every((o) => o.status === "scheduled")).toBe(true);
   });
 });
 

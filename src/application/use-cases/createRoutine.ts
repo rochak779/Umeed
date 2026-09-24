@@ -10,6 +10,7 @@ import { ValidationError } from "../../domain/errors/DomainError";
 import { assertPermission } from "../../domain/policies/permissionGuard";
 import { RoutineSchema, type Routine, type RoutineType } from "../../domain/entities/routine";
 import { generateOccurrences } from "./generateOccurrences";
+import { DEFAULT_ESCALATION_STEPS } from "../../domain/policies/defaultEscalationPolicy";
 
 const LOOKAHEAD_DAYS = 14;
 
@@ -25,7 +26,7 @@ export type CreateRoutineDeps = {
 export type CreateRoutineInput = {
   actorUserId: string;
   careCircleId: string;
-  olderAdultId: string;
+  olderAdultId: string | null;
   type: RoutineType;
   title: string;
   description: string | null;
@@ -82,6 +83,15 @@ export async function createRoutine(
   }
 
   await deps.routines.save(parsed.data);
+  await deps.routines.saveEscalationPolicy({
+    id: deps.idGenerator.nextId(),
+    routineId: parsed.data.id,
+    name: "Default",
+    enabled: true,
+    steps: DEFAULT_ESCALATION_STEPS.map((step) => ({ ...step })),
+    createdAt: nowIso,
+    updatedAt: nowIso,
+  });
 
   const upToDate = addDays(input.startDate, LOOKAHEAD_DAYS);
   await generateOccurrences(

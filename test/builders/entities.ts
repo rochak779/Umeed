@@ -22,6 +22,7 @@ import type {
   ConsentRecord,
   NotificationPreference,
 } from "../../src/domain/entities/consent";
+import { DEFAULT_ESCALATION_STEPS } from "../../src/domain/policies/defaultEscalationPolicy";
 
 const NOW = "2026-01-01T00:00:00.000Z";
 
@@ -119,44 +120,7 @@ export function buildEscalationPolicy(overrides: Partial<EscalationPolicy> = {})
     routineId: "routine-1",
     name: "Default",
     enabled: true,
-    steps: [
-      {
-        order: 1,
-        delayMinutes: 0,
-        recipientType: "older_adult",
-        recipientId: null,
-        channel: "in_app",
-        responseWindowMinutes: 10,
-        fallbackBehaviour: "advance_to_next_step",
-      },
-      {
-        order: 2,
-        delayMinutes: 10,
-        recipientType: "older_adult",
-        recipientId: null,
-        channel: "voice",
-        responseWindowMinutes: 10,
-        fallbackBehaviour: "advance_to_next_step",
-      },
-      {
-        order: 3,
-        delayMinutes: 10,
-        recipientType: "nearby_responder",
-        recipientId: null,
-        channel: "push",
-        responseWindowMinutes: 5,
-        fallbackBehaviour: "advance_to_next_step",
-      },
-      {
-        order: 4,
-        delayMinutes: 5,
-        recipientType: "coordinator",
-        recipientId: null,
-        channel: "push",
-        responseWindowMinutes: 5,
-        fallbackBehaviour: "notify_all_remaining",
-      },
-    ],
+    steps: DEFAULT_ESCALATION_STEPS.map((step) => ({ ...step })),
     createdAt: NOW,
     updatedAt: NOW,
     ...overrides,

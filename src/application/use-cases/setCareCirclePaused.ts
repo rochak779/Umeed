@@ -2,7 +2,7 @@ import type { CareCircleRepository, AuditRepository } from "../ports/repositorie
 import type { Clock } from "../../shared/time/Clock";
 import type { IdGenerator } from "../../shared/id/IdGenerator";
 import { assertPermission } from "../../domain/policies/permissionGuard";
-import { NotFoundError } from "../../domain/errors/DomainError";
+import { InvalidTransitionError, NotFoundError } from "../../domain/errors/DomainError";
 
 export type SetCareCirclePausedDeps = {
   careCircles: CareCircleRepository;
@@ -14,7 +14,8 @@ export type SetCareCirclePausedDeps = {
 /**
  * Pause/resume an entire care circle (Implementation.md §16 Phase 7).
  * Requires canManageCircle — toggles `CareCircle.status` between "active"
- * and "paused".
+ * and "paused". Any other status (notably "pending_consent") is refused —
+ * otherwise "resume" would activate a circle the older adult never agreed to.
  */
 export async function setCareCirclePaused(
   deps: SetCareCirclePausedDeps,
@@ -32,10 +33,15 @@ export async function setCareCirclePaused(
     : null;
   assertPermission(actorPermission, "canManageCircle");
 
+  const target = input.paused ? "paused" : "active";
+  if (circle.status !== "active" && circle.status !== "paused") {
+    throw new InvalidTransitionError("CareCircle", circle.status, target);
+  }
+
   const nowIso = deps.clock.now().toISOString();
   await deps.careCircles.save({
     ...circle,
-    status: input.paused ? "paused" : "active",
+    status: target,
     updatedAt: nowIso,
   });
 

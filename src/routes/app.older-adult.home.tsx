@@ -61,7 +61,7 @@ function OlderAdultHome() {
         <UCard className="flex flex-col items-center gap-3 py-8 text-center">
           <HeartHandshake className="text-critical" size={40} aria-hidden />
           <p className="t-body text-text">
-            Your family and Priya have been told. Someone will be in touch shortly.
+            The people in your care circle have been told. Someone will be in touch shortly.
           </p>
         </UCard>
         <div className="space-y-3">

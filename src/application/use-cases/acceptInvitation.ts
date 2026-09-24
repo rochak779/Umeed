@@ -3,17 +3,22 @@ import type {
   InvitationRepository,
   ConsentRepository,
   AuditRepository,
+  RoutineRepository,
+  OccurrenceRepository,
 } from "../ports/repositories";
 import type { Clock } from "../../shared/time/Clock";
 import type { IdGenerator } from "../../shared/id/IdGenerator";
 import { hashToken } from "../../shared/token/hashToken";
 import { defaultPermissionsFor } from "../../domain/entities/careCircle";
+import { transitionOccurrence } from "../../domain/state-machines/occurrenceStateMachine";
 
 export type AcceptInvitationDeps = {
   careCircleRepository: CareCircleRepository;
   invitationRepository: InvitationRepository;
   consentRepository: ConsentRepository;
   auditRepository: AuditRepository;
+  routineRepository: RoutineRepository;
+  occurrenceRepository: OccurrenceRepository;
   clock: Clock;
   idGenerator: IdGenerator;
 };
@@ -87,6 +92,29 @@ export async function acceptInvitation(
         updatedAt: nowIso,
       });
     }
+    // Routines the coordinator set up before consent now belong to her.
+    // Times that passed while the circle was waiting were never live, so
+    // they are cancelled rather than alerted on the moment she accepts.
+    for (const routine of await deps.routineRepository.findByCareCircle(invitation.careCircleId)) {
+      if (routine.olderAdultId === null) {
+        await deps.routineRepository.save({
+          ...routine,
+          olderAdultId: input.userId,
+          updatedAt: nowIso,
+        });
+      }
+      for (const occurrence of await deps.occurrenceRepository.findByRoutine(routine.id)) {
+        const open = occurrence.status === "scheduled" || occurrence.status === "awaiting_response";
+        if (open && occurrence.scheduledForUtc <= nowIso) {
+          await deps.occurrenceRepository.save({
+            ...occurrence,
+            status: transitionOccurrence(occurrence.status, "cancelled"),
+            updatedAt: nowIso,
+          });
+        }
+      }
+    }
+
     await deps.consentRepository.save({
       id: deps.idGenerator.nextId(),
       careCircleId: invitation.careCircleId,

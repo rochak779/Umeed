@@ -96,6 +96,9 @@ export class LocalAuthProvider implements AuthProvider {
   }
 
   async signOut(): Promise<void> {
+    // Delete the persisted record too — the constructor restores the latest
+    // one, so leaving it would sign the user back in on the next page load.
+    if (this.currentSessionId) this.sessions.delete(this.currentSessionId);
     this.currentSessionId = null;
     this.notifySessionChange(null);
   }

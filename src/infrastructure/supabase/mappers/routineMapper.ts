@@ -3,7 +3,7 @@ import type { Routine, EscalationPolicy } from "@/domain/entities/routine.ts";
 export type RoutineRow = {
   id: string;
   care_circle_id: string;
-  older_adult_id: string;
+  older_adult_id: string | null;
   type: Routine["type"];
   title: string;
   description: string | null;

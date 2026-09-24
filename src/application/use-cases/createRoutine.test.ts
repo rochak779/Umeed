@@ -45,6 +45,36 @@ describe("createRoutine", () => {
     expect(occurrences.length).toBeGreaterThan(0);
   });
 
+  it("gives the routine the default escalation policy, so a missed routine notifies someone", async () => {
+    const repos = buildMargaretScenarioRepositories();
+    const { circle } = await seedMargaretScenario(repos);
+    const deps = makeDeps(repos);
+
+    const routine = await createRoutine(deps, {
+      actorUserId: "sarah",
+      careCircleId: circle.id,
+      olderAdultId: "margaret",
+      type: "medication",
+      title: "Morning tablets",
+      description: null,
+      timezone: "Europe/London",
+      localTime: "09:00",
+      daysOfWeek: [1],
+      startDate: "2026-01-01",
+      endDate: null,
+      gracePeriodMinutes: 30,
+    });
+
+    const policy = await repos.routines.findEscalationPolicy(routine.id);
+    expect(policy?.enabled).toBe(true);
+    expect(policy?.steps.map((s) => s.recipientType)).toEqual([
+      "older_adult",
+      "older_adult",
+      "nearby_responder",
+      "coordinator",
+    ]);
+  });
+
   it("rejects an invalid local time", async () => {
     const repos = buildMargaretScenarioRepositories();
     const { circle } = await seedMargaretScenario(repos);

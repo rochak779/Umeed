@@ -135,7 +135,7 @@ function RoutinesScreen() {
                     {
                       actorUserId: session.userId,
                       careCircleId: membership.circle.id,
-                      olderAdultId: membership.circle.olderAdultId ?? "",
+                      olderAdultId: membership.circle.olderAdultId,
                       type,
                       title,
                       description: null,

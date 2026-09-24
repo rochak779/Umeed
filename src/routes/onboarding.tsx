@@ -4,6 +4,7 @@ import { Copy, HeartHandshake } from "lucide-react";
 import { toast } from "sonner";
 import { Screen, TopBar, UButton, UCard } from "@/components/umeed/primitives";
 import { Field } from "@/shared/components/Field";
+import { useSession } from "@/features/authentication/SessionContext";
 import { container } from "@/features/authentication/container";
 import { requireSession } from "@/features/authentication/guards";
 import { startCareCircle } from "@/application/use-cases/startCareCircle";
@@ -23,6 +24,7 @@ type Step = "explain" | "who" | "invited";
 
 function Onboarding() {
   const navigate = useNavigate();
+  const { refresh } = useSession();
   const [step, setStep] = useState<Step>("explain");
   const [preferredName, setPreferredName] = useState("");
   const [contactEmail, setContactEmail] = useState("");
@@ -141,7 +143,16 @@ function Onboarding() {
             </button>
           </div>
         </UCard>
-        <UButton size="lg" full onClick={() => navigate({ to: "/app" })}>
+        <UButton
+          size="lg"
+          full
+          onClick={async () => {
+            // The session's memberships were loaded before this circle
+            // existed — reload them, or /app waits on "Loading…" forever.
+            await refresh();
+            navigate({ to: "/app" });
+          }}
+        >
           Continue to Umeed
         </UButton>
       </Screen>

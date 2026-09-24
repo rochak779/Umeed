@@ -47,6 +47,10 @@ export class LocalCollection<T extends { id: string }> {
     this.writeAll(items);
   }
 
+  delete(id: string): void {
+    this.writeAll(this.all().filter((existing) => existing.id !== id));
+  }
+
   private writeAll(items: T[]): void {
     this.store.set(this.key, JSON.stringify({ version: this.version, items }));
   }
