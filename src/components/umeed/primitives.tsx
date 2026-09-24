@@ -13,8 +13,10 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import type { ComponentProps, ReactNode } from "react";
-import type { StatusKind } from "@/data/seed";
 import { cn } from "@/lib/utils";
+
+/** Family-dashboard status pill states (Implementation.md §7.5). */
+export type StatusKind = "steady" | "watch" | "attention";
 
 /* ---------------- UButton ---------------- */
 
@@ -34,7 +36,6 @@ const sizeClass: Record<ButtonSize, string> = {
   xl: "min-h-16 px-6",
 };
 
-
 export function UButton({
   variant = "primary",
   size = "md",
@@ -46,7 +47,10 @@ export function UButton({
   variant?: ButtonVariant | undefined;
   size?: ButtonSize | undefined;
   full?: boolean | undefined;
-} & Omit<ComponentProps<"button">, "onAnimationStart" | "onDrag" | "onDragEnd" | "onDragStart" | "style">) {
+} & Omit<
+  ComponentProps<"button">,
+  "onAnimationStart" | "onDrag" | "onDragEnd" | "onDragStart" | "style"
+>) {
   return (
     <motion.button
       whileTap={{ scale: 0.98 }}
@@ -110,7 +114,6 @@ const statusMap: Record<
     border: "border-transparent",
   },
 };
-
 
 export function StatusPill({ status, className }: { status: StatusKind; className?: string }) {
   const s = statusMap[status];
@@ -287,7 +290,6 @@ export function BottomNav() {
             </li>
           );
         })}
-
       </ul>
     </nav>
   );

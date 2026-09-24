@@ -50,31 +50,31 @@ Define these as CSS variables in index.css and map them in tailwind.config.ts. N
 
 raw hex anywhere else in the app. Never use shadcn default slate, zinc, or neutral classes.
 
-  --sage:      #5E9C76   primary brand, safety and wellbeing
+--sage: #5E9C76 primary brand, safety and wellbeing
 
-  --sage-dark: #4A7D5E   pressed state
+--sage-dark: #4A7D5E pressed state
 
-  --sage-tint: #EAF2ED   soft fills, selected chips, skeletons
+--sage-tint: #EAF2ED soft fills, selected chips, skeletons
 
-  --trust:     #3F6EA8   secondary actions, links
+--trust: #3F6EA8 secondary actions, links
 
-  --marigold:  #D9A441   accent, "needs attention" without panic
+--marigold: #D9A441 accent, "needs attention" without panic
 
-  --success:   #3BAA5C
+--success: #3BAA5C
 
-  --warning:   #E7B93C
+--warning: #E7B93C
 
-  --critical:  #C95A5A   emergencies only, used sparingly
+--critical: #C95A5A emergencies only, used sparingly
 
-  --bg:        #F8F7F4   warm off-white app background
+--bg: #F8F7F4 warm off-white app background
 
-  --surface:   #FFFFFF   cards
+--surface: #FFFFFF cards
 
-  --text:      #2F3437   charcoal
+--text: #2F3437 charcoal
 
-  --text-soft: #6B7280
+--text-soft: #6B7280
 
-  --border:    #E5E7EB
+--border: #E5E7EB
 
 Typography: Inter from Google Fonts, weights 400 500 600 700, set as the Tailwind sans family.
 
@@ -82,11 +82,11 @@ Two type scales driven by a data-persona attribute on the shell root. Implement 
 
 font-size CSS variables under each persona selector so the same components grow automatically.
 
-  data-persona="child":  display 32/700, title 28/600, section 22/600, cardTitle 18/500,
+data-persona="child": display 32/700, title 28/600, section 22/600, cardTitle 18/500,
 
                          body 16/400, caption 14/400, button 16/500
 
-  data-persona="parent": display 36/700, title 32/600, heading 24/600,
+data-persona="parent": display 36/700, title 32/600, heading 24/600,
 
                          body 20/400, button 20/500, caption 18/400
 
@@ -112,19 +112,19 @@ section 9. Keep everything around it quiet.
 
 UButton: variants primary (sage fill, white text), secondary (white fill, sage border, sage
 
-  text), ghost, danger (muted critical). Sizes md 48px tall, lg 56px, xl 64px. Press state
+text), ghost, danger (muted critical). Sizes md 48px tall, lg 56px, xl 64px. Press state
 
-  scales to 0.98. Minimum touch target 48x48 everywhere, no exceptions.
+scales to 0.98. Minimum touch target 48x48 everywhere, no exceptions.
 
 UCard: white surface, 16 radius, 16 padding, hairline border.
 
 StatusPill: three states, Steady (sage), Watch (marigold), Needs attention (critical). Every
 
-  pill shows an icon AND a word. Colour is never the only cue, anywhere in this app.
+pill shows an icon AND a word. Colour is never the only cue, anywhere in this app.
 
 SectionHeader, EmptyState, BottomNav, TopBar (title, optional back, optional avatar),
 
-  Sparkline, DotStrip (7-day done / missed / upcoming, missed dots carry a dash icon inside).
+Sparkline, DotStrip (7-day done / missed / upcoming, missed dots carry a dash icon inside).
 
 Icons: lucide-react only.
 
@@ -134,11 +134,11 @@ Adult child, the logged-in user: Aditi Rao, 41, Bengaluru, runs her own business
 
 Mother: Anuradha Rao, 68, Kota Rajasthan, homemaker, hypertension.
 
-  Medicines: Telmisartan 40mg at 8:00 am, Calcium + D3 at 9:00 pm.
+Medicines: Telmisartan 40mg at 8:00 am, Calcium + D3 at 9:00 pm.
 
 Father: Manoj Rao, 72, Kota Rajasthan, retired bank officer, type 2 diabetes and high
 
-  cholesterol. Medicines: Metformin 500mg after dinner, Atorvastatin at 10:00 pm.
+cholesterol. Medicines: Metformin 500mg after dinner, Atorvastatin at 10:00 pm.
 
 Sibling: Rohan Rao, 37, Pune, read only.
 
@@ -172,23 +172,23 @@ sets the data-persona attribute on the shell root.
 
 === 7. ROUTES. Build all of them. ===
 
-/                        persona chooser
+/ persona chooser
 
-/child/onboarding        6 step flow
+/child/onboarding 6 step flow
 
-/child/home              daily answer
+/child/home daily answer
 
-/child/parent/:id        full profile, 4 tabs
+/child/parent/:id full profile, 4 tabs
 
-/child/brief             weekly Care Brief
+/child/brief weekly Care Brief
 
-/child/recommendation/:id  what to do and why
+/child/recommendation/:id what to do and why
 
-/child/documents         shared vault
+/child/documents shared vault
 
-/child/family            who sees what
+/child/family who sees what
 
-/child/alerts            alert inbox
+/child/alerts alert inbox
 
 /parent/login
 
@@ -202,9 +202,9 @@ sets the data-persona attribute on the shell root.
 
 /parent/help
 
-/helper                  the neighbour's view, no login
+/helper the neighbour's view, no login
 
-/demo                    presenter control panel
+/demo presenter control panel
 
 Child screens get a bottom nav: Home, Parents, Documents, Family. Parent screens get no bottom
 
@@ -302,17 +302,17 @@ CHILD PARENT PROFILE (/child/parent/:id). Four tabs.
 
 Overview: age, city, conditions, current medicines, nearby contact card with a call button,
 
-  last 5 activity rows.
+last 5 activity rows.
 
 Vitals: BP, sugar, pulse, weight cards. Each has a 14 day recharts line chart with a normal
 
-  range band, the last reading, the time, and how it was logged (voice or photo). Every chart
+range band, the last reading, the time, and how it was logged (voice or photo). Every chart
 
-  carries a one line text summary above it.
+carries a one line text summary above it.
 
 Reminders: medicines, vitals and appointments with time, frequency, and a 7 day DotStrip.
 
-  "Add reminder" opens a sheet with type, label, time, days, and which parent.
+"Add reminder" opens a sheet with type, label, time, days, and which parent.
 
 Timeline: reverse chronological, grouped by date, icon per event type.
 
@@ -330,9 +330,9 @@ CHILD FAMILY (/child/family). Sections You, Parents (with verified chips), Sibli
 
 nearby. Each person shows what they can see, in plain words:
 
-  Rohan: "Sees everything you see. Gets alerts only after 30 minutes."
+Rohan: "Sees everything you see. Gets alerts only after 30 minutes."
 
-  Sunita: "Gets the first alert. Does not see medical records."
+Sunita: "Gets the first alert. Does not see medical records."
 
 Plus an Invite row and a "How we reach people" link that opens the ladder from section 9.
 
@@ -382,87 +382,87 @@ PARENT EXPERIENCE. This is the design centrepiece. Set data-persona="parent" for
 
 /parent/login: big wordmark, "Enter your phone number", one large input, one large button.
 
-  Then "We have sent a code. We will read it for you", and a 3 second animation that fills the
+Then "We have sent a code. We will read it for you", and a 3 second animation that fills the
 
-  OTP itself and moves on. Never make her type a code.
+OTP itself and moves on. Never make her type a code.
 
 /parent/welcome: three swipeable cards, a large illustration area, one sentence each, and a
 
-  Play speaker button on each. "Tap the green button to say how you are feeling." "Tap the
+Play speaker button on each. "Tap the green button to say how you are feeling." "Tap the
 
-  camera to send a prescription. No typing." "Tap the red button if you need help right now."
+camera to send a prescription. No typing." "Tap the red button if you need help right now."
 
-  Then a button "I am ready".
+Then a button "I am ready".
 
 /parent/home: the entire app for her, on one screen.
 
-  "नमस्ते, Anuradha ji" and today's date in large type.
+"नमस्ते, Anuradha ji" and today's date in large type.
 
-  One card at a time. If a reminder is due it is the only thing in focus: "Time for your
+One card at a time. If a reminder is due it is the only thing in focus: "Time for your
 
-  morning tablet, Telmisartan 40 mg", with two very large buttons, "Taken" (sage, check icon)
+morning tablet, Telmisartan 40 mg", with two very large buttons, "Taken" (sage, check icon)
 
-  and "Not yet" (white, sage border).
+and "Not yet" (white, sage border).
 
-  Below it three permanent tiles, 96px tall, icon and word: Speak, Photo, Help.
+Below it three permanent tiles, 96px tall, icon and word: Speak, Photo, Help.
 
-  If nothing is due: "Nothing to do right now. Aditi says hello."
+If nothing is due: "Nothing to do right now. Aditi says hello."
 
-  No bottom nav. One small Family icon top right opens a screen with photos of Aditi, Rohan
+No bottom nav. One small Family icon top right opens a screen with photos of Aditi, Rohan
 
-  and Sunita and big call buttons. That is all it does.
+and Sunita and big call buttons. That is all it does.
 
-  A language toggle sits in the top bar (English / हिन्दी). Translate the home screen, the
+A language toggle sits in the top bar (English / हिन्दी). Translate the home screen, the
 
-  reminder card and the SOS screen into Hindi so the claim is real.
+reminder card and the SOS screen into Hindi so the claim is real.
 
 /parent/speak: full screen, one purpose. Large pulsing sage microphone. Above it "Tell me your
 
-  reading." Caption below: "For example, blood pressure 130 over 85." Simulate 2.5 seconds of
+reading." Caption below: "For example, blood pressure 130 over 85." Simulate 2.5 seconds of
 
-  listening with a live waveform, show the transcript in large text, then a confirmation card
+listening with a live waveform, show the transcript in large text, then a confirmation card
 
-  "Blood pressure, 130 over 85. Is that right?" with "Yes, save" and "Say it again". On save,
+"Blood pressure, 130 over 85. Is that right?" with "Yes, save" and "Say it again". On save,
 
-  a tick that draws itself, then "Saved. Aditi can see this now", then return home after 2
+a tick that draws itself, then "Saved. Aditi can see this now", then return home after 2
 
-  seconds. The reading must actually appear in the child's vitals.
+seconds. The reading must actually appear in the child's vitals.
 
 /parent/photo: viewfinder frame, one giant shutter. After capture, 2 seconds of "Reading
 
-  this..." with a calm sage progress bar, then "Prescription from Dr Mehta, 28 July. 3
+this..." with a calm sage progress bar, then "Prescription from Dr Mehta, 28 July. 3
 
-  medicines found", with "Yes, that is right" and "Something is wrong". On confirm: "Filed
+medicines found", with "Yes, that is right" and "Something is wrong". On confirm: "Filed
 
-  under your prescriptions. Aditi can see it too." It must appear in the child's documents.
+under your prescriptions. Aditi can see it too." It must appear in the child's documents.
 
 /parent/help: always asks once, with a 5 second cancel countdown, so a stray tap is never an
 
-  emergency. "Do you need help right now?" with "Yes, send help" and "No, go back". After
+emergency. "Do you need help right now?" with "Yes, send help" and "No, go back". After
 
-  sending, the screen becomes calm status, not a red alarm: "Help is on the way." "Sunita has
+sending, the screen becomes calm status, not a red alarm: "Help is on the way." "Sunita has
 
-  been told. She is 200 metres away." "Aditi has been told too." A live list showing each
+been told. She is 200 metres away." "Aditi has been told too." A live list showing each
 
-  person as Notified, then Seen, then On the way. One button: "I am okay now", which cancels
+person as Notified, then Seen, then On the way. One button: "I am okay now", which cancels
 
-  and tells everyone.
+and tells everyone.
 
 === 9. THE ESCALATION ENGINE. This is what makes Umeed an early warning system. ===
 
 Implement in /src/state/escalation.ts.
 
-  Miss 1: gentle second reminder to the parent after 30 minutes.
+Miss 1: gentle second reminder to the parent after 30 minutes.
 
-  Miss 2: another reminder, and a quiet note appears in the child's "What changed".
+Miss 2: another reminder, and a quiet note appears in the child's "What changed".
 
-  Miss 3: Sunita is asked automatically. The child is told in parallel that Sunita has been
+Miss 3: Sunita is asked automatically. The child is told in parallel that Sunita has been
 
     asked to look in.
 
-  If Sunita has not responded within 30 minutes, the child gets a direct escalated alert.
+If Sunita has not responded within 30 minutes, the child gets a direct escalated alert.
 
-  SOS is separate and instant. It reaches Sunita and Aditi at the same moment.
+SOS is separate and instant. It reaches Sunita and Aditi at the same moment.
 
 Expose demoSpeed so 30 minutes becomes 5 seconds during a walkthrough.
 
@@ -472,23 +472,23 @@ Seen, On the way, Resolved). Each row has an acknowledge action. Alert copy push
 
 without causing panic:
 
-  Good: "We have noticed a few changes this week. It may be a good time to check in with
+Good: "We have noticed a few changes this week. It may be a good time to check in with
 
-  Mummy." Good: "Mummy has not confirmed her morning tablet three days running. We have asked
+Mummy." Good: "Mummy has not confirmed her morning tablet three days running. We have asked
 
-  Sunita to look in." Never: "Your mother may have a problem."
+Sunita to look in." Never: "Your mother may have a problem."
 
 /helper: the neighbour's view. No login. Make the ask specific, not generic:
 
-  "Anuradha Rao has not confirmed her 8 am blood pressure tablet for three days. Could you
+"Anuradha Rao has not confirmed her 8 am blood pressure tablet for three days. Could you
 
-  look in on her today? She is at B-14, Vigyan Nagar."
+look in on her today? She is at B-14, Vigyan Nagar."
 
-  One large button "I am going", secondary "I cannot right now". Either choice updates state
+One large button "I am going", secondary "I cannot right now". Either choice updates state
 
-  everywhere else in the app immediately. Show what Sunita can and cannot see. Close with
+everywhere else in the app immediately. Show what Sunita can and cannot see. Close with
 
-  "Umeed shares only what Sunita needs to help."
+"Umeed shares only what Sunita needs to help."
 
 ESCALATION LADDER: a reusable animated component used in onboarding and from /child/family.
 
@@ -530,13 +530,13 @@ Loading uses skeletons in sage tint at 40% opacity, never grey spinners.
 
 Empty states, one for every list, each with an icon, a reassuring line, and a next action:
 
-  Documents: "Nothing here yet. Forward a prescription on WhatsApp and it files itself."
+Documents: "Nothing here yet. Forward a prescription on WhatsApp and it files itself."
 
-  Timeline: "Umeed is still getting to know their week."
+Timeline: "Umeed is still getting to know their week."
 
-  Alerts: "No alerts. That is exactly what we want."
+Alerts: "No alerts. That is exactly what we want."
 
-  Vitals: "No readings yet. Ask Mummy to tap the green button and say one out loud."
+Vitals: "No readings yet. Ask Mummy to tap the green button and say one out loud."
 
 The string "No data" must never appear anywhere in this app.
 
@@ -628,11 +628,124 @@ Continue developing this project in the [Lovable editor](https://lovable.dev/pro
 
 ## Development
 
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
+This repository has grown beyond the original Lovable prototype into a locally-architected
+app following `Implementation.md`'s ports-and-adapters design: every entity is served by a
+local, interface-bound adapter (`LocalAuthProvider`, `LocalCollection`-backed repositories, a
+mock notification gateway) that a real backend can replace later without touching product
+code. It uses **bun**, not npm, as its package manager and script runner — confirm this
+against `package.json`'s `scripts` block if in doubt.
 
 ```sh
 git clone <this-repository-url>
 cd <repository-name>
-npm i
-npm run dev
+bun install
+bun run dev
 ```
+
+The app opens in the browser with a persona chooser. All state lives in `localStorage`; there
+is no server-side database to seed or migrate.
+
+### Fixture accounts
+
+There are no hardcoded fixture credentials. `LocalAuthProvider` (see
+`src/infrastructure/local/auth/LocalAuthProvider.ts`) stores accounts created through the
+app's real registration and sign-in flow — start at `/sign-up` (or `/onboarding`) and create
+an account the normal way; it persists to `localStorage` under `umeed.auth_accounts` and
+survives a page reload. To start over, clear site data or use the reset path exposed in the
+product's own demo/reset affordance.
+
+### Test commands
+
+```sh
+bun run test          # run the full unit/integration suite once (vitest run)
+bun run test:watch    # the same, in watch mode
+bun run lint          # eslint over the whole repo
+bun run format        # prettier --write, formats the repo in place
+bunx tsc --noEmit     # type-check without emitting output
+bun run build         # production build (vite build)
+```
+
+To run only the repository contract suite (the tests that check every local repository
+implementation honours the same port contract):
+
+```sh
+bun run test test/contracts
+```
+
+### Supabase adapters
+
+Phase 9 added a Supabase-backed implementation of every repository port alongside the
+existing Local* adapters, without changing any product code path. Which set is used is
+controlled by the `DATA_ADAPTER` environment variable, read once at module load in
+`src/features/authentication/container.ts`:
+
+- `DATA_ADAPTER` unset or `local` (the default): local, `localStorage`-backed adapters, same
+  as before this phase — no behavior change.
+- `DATA_ADAPTER=supabase`: every repository (`profileRepository`, `careCircleRepository`,
+  `invitationRepository`, `consentRepository`, `auditRepository`, `routineRepository`,
+  `occurrenceRepository`, `alertRepository`, `communicationRepository`) is backed by its
+  `Supabase*Repository` implementation instead. `authProvider` also switches: it's backed
+  by `SupabaseAuthProvider` (real Supabase Auth, wired in Phase 10) instead of
+  `LocalAuthProvider`.
+
+`supabase` mode requires `SUPABASE_URL`, `SUPABASE_ANON_KEY`, and
+`SUPABASE_SERVICE_ROLE_KEY` set in `.env.local` (gitignored), pointing at a Supabase project
+with the migrations in `supabase/migrations` applied. Umeed lives in the `umeed` schema of a
+Supabase project shared with other apps — see `docs/shared-supabase-db.md`. To apply
+migrations (needs `SUPABASE_DB_URL` in `.env.local`; never use `supabase db push`):
+
+```sh
+bun run db:migrate
+```
+
+To run the Supabase-specific test suites — these hit a real (non-production) hosted Supabase
+project and require the three env vars above to be set locally:
+
+```sh
+bun run vitest run test/contracts/supabaseRepositories.contract.test.ts test/contracts/supabaseRls.contract.test.ts
+```
+
+`supabaseRepositories.contract.test.ts` reruns the same shared repository contract suite
+used by the Local adapters against the real Supabase adapters. `supabaseRls.contract.test.ts`
+exercises Row Level Security negative cases directly (e.g. a nearby responder correctly sees
+`can_view_medication_labels: false` on their own permission row, a removed circle member loses
+read access, a user outside a circle cannot see its alerts, and only the service role can
+insert audit events) using real authenticated Supabase sessions for synthetic test users. Note
+this only confirms the permission *flag* round-trips correctly through RLS — RLS scopes which
+rows are visible per circle, it does not redact individual sensitive columns (e.g. a nearby
+responder without `canViewMedicationLabels` can still read `routines.title`/`description` for
+a medication routine today). Column-level redaction is not implemented in Phase 9; it's a
+known gap tracked for Phase 10.
+
+Neither Supabase contract test file requires credentials to run `bun run test` locally: both
+skip cleanly (via `describe.skipIf`) when `SUPABASE_URL`/`SUPABASE_SERVICE_ROLE_KEY` aren't
+set, so a fresh clone or CI without secrets still gets a fully green, Supabase-free local test
+suite (Phase 8's release gate).
+
+### Known limitations
+
+These are intentional, documented scope decisions or work explicitly deferred to a later
+phase — not bugs:
+
+- **No server-side scheduler yet.** Reminder/escalation timing is driven by a local
+  in-browser scheduler (`LocalScheduler`). It only advances while a browser tab with the app
+  open is running; there is no background job that fires when the tab is closed. A real
+  scheduler arrives in Phase 10.
+- **No real Twilio integration yet, and Supabase is not the default.** Notifications still go
+  through a mock gateway. Supabase-backed repositories exist behind `DATA_ADAPTER=supabase`
+  (see "Supabase adapters" above) but the app still defaults to local-only (`localStorage`)
+  persistence — there is no cutover yet. That, plus the messaging provider, is Phase 10/11
+  scope.
+- **Quiet hours are shared across all notification channels.** A user/circle has one quiet-hours
+  window that applies to every channel (SMS, push, call, etc.), not a separate window per
+  channel. This was a deliberate MVP scope decision, not a gap.
+- **The alerts inbox (`/app/alerts`) isn't role-gated yet.** A nearby responder currently sees
+  the same recipient/delivery-state list a coordinator sees — names, relationship, stage, and
+  channel, though never medicine, diagnosis, or notes. A lighter, responder-specific alert view
+  may be worth building later (see Implementation.md §4.4/§13.3), but nothing sensitive leaks
+  today.
+- **Inbound webhook-shaped duplicate delivery-status callbacks aren't testable yet.** There's
+  no webhook receiver in the codebase to exercise — that surface doesn't exist until the real
+  Twilio integration lands in Phase 11. The two duplicate-callback paths that do exist today
+  (the mock provider's call-response callback, and outbound notification-send idempotency) are
+  covered by tests.
