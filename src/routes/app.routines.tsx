@@ -3,11 +3,8 @@ import { useEffect, useState } from "react";
 import { Plus } from "lucide-react";
 import { Screen, TopBar, UButton, UCard } from "@/components/umeed/primitives";
 import { Field } from "@/shared/components/Field";
-import { container } from "@/features/authentication/container";
+import { routineApi } from "@/features/routines/routineApi";
 import { resolveActiveMembership, useSession } from "@/features/authentication/SessionContext";
-import { createRoutine } from "@/application/use-cases/createRoutine";
-import { setRoutinePaused } from "@/application/use-cases/setRoutinePaused";
-import { hasPermission } from "@/domain/policies/permissionGuard";
 import type { Routine, RoutineType } from "@/domain/entities/routine";
 
 export const Route = createFileRoute("/app/routines")({
@@ -42,9 +39,9 @@ function RoutinesScreen() {
 
   const load = async () => {
     if (!membership) return;
-    setRoutines(await container.routineRepository.findByCareCircle(membership.circle.id));
-    const permission = await container.careCircleRepository.findPermission(membership.member.id);
-    setCanManageRoutines(hasPermission(permission, "canManageRoutines"));
+    const result = await routineApi.list({ circleId: membership.circle.id });
+    setRoutines(result.routines);
+    setCanManageRoutines(result.canManageRoutines);
   };
 
   useEffect(() => {
@@ -91,20 +88,7 @@ function RoutinesScreen() {
                   variant="secondary"
                   size="md"
                   onClick={async () => {
-                    await setRoutinePaused(
-                      {
-                        routines: container.routineRepository,
-                        careCircles: container.careCircleRepository,
-                        audit: container.auditRepository,
-                        clock: container.clock,
-                        idGenerator: container.idGenerator,
-                      },
-                      {
-                        routineId: r.id,
-                        actorUserId: session.userId,
-                        paused: r.enabled,
-                      },
-                    );
+                    await routineApi.setPaused({ routineId: r.id, paused: r.enabled });
                     await load();
                   }}
                 >
@@ -123,30 +107,18 @@ function RoutinesScreen() {
                 e.preventDefault();
                 setError(null);
                 try {
-                  await createRoutine(
-                    {
-                      careCircles: container.careCircleRepository,
-                      routines: container.routineRepository,
-                      occurrences: container.occurrenceRepository,
-                      audit: container.auditRepository,
-                      clock: container.clock,
-                      idGenerator: container.idGenerator,
-                    },
-                    {
-                      actorUserId: session.userId,
-                      careCircleId: membership.circle.id,
-                      olderAdultId: membership.circle.olderAdultId,
-                      type,
-                      title,
-                      description: null,
-                      timezone: "Europe/London",
-                      localTime,
-                      daysOfWeek: days,
-                      startDate: new Date().toISOString().slice(0, 10),
-                      endDate: null,
-                      gracePeriodMinutes: 30,
-                    },
-                  );
+                  await routineApi.create({
+                    circleId: membership.circle.id,
+                    type,
+                    title,
+                    description: null,
+                    timezone: "Europe/London",
+                    localTime,
+                    daysOfWeek: days,
+                    startDate: new Date().toISOString().slice(0, 10),
+                    endDate: null,
+                    gracePeriodMinutes: 30,
+                  });
                   setCreating(false);
                   setTitle("");
                   await load();

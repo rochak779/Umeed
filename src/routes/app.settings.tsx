@@ -1,9 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Screen, SectionHeader, TopBar, UButton, UCard } from "@/components/umeed/primitives";
-import { container } from "@/features/authentication/container";
+import { settingsApi } from "@/features/settings/settingsApi";
 import { resolveActiveMembership, useSession } from "@/features/authentication/SessionContext";
-import { updateNotificationPreference } from "@/application/use-cases/updateNotificationPreference";
 import type { NotificationPreference } from "@/domain/entities/consent";
 import type { Channel } from "@/domain/entities/careCircle";
 
@@ -68,10 +67,7 @@ function SettingsScreen() {
 
   const load = async () => {
     if (!session || !membership) return;
-    const loaded = await container.consentRepository.findNotificationPreferences(
-      session.userId,
-      membership.circle.id,
-    );
+    const loaded = await settingsApi.preferences({ circleId: membership.circle.id });
     setPrefs(loaded);
     const first = loaded[0];
     setQuietHoursStart(first?.quietHoursStart ?? "");
@@ -100,58 +96,37 @@ function SettingsScreen() {
   const saveProfile = async () => {
     setSavingProfile(true);
     setProfileSaved(false);
-    await container.profileRepository.save({
-      ...profile,
-      displayName,
-      preferredName,
-      updatedAt: container.clock.now().toISOString(),
-    });
+    await settingsApi.saveProfile({ displayName, preferredName });
     await refresh();
     setSavingProfile(false);
     setProfileSaved(true);
   };
 
   const savePreference = async (channel: Channel, enabled: boolean) => {
-    await updateNotificationPreference(
-      {
-        consent: container.consentRepository,
-        clock: container.clock,
-        idGenerator: container.idGenerator,
-      },
-      {
-        userId: session.userId,
-        careCircleId: membership.circle.id,
-        channel,
-        enabled,
-        quietHoursStart: quietHoursStart || null,
-        quietHoursEnd: quietHoursEnd || null,
-        timezone: profile.timezone,
-        urgentAlertsOverrideQuietHours: urgentOverride,
-      },
-    );
+    await settingsApi.updatePreference({
+      circleId: membership.circle.id,
+      channel,
+      enabled,
+      quietHoursStart: quietHoursStart || null,
+      quietHoursEnd: quietHoursEnd || null,
+      timezone: profile.timezone,
+      urgentAlertsOverrideQuietHours: urgentOverride,
+    });
     await load();
   };
 
   const saveQuietHours = async () => {
     setQuietHoursSaved(false);
     for (const { channel } of channels) {
-      await updateNotificationPreference(
-        {
-          consent: container.consentRepository,
-          clock: container.clock,
-          idGenerator: container.idGenerator,
-        },
-        {
-          userId: session.userId,
-          careCircleId: membership.circle.id,
-          channel,
-          enabled: isEnabled(channel),
-          quietHoursStart: quietHoursStart || null,
-          quietHoursEnd: quietHoursEnd || null,
-          timezone: profile.timezone,
-          urgentAlertsOverrideQuietHours: urgentOverride,
-        },
-      );
+      await settingsApi.updatePreference({
+        circleId: membership.circle.id,
+        channel,
+        enabled: isEnabled(channel),
+        quietHoursStart: quietHoursStart || null,
+        quietHoursEnd: quietHoursEnd || null,
+        timezone: profile.timezone,
+        urgentAlertsOverrideQuietHours: urgentOverride,
+      });
     }
     await load();
     setQuietHoursSaved(true);

@@ -2,15 +2,10 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { CheckCircle2, HeartHandshake, Phone, PhoneCall } from "lucide-react";
 import { Screen, UButton, UCard } from "@/components/umeed/primitives";
-import { container } from "@/features/authentication/container";
+import { routineApi } from "@/features/routines/routineApi";
 import { useSession } from "@/features/authentication/SessionContext";
-import {
-  getNextRoutineForOlderAdult,
-  type NextRoutineForOlderAdult,
-} from "@/application/use-cases/getNextRoutineForOlderAdult";
+import { type NextRoutineForOlderAdult } from "@/application/use-cases/getNextRoutineForOlderAdult";
 import { relativeDayLabel } from "@/shared/time/relativeDayLabel";
-import { acknowledgeOccurrence } from "@/application/use-cases/acknowledgeOccurrence";
-import { raiseDirectHelpAlert } from "@/application/use-cases/raiseDirectHelpAlert";
 
 export const Route = createFileRoute("/app/older-adult/home")({
   head: () => ({ meta: [{ title: "Umeed" }] }),
@@ -28,16 +23,7 @@ function OlderAdultHome() {
 
   const load = async () => {
     if (!session) return;
-    setNext(
-      await getNextRoutineForOlderAdult(
-        {
-          careCircles: container.careCircleRepository,
-          routines: container.routineRepository,
-          occurrences: container.occurrenceRepository,
-        },
-        { olderAdultUserId: session.userId },
-      ),
-    );
+    setNext(await routineApi.nextForOlderAdult());
   };
 
   useEffect(() => {
@@ -120,17 +106,7 @@ function OlderAdultHome() {
           disabled={!next || justAcknowledged}
           onClick={async () => {
             if (!next) return;
-            await acknowledgeOccurrence(
-              {
-                routines: container.routineRepository,
-                occurrences: container.occurrenceRepository,
-                careCircles: container.careCircleRepository,
-                audit: container.auditRepository,
-                clock: container.clock,
-                idGenerator: container.idGenerator,
-              },
-              { occurrenceId: next.occurrenceId, actorUserId: session.userId, channel: "in_app" },
-            );
+            await routineApi.acknowledge({ occurrenceId: next.occurrenceId });
             setJustAcknowledged(true);
           }}
         >
@@ -142,18 +118,7 @@ function OlderAdultHome() {
           size="xl"
           full
           onClick={async () => {
-            await raiseDirectHelpAlert(
-              {
-                careCircles: container.careCircleRepository,
-                alerts: container.alertRepository,
-                audit: container.auditRepository,
-                communications: container.communicationRepository,
-                notificationGateway: container.notificationGateway,
-                clock: container.clock,
-                idGenerator: container.idGenerator,
-              },
-              { olderAdultUserId: session.userId },
-            );
+            await routineApi.raiseHelp();
             setHelpRequested(true);
           }}
         >
