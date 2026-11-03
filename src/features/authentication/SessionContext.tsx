@@ -3,6 +3,7 @@ import type { Session } from "../../application/ports/infra";
 import type { CareCircle, CircleMember } from "../../domain/entities/careCircle";
 import type { UserProfile } from "../../domain/entities/profile";
 import { container } from "./container";
+import { api } from "./sessionApi";
 
 export type ActiveMembership = { circle: CareCircle; member: CircleMember };
 
@@ -46,8 +47,8 @@ export function resolveActiveMembership(
 }
 
 /**
- * Loads the current session, profile and active care-circle memberships from
- * the local adapters (Implementation.md §7.2: role/navigation comes from
+ * Loads the current session, profile and active care-circle memberships via
+ * `api.session.load()` (server function in Supabase mode, local adapters otherwise) (Implementation.md §7.2: role/navigation comes from
  * membership, never a client-controlled dropdown). Runs client-side for the
  * interactive session state (memberships, active-circle switching);
  * `requireSession`/`redirectIfAuthenticated` in guards.ts now also enforce
@@ -72,30 +73,10 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   };
 
   const load = async () => {
-    const currentSession = await container.authProvider.getSession();
-    setSession(currentSession);
-    if (!currentSession) {
-      setProfile(null);
-      setMemberships([]);
-      setLoading(false);
-      return;
-    }
-    const [loadedProfile, circles] = await Promise.all([
-      container.profileRepository.findById(currentSession.userId),
-      container.careCircleRepository.findByUserId(currentSession.userId),
-    ]);
-    setProfile(loadedProfile);
-    const withMembers = await Promise.all(
-      circles.map(async (circle) => {
-        const member = await container.careCircleRepository.findMemberByUserAndCircle(
-          currentSession.userId,
-          circle.id,
-        );
-        return member ? { circle, member } : null;
-      }),
-    );
-    const loadedMemberships = withMembers.filter((m): m is ActiveMembership => m !== null);
-    setMemberships(loadedMemberships);
+    const state = await api.session.load();
+    setSession(state?.session ?? null);
+    setProfile(state?.profile ?? null);
+    setMemberships(state?.memberships ?? []);
     setLoading(false);
   };
 

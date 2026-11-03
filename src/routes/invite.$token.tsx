@@ -4,13 +4,13 @@ import { ShieldAlert, UserPlus } from "lucide-react";
 import { Screen, TopBar, UButton, UCard } from "@/components/umeed/primitives";
 import { Field } from "@/shared/components/Field";
 import { container } from "@/features/authentication/container";
+import { api } from "@/features/authentication/sessionApi";
 import { useSession } from "@/features/authentication/SessionContext";
 import {
   previewInvitation,
   type PreviewInvitationResult,
 } from "@/application/use-cases/previewInvitation";
 import { acceptInvitation } from "@/application/use-cases/acceptInvitation";
-import { registerAccount } from "@/application/use-cases/registerAccount";
 
 export const Route = createFileRoute("/invite/$token")({
   head: () => ({ meta: [{ title: "You've been invited — Umeed" }] }),
@@ -84,14 +84,7 @@ function InviteAccept() {
     e.preventDefault();
     setError(null);
     if (mode === "sign-up") {
-      const result = await registerAccount(
-        {
-          authProvider: container.authProvider,
-          profileRepository: container.profileRepository,
-          clock: container.clock,
-        },
-        { displayName, email, password },
-      );
+      const result = await api.session.register({ displayName, email, password });
       if (!result.ok) {
         setError(
           result.code === "email_taken"

@@ -2,8 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { Screen, TopBar, UButton, UCard } from "@/components/umeed/primitives";
 import { Field } from "@/shared/components/Field";
-import { registerAccount } from "@/application/use-cases/registerAccount";
-import { container } from "@/features/authentication/container";
+import { api } from "@/features/authentication/sessionApi";
 import { redirectIfAuthenticated } from "@/features/authentication/guards";
 import { useSession } from "@/features/authentication/SessionContext";
 
@@ -28,14 +27,7 @@ function SignUp() {
     setError(null);
     setNotice(null);
     setSubmitting(true);
-    const result = await registerAccount(
-      {
-        authProvider: container.authProvider,
-        profileRepository: container.profileRepository,
-        clock: container.clock,
-      },
-      { displayName, email, password },
-    );
+    const result = await api.session.register({ displayName, email, password });
     setSubmitting(false);
     if (!result.ok && result.code === "confirmation_required") {
       setNotice(`We've sent a confirmation link to ${email}. Open it, then sign in.`);
