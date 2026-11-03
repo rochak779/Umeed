@@ -17,7 +17,7 @@
 - Migrations via `bun run db:migrate` only. Never `supabase db push`, `db reset --linked`, `supabase link`.
 - Server functions never trust an actor/user id from the browser: zod input schemas omit every actor field (`actorId`, `claimerUserId`, `userId` of the caller, etc.); handlers inject the verified user id.
 - `createServerFn(...)` calls are declared at module top level (TanStack compiler requirement), never built inside a factory.
-- Browser-visible env: `VITE_DATA_ADAPTER`, `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`. Server env: `DATA_ADAPTER`, `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `PUBLIC_APP_URL`.
+- Browser-visible env: `VITE_DATA_ADAPTER` (build-time; decides mode for server and browser — see Session 2 review fix), `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`. Server env: `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `PUBLIC_APP_URL`; a legacy `DATA_ADAPTER` must match `VITE_DATA_ADAPTER` or startup throws.
 - `DATA_ADAPTER=local` (and unset) keeps working; existing tests stay green unchanged.
 - No visual changes to screens.
 - Session 2 = Tasks 1–5 → PR. Session 3 = Tasks 6–11 → PR (stacked on Session 2's branch).
