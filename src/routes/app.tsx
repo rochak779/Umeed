@@ -3,6 +3,8 @@ import { useEffect, useRef } from "react";
 import { requireSession } from "@/features/authentication/guards";
 import { useSession } from "@/features/authentication/SessionContext";
 import { container } from "@/features/authentication/container";
+import { alertApi } from "@/features/alerts/alertApi";
+import { isSupabaseMode } from "@/shared/config";
 import {
   Select,
   SelectContent,
@@ -43,6 +45,15 @@ function AppLayout() {
 
   useEffect(() => {
     if (!session || memberships.length === 0) return;
+
+    if (isSupabaseMode()) {
+      // Supabase mode: due work runs server-side for the signed-in user's
+      // own circles (Session 4 replaces this with the scheduled job).
+      const run = () => void alertApi.runDueWork().catch(() => {});
+      run();
+      const timer = setInterval(run, POLL_INTERVAL_MS);
+      return () => clearInterval(timer);
+    }
 
     if (!schedulerRef.current) {
       const deps: PollDueWorkDeps = {
