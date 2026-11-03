@@ -17,7 +17,7 @@ import { requestLeaveCircle } from "@/application/use-cases/requestLeaveCircle";
 import { startCareCircle } from "@/application/use-cases/startCareCircle";
 import { runApi } from "@/features/api/runApi";
 import { currentActor } from "@/server/actor";
-import { requireActiveMember } from "@/server/membership";
+import { requireActiveMember } from "@/features/api/membership";
 import { buildServerDeps } from "@/server/serverDeps";
 
 const circleInput = z.object({ circleId: z.string().min(1) });

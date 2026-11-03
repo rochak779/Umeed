@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { buildInMemoryAppDeps } from "../../test/builders/appDeps";
-import { buildCareCircle, buildCircleMember } from "../../test/builders/entities";
+import { buildInMemoryAppDeps } from "../../../test/builders/appDeps";
+import { buildCareCircle, buildCircleMember } from "../../../test/builders/entities";
 import { NotAMemberError, requireActiveMember } from "./membership";
 
 async function circleWith(status: "active" | "invited" | "removed") {

@@ -6,7 +6,7 @@ import { setConsent } from "@/application/use-cases/setConsent";
 import { ConsentStatusSchema, ConsentTypeSchema } from "@/domain/entities/consent";
 import { runApi } from "@/features/api/runApi";
 import { currentActor } from "@/server/actor";
-import { requireActiveMember } from "@/server/membership";
+import { requireActiveMember } from "@/features/api/membership";
 import { buildServerDeps } from "@/server/serverDeps";
 
 const circleInput = z.object({ circleId: z.string().min(1) });

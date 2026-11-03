@@ -14,7 +14,7 @@ import { hasPermission } from "@/domain/policies/permissionGuard";
 import { RoutineTypeSchema } from "@/domain/entities/routine";
 import { runApi } from "@/features/api/runApi";
 import { currentActor } from "@/server/actor";
-import { NotAMemberError, requireActiveMember } from "@/server/membership";
+import { NotAMemberError, requireActiveMember } from "@/features/api/membership";
 import { buildServerDeps } from "@/server/serverDeps";
 
 const circleInput = z.object({ circleId: z.string().min(1) });

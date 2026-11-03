@@ -14,7 +14,7 @@ import { pollDueWork } from "@/application/use-cases/pollDueWork";
 import { ResolutionCodeSchema } from "@/domain/entities/alert";
 import { runApi } from "@/features/api/runApi";
 import { currentActor } from "@/server/actor";
-import { NotAMemberError, requireActiveMember } from "@/server/membership";
+import { NotAMemberError, requireActiveMember } from "@/features/api/membership";
 import { buildServerDeps } from "@/server/serverDeps";
 
 const CLAIM_WINDOW_MINUTES = 15;

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { buildInMemoryAppDeps } from "../../../test/builders/appDeps";
-import { NotAMemberError } from "@/server/membership";
+import { NotAMemberError } from "@/features/api/membership";
 import { inviteFor, inviteInput, rosterFor, startFor } from "./circleApi";
 
 async function circleCoordinatedBy(userId: string) {

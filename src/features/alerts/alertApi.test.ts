@@ -4,7 +4,7 @@ import { buildUserProfile } from "../../../test/builders/entities";
 import { startFor } from "@/features/circle/circleApi";
 import { acceptFor } from "@/features/invitations/invitationApi";
 import { raiseHelpFor } from "@/features/routines/routineApi";
-import { NotAMemberError } from "@/server/membership";
+import { NotAMemberError } from "@/features/api/membership";
 import { claimFor, claimInput, listFor, resolveFor } from "./alertApi";
 
 async function circleWithHelpAlert() {

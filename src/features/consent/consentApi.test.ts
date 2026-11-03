@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { buildInMemoryAppDeps } from "../../../test/builders/appDeps";
 import { startFor } from "@/features/circle/circleApi";
-import { NotAMemberError } from "@/server/membership";
+import { NotAMemberError } from "@/features/api/membership";
 import { listConsentFor, setConsentFor } from "./consentApi";
 
 describe("consent API", () => {
