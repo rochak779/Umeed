@@ -56,4 +56,16 @@ describe("invitation API", () => {
     );
     expect(result).toEqual({ ok: false, code: "wrong_account" });
   });
+
+  it("creates the accepting user's profile first when sign-up hasn't created it yet", async () => {
+    const { deps, token } = await invitedMargaret();
+    expect(await deps.profileRepository.findById("margaret-id")).toBeNull();
+
+    await acceptFor(
+      deps,
+      { userId: "margaret-id", email: "margaret@example.test", displayName: "Margaret" },
+      { token },
+    );
+    expect((await deps.profileRepository.findById("margaret-id"))?.displayName).toBe("Margaret");
+  });
 });

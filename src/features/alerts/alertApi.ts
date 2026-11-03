@@ -144,35 +144,35 @@ const serverDeps = async () => ({
 });
 
 export const listFn = createServerFn({ method: "GET" })
-  .inputValidator((data: unknown) => circleInput.parse(data))
+  .validator((data: unknown) => circleInput.parse(data))
   .handler(async ({ data }) => {
     const { deps, actorId } = await serverDeps();
     return listFor(deps, actorId, data);
   });
 
 export const summaryFn = createServerFn({ method: "GET" })
-  .inputValidator((data: unknown) => circleInput.parse(data))
+  .validator((data: unknown) => circleInput.parse(data))
   .handler(async ({ data }) => {
     const { deps, actorId } = await serverDeps();
     return summaryFor(deps, actorId, data);
   });
 
 export const claimFn = createServerFn({ method: "POST" })
-  .inputValidator((data: unknown) => claimInput.parse(data))
+  .validator((data: unknown) => claimInput.parse(data))
   .handler(async ({ data }) => {
     const { deps, actorId } = await serverDeps();
     return claimFor(deps, actorId, data);
   });
 
 export const resolveFn = createServerFn({ method: "POST" })
-  .inputValidator((data: unknown) => resolveInput.parse(data))
+  .validator((data: unknown) => resolveInput.parse(data))
   .handler(async ({ data }) => {
     const { deps, actorId } = await serverDeps();
     return resolveFor(deps, actorId, data);
   });
 
 export const runDueWorkFn = createServerFn({ method: "POST" })
-  .inputValidator((data: unknown) => noInput.parse(data ?? {}))
+  .validator((data: unknown) => noInput.parse(data ?? {}))
   .handler(async ({ data }) => {
     const { deps, actorId } = await serverDeps();
     return runDueWorkFor(deps, actorId, data);

@@ -152,42 +152,42 @@ const serverDeps = async () => ({
 });
 
 export const listFn = createServerFn({ method: "GET" })
-  .inputValidator((data: unknown) => circleInput.parse(data))
+  .validator((data: unknown) => circleInput.parse(data))
   .handler(async ({ data }) => {
     const { deps, actorId } = await serverDeps();
     return listFor(deps, actorId, data);
   });
 
 export const createFn = createServerFn({ method: "POST" })
-  .inputValidator((data: unknown) => createInput.parse(data))
+  .validator((data: unknown) => createInput.parse(data))
   .handler(async ({ data }) => {
     const { deps, actorId } = await serverDeps();
     return createFor(deps, actorId, data);
   });
 
 export const setPausedFn = createServerFn({ method: "POST" })
-  .inputValidator((data: unknown) => pausedInput.parse(data))
+  .validator((data: unknown) => pausedInput.parse(data))
   .handler(async ({ data }) => {
     const { deps, actorId } = await serverDeps();
     return setPausedFor(deps, actorId, data);
   });
 
 export const nextForOlderAdultFn = createServerFn({ method: "GET" })
-  .inputValidator((data: unknown) => noInput.parse(data ?? {}))
+  .validator((data: unknown) => noInput.parse(data ?? {}))
   .handler(async ({ data }) => {
     const { deps, actorId } = await serverDeps();
     return nextForOlderAdultFor(deps, actorId, data);
   });
 
 export const acknowledgeFn = createServerFn({ method: "POST" })
-  .inputValidator((data: unknown) => occurrenceInput.parse(data))
+  .validator((data: unknown) => occurrenceInput.parse(data))
   .handler(async ({ data }) => {
     const { deps, actorId } = await serverDeps();
     return acknowledgeFor(deps, actorId, data);
   });
 
 export const raiseHelpFn = createServerFn({ method: "POST" })
-  .inputValidator((data: unknown) => noInput.parse(data ?? {}))
+  .validator((data: unknown) => noInput.parse(data ?? {}))
   .handler(async ({ data }) => {
     const { deps, actorId } = await serverDeps();
     return raiseHelpFor(deps, actorId, data);

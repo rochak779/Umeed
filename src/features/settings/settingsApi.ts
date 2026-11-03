@@ -66,21 +66,21 @@ const serverDeps = async () => ({
 });
 
 export const preferencesFn = createServerFn({ method: "GET" })
-  .inputValidator((data: unknown) => circleInput.parse(data))
+  .validator((data: unknown) => circleInput.parse(data))
   .handler(async ({ data }) => {
     const { deps, actorId } = await serverDeps();
     return preferencesFor(deps, actorId, data);
   });
 
 export const updatePreferenceFn = createServerFn({ method: "POST" })
-  .inputValidator((data: unknown) => preferenceInput.parse(data))
+  .validator((data: unknown) => preferenceInput.parse(data))
   .handler(async ({ data }) => {
     const { deps, actorId } = await serverDeps();
     return updatePreferenceFor(deps, actorId, data);
   });
 
 export const saveProfileFn = createServerFn({ method: "POST" })
-  .inputValidator((data: unknown) => saveProfileInput.parse(data))
+  .validator((data: unknown) => saveProfileInput.parse(data))
   .handler(async ({ data }) => {
     const { deps, actorId } = await serverDeps();
     return saveProfileFor(deps, actorId, data);

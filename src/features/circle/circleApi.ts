@@ -161,49 +161,49 @@ const serverDeps = async () => ({
 });
 
 export const rosterFn = createServerFn({ method: "GET" })
-  .inputValidator((data: unknown) => circleInput.parse(data))
+  .validator((data: unknown) => circleInput.parse(data))
   .handler(async ({ data }) => {
     const { deps, actorId } = await serverDeps();
     return rosterFor(deps, actorId, data);
   });
 
 export const inviteFn = createServerFn({ method: "POST" })
-  .inputValidator((data: unknown) => inviteInput.parse(data))
+  .validator((data: unknown) => inviteInput.parse(data))
   .handler(async ({ data }) => {
     const { deps, actorId } = await serverDeps();
     return inviteFor(deps, actorId, data);
   });
 
 export const reorderFn = createServerFn({ method: "POST" })
-  .inputValidator((data: unknown) => reorderInput.parse(data))
+  .validator((data: unknown) => reorderInput.parse(data))
   .handler(async ({ data }) => {
     const { deps, actorId } = await serverDeps();
     return reorderFor(deps, actorId, data);
   });
 
 export const revokePermissionFn = createServerFn({ method: "POST" })
-  .inputValidator((data: unknown) => memberInput.parse(data))
+  .validator((data: unknown) => memberInput.parse(data))
   .handler(async ({ data }) => {
     const { deps, actorId } = await serverDeps();
     return revokePermissionFor(deps, actorId, data);
   });
 
 export const requestLeaveFn = createServerFn({ method: "POST" })
-  .inputValidator((data: unknown) => circleInput.parse(data))
+  .validator((data: unknown) => circleInput.parse(data))
   .handler(async ({ data }) => {
     const { deps, actorId } = await serverDeps();
     return requestLeaveFor(deps, actorId, data);
   });
 
 export const setPausedFn = createServerFn({ method: "POST" })
-  .inputValidator((data: unknown) => pausedInput.parse(data))
+  .validator((data: unknown) => pausedInput.parse(data))
   .handler(async ({ data }) => {
     const { deps, actorId } = await serverDeps();
     return setPausedFor(deps, actorId, data);
   });
 
 export const startFn = createServerFn({ method: "POST" })
-  .inputValidator((data: unknown) => startInput.parse(data))
+  .validator((data: unknown) => startInput.parse(data))
   .handler(async ({ data }) => {
     const { deps, actorId } = await serverDeps();
     return startFor(deps, actorId, data);

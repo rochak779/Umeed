@@ -8,6 +8,7 @@ import type { AppDeps } from "@/application/ports/appDeps";
 import { previewInvitation } from "@/application/use-cases/previewInvitation";
 import { acceptInvitation } from "@/application/use-cases/acceptInvitation";
 import { runApiAsActor, runPublicApi } from "@/features/api/runApi";
+import { ensureProfile } from "@/features/authentication/ensureProfile";
 import { currentActor, type Actor } from "@/server/actor";
 import { buildServerDeps } from "@/server/serverDeps";
 
@@ -28,6 +29,7 @@ export async function previewFor(deps: AppDeps, input: TokenInput) {
 }
 
 export async function acceptFor(deps: AppDeps, actor: Actor, input: TokenInput) {
+  await ensureProfile(deps, actor);
   return acceptInvitation(
     {
       careCircleRepository: deps.careCircleRepository,
@@ -44,11 +46,11 @@ export async function acceptFor(deps: AppDeps, actor: Actor, input: TokenInput) 
 }
 
 export const previewFn = createServerFn({ method: "GET" })
-  .inputValidator((data: unknown) => previewInput.parse(data))
+  .validator((data: unknown) => previewInput.parse(data))
   .handler(async ({ data }) => previewFor(buildServerDeps(), data));
 
 export const acceptFn = createServerFn({ method: "POST" })
-  .inputValidator((data: unknown) => acceptInput.parse(data))
+  .validator((data: unknown) => acceptInput.parse(data))
   .handler(async ({ data }) => acceptFor(buildServerDeps(), await currentActor(), data));
 
 export const invitationApi = {

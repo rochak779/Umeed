@@ -53,14 +53,14 @@ const serverDeps = async () => ({
 });
 
 export const listConsentFn = createServerFn({ method: "GET" })
-  .inputValidator((data: unknown) => circleInput.parse(data))
+  .validator((data: unknown) => circleInput.parse(data))
   .handler(async ({ data }) => {
     const { deps, actorId } = await serverDeps();
     return listConsentFor(deps, actorId, data);
   });
 
 export const setConsentFn = createServerFn({ method: "POST" })
-  .inputValidator((data: unknown) => setInput.parse(data))
+  .validator((data: unknown) => setInput.parse(data))
   .handler(async ({ data }) => {
     const { deps, actorId } = await serverDeps();
     return setConsentFor(deps, actorId, data);
