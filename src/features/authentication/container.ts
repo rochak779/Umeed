@@ -7,6 +7,7 @@
  * `SupabaseAuthProvider` (Phase 10) both branch on it here, without any
  * feature code changing.
  */
+import { isSupabaseMode } from "../../shared/config";
 import { BrowserLocalStorageStore } from "../../infrastructure/local/KeyValueStore";
 import { SystemClock } from "../../shared/time/Clock";
 import { UuidIdGenerator } from "../../shared/id/IdGenerator";
@@ -45,7 +46,7 @@ const store = new BrowserLocalStorageStore();
  * when `DATA_ADAPTER=supabase`, `LocalAuthProvider` otherwise).
  */
 function buildRepositories() {
-  if (process.env["DATA_ADAPTER"] === "supabase") {
+  if (isSupabaseMode()) {
     const client = createSupabaseServiceClient();
     return {
       profileRepository: new SupabaseProfileRepository(client),
@@ -73,7 +74,7 @@ function buildRepositories() {
 }
 
 function buildAuthProvider() {
-  if (process.env["DATA_ADAPTER"] === "supabase") {
+  if (isSupabaseMode()) {
     return new SupabaseAuthProvider(getSupabaseAuthClient);
   }
   return new LocalAuthProvider(store, new SystemClock());

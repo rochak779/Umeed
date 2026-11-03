@@ -1,3 +1,4 @@
+import { isSupabaseMode } from "@/shared/config";
 import { redirect } from "@tanstack/react-router";
 import { container } from "./container";
 
@@ -13,7 +14,7 @@ import { container } from "./container";
  * The bail below is therefore scoped to local mode only.
  */
 export async function requireSession() {
-  const isLocalMode = process.env["DATA_ADAPTER"] !== "supabase";
+  const isLocalMode = !isSupabaseMode();
   if (typeof window === "undefined" && isLocalMode) return null;
   const session = await container.authProvider.getSession();
   if (!session) {
@@ -24,7 +25,7 @@ export async function requireSession() {
 
 /** Redirects an already-authenticated visitor away from public-only screens (sign-in, sign-up). */
 export async function redirectIfAuthenticated() {
-  const isLocalMode = process.env["DATA_ADAPTER"] !== "supabase";
+  const isLocalMode = !isSupabaseMode();
   if (typeof window === "undefined" && isLocalMode) return;
   const session = await container.authProvider.getSession();
   if (session) {
