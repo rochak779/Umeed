@@ -23,8 +23,9 @@ function defaultSources(): ConfigSources {
 
 function read(sources: ConfigSources, name: string): string | undefined {
   const { processEnv, viteEnv } = sources;
-  if (processEnv) return processEnv[name] || processEnv[`VITE_${name}`] || undefined;
-  return viteEnv?.[`VITE_${name}`] || undefined;
+  return (
+    processEnv?.[name] || processEnv?.[`VITE_${name}`] || viteEnv?.[`VITE_${name}`] || undefined
+  );
 }
 
 export function isSupabaseMode(sources: ConfigSources = defaultSources()): boolean {

@@ -16,6 +16,12 @@ describe("isSupabaseMode", () => {
     expect(isSupabaseMode({ viteEnv: {} })).toBe(false);
   });
 
+  it("falls back to the VITE_ values Vite inlined when the server's process.env lacks them", () => {
+    expect(isSupabaseMode({ processEnv: {}, viteEnv: { VITE_DATA_ADAPTER: "supabase" } })).toBe(
+      true,
+    );
+  });
+
   it("falls back to VITE_DATA_ADAPTER on the server so one variable can drive both", () => {
     expect(isSupabaseMode({ processEnv: { VITE_DATA_ADAPTER: "supabase" } })).toBe(true);
   });
