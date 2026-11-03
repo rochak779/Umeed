@@ -73,11 +73,22 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   };
 
   const load = async () => {
-    const state = await api.session.load();
-    setSession(state?.session ?? null);
-    setProfile(state?.profile ?? null);
-    setMemberships(state?.memberships ?? []);
-    setLoading(false);
+    try {
+      const state = await api.session.load();
+      setSession(state?.session ?? null);
+      setProfile(state?.profile ?? null);
+      setMemberships(state?.memberships ?? []);
+    } catch (error) {
+      // A failed load (network, Supabase outage, misconfigured server) must
+      // not leave the app on a spinner forever — fall back to signed out so
+      // the route guards send the user to sign in.
+      console.error("Could not load the session", error);
+      setSession(null);
+      setProfile(null);
+      setMemberships([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
