@@ -27,7 +27,11 @@ function SignIn() {
     const result = await container.authProvider.signIn({ email, password });
     setSubmitting(false);
     if (!result.ok) {
-      setError("Email or password is incorrect.");
+      setError(
+        result.code === "email_not_confirmed"
+          ? "Please confirm your email first — check your inbox."
+          : "Email or password is incorrect.",
+      );
       return;
     }
     await refresh();

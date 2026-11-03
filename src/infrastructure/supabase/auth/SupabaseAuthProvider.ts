@@ -10,11 +10,14 @@ function toSession(user: { id: string; email?: string }, expiresAt: string): Ses
  * Phase 10). Two methods below are genuine adaptations, not 1:1 passthroughs
  * — see the design doc §3.2 for why:
  *
- * - verifyEmail / isEmailVerified: with "Confirm email" turned off for this
- *   project (Global Constraints), Supabase confirms every account
- *   immediately on signUp. There is no separate token to redeem, so these
- *   just report the current session's actual confirmation state rather than
- *   performing a manual redemption.
+ * - register / signIn: "Confirm email" is a project-wide setting in the
+ *   shared Supabase project, so this adapter works either way. With it off,
+ *   signUp returns a session immediately; with it on, register reports
+ *   `confirmation_required` and signIn reports `email_not_confirmed` until
+ *   the user follows the link.
+ * - verifyEmail / isEmailVerified: Supabase's confirmation link establishes
+ *   the session itself — there is no separate token to redeem, so these
+ *   just report the current session's actual confirmation state.
  * - resetPassword: Supabase's recovery link establishes a recovery session
  *   directly (PKCE `code` exchange) rather than handing the app a bare
  *   token to redeem against a stored record. `input.token` here is that
@@ -45,11 +48,11 @@ export class SupabaseAuthProvider implements AuthProvider {
       }
       return { ok: false, code: "unknown_error" };
     }
-    if (!data.session || !data.user) {
-      // Should not happen with "Confirm email" off (Global Constraints) —
-      // treated as a hard failure rather than silently returning a
-      // sessionless "ok" the AuthResult type can't represent.
-      return { ok: false, code: "unknown_error" };
+    if (!data.user) return { ok: false, code: "unknown_error" };
+    if (!data.session) {
+      // The project requires email confirmation: the account exists but has
+      // no session until the user follows the link in their inbox.
+      return { ok: false, code: "confirmation_required" };
     }
     return {
       ok: true,
@@ -63,6 +66,7 @@ export class SupabaseAuthProvider implements AuthProvider {
       email: input.email,
       password: input.password,
     });
+    if (error?.code === "email_not_confirmed") return { ok: false, code: "email_not_confirmed" };
     if (error || !data.session || !data.user) {
       return { ok: false, code: "invalid_credentials" };
     }
@@ -95,7 +99,11 @@ export class SupabaseAuthProvider implements AuthProvider {
     const {
       data: { subscription },
     } = this.getClient().auth.onAuthStateChange((_event, session) => {
-      handler(session?.user ? toSession(session.user, new Date(session.expires_at! * 1000).toISOString()) : null);
+      handler(
+        session?.user
+          ? toSession(session.user, new Date(session.expires_at! * 1000).toISOString())
+          : null,
+      );
     });
     return () => subscription.unsubscribe();
   }

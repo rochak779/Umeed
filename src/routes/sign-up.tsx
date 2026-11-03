@@ -20,11 +20,13 @@ function SignUp() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    setNotice(null);
     setSubmitting(true);
     const result = await registerAccount(
       {
@@ -35,6 +37,10 @@ function SignUp() {
       { displayName, email, password },
     );
     setSubmitting(false);
+    if (!result.ok && result.code === "confirmation_required") {
+      setNotice(`We've sent a confirmation link to ${email}. Open it, then sign in.`);
+      return;
+    }
     if (!result.ok) {
       setError(
         result.code === "email_taken"
@@ -82,6 +88,11 @@ function SignUp() {
               hint="At least 8 characters."
               error={error ?? undefined}
             />
+            {notice && (
+              <p className="t-body text-text-soft" role="status">
+                {notice}
+              </p>
+            )}
             <UButton type="submit" size="lg" full disabled={submitting}>
               {submitting ? "Creating account…" : "Create account"}
             </UButton>

@@ -18,7 +18,11 @@ describe.skipIf(!hasSupabaseEnv)("SupabaseAuthProvider.register", () => {
   it("creates an account and returns an active session immediately", async () => {
     const auth = makeProvider();
     const email = uniqueEmail();
-    const result = await auth.register({ displayName: "Sarah", email, password: "correct-horse-1" });
+    const result = await auth.register({
+      displayName: "Sarah",
+      email,
+      password: "correct-horse-1",
+    });
     expect(result.ok).toBe(true);
     if (result.ok) expect(result.session.email).toBe(email);
   });
@@ -27,7 +31,11 @@ describe.skipIf(!hasSupabaseEnv)("SupabaseAuthProvider.register", () => {
     const auth = makeProvider();
     const email = uniqueEmail();
     await auth.register({ displayName: "Sarah", email, password: "correct-horse-1" });
-    const result = await auth.register({ displayName: "Sarah 2", email, password: "correct-horse-2" });
+    const result = await auth.register({
+      displayName: "Sarah 2",
+      email,
+      password: "correct-horse-2",
+    });
     expect(result).toEqual({ ok: false, code: "email_taken" });
   });
 });
