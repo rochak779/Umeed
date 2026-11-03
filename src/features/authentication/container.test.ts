@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 async function loadContainer(dataAdapter: string) {
   vi.resetModules();
+  vi.stubEnv("VITE_DATA_ADAPTER", dataAdapter);
   vi.stubEnv("DATA_ADAPTER", dataAdapter);
   vi.stubEnv("SUPABASE_URL", "https://example.supabase.co");
   vi.stubEnv("SUPABASE_ANON_KEY", "anon");

@@ -28,8 +28,27 @@ function read(sources: ConfigSources, name: string): string | undefined {
   );
 }
 
+/**
+ * Mode is decided at build time by VITE_DATA_ADAPTER, which Vite inlines
+ * into both the server and the browser bundles — so the two can never
+ * disagree. A server-side DATA_ADAPTER is only checked, never trusted: if it
+ * says something different, fail loudly instead of running a Supabase-mode
+ * server behind a local-mode browser.
+ */
 export function isSupabaseMode(sources: ConfigSources = defaultSources()): boolean {
-  return read(sources, "DATA_ADAPTER") === "supabase";
+  const buildMode = sources.viteEnv?.["VITE_DATA_ADAPTER"] === "supabase" ? "supabase" : "local";
+  const serverSetting = sources.processEnv?.["DATA_ADAPTER"];
+  if (serverSetting) {
+    const serverMode = serverSetting === "supabase" ? "supabase" : "local";
+    if (serverMode !== buildMode) {
+      throw new Error(
+        `DATA_ADAPTER=${serverSetting} but this build was made with VITE_DATA_ADAPTER=${
+          sources.viteEnv?.["VITE_DATA_ADAPTER"] ?? "(unset)"
+        }. Set VITE_DATA_ADAPTER (it decides the mode for both server and browser) and rebuild.`,
+      );
+    }
+  }
+  return buildMode === "supabase";
 }
 
 export function publicSupabaseConfig(sources: ConfigSources = defaultSources()): {

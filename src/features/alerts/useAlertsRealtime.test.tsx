@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { describe, expect, it, vi, beforeEach } from "vitest";
+import { afterEach, describe, expect, it, vi, beforeEach } from "vitest";
 import { renderHook } from "@testing-library/react";
 import { useAlertsRealtime } from "./useAlertsRealtime";
 
@@ -16,11 +16,18 @@ vi.mock("@/infrastructure/supabase/authClient", () => ({
   getSupabaseAuthClient: () => mockClient,
 }));
 
+function setMode(mode: "supabase" | "local") {
+  vi.stubEnv("VITE_DATA_ADAPTER", mode);
+  vi.stubEnv("DATA_ADAPTER", mode);
+}
+
 describe("useAlertsRealtime", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    process.env["DATA_ADAPTER"] = "supabase";
+    setMode("supabase");
   });
+
+  afterEach(() => vi.unstubAllEnvs());
 
   it("does nothing when there is no active circle", () => {
     renderHook(() => useAlertsRealtime(undefined, vi.fn()));
@@ -28,7 +35,7 @@ describe("useAlertsRealtime", () => {
   });
 
   it("does nothing in local mode even with a circle id", () => {
-    process.env["DATA_ADAPTER"] = "local";
+    setMode("local");
     renderHook(() => useAlertsRealtime("circle-1", vi.fn()));
     expect(mockClient.channel).not.toHaveBeenCalled();
   });

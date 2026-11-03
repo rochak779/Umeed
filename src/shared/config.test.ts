@@ -2,28 +2,35 @@ import { describe, expect, it } from "vitest";
 import { isSupabaseMode, publicSupabaseConfig } from "./config";
 
 describe("isSupabaseMode", () => {
-  it("is true when the server's DATA_ADAPTER is supabase", () => {
-    expect(isSupabaseMode({ processEnv: { DATA_ADAPTER: "supabase" } })).toBe(true);
-  });
-
-  it("is false when DATA_ADAPTER is unset or local", () => {
-    expect(isSupabaseMode({ processEnv: {} })).toBe(false);
-    expect(isSupabaseMode({ processEnv: { DATA_ADAPTER: "local" } })).toBe(false);
-  });
-
-  it("reads VITE_DATA_ADAPTER in the browser, where there is no process.env", () => {
+  it("is true when the build-time VITE_DATA_ADAPTER is supabase", () => {
     expect(isSupabaseMode({ viteEnv: { VITE_DATA_ADAPTER: "supabase" } })).toBe(true);
-    expect(isSupabaseMode({ viteEnv: {} })).toBe(false);
   });
 
-  it("falls back to the VITE_ values Vite inlined when the server's process.env lacks them", () => {
-    expect(isSupabaseMode({ processEnv: {}, viteEnv: { VITE_DATA_ADAPTER: "supabase" } })).toBe(
-      true,
+  it("is false when VITE_DATA_ADAPTER is unset or local", () => {
+    expect(isSupabaseMode({ viteEnv: {} })).toBe(false);
+    expect(isSupabaseMode({ viteEnv: { VITE_DATA_ADAPTER: "local" } })).toBe(false);
+  });
+
+  it("ignores a runtime-only VITE_DATA_ADAPTER the browser build never saw", () => {
+    expect(isSupabaseMode({ processEnv: { VITE_DATA_ADAPTER: "supabase" }, viteEnv: {} })).toBe(
+      false,
     );
   });
 
-  it("falls back to VITE_DATA_ADAPTER on the server so one variable can drive both", () => {
-    expect(isSupabaseMode({ processEnv: { VITE_DATA_ADAPTER: "supabase" } })).toBe(true);
+  it("fails loudly when the server's DATA_ADAPTER disagrees with the build", () => {
+    expect(() => isSupabaseMode({ processEnv: { DATA_ADAPTER: "supabase" }, viteEnv: {} })).toThrow(
+      /VITE_DATA_ADAPTER/,
+    );
+  });
+
+  it("accepts a matching or local DATA_ADAPTER alongside the build value", () => {
+    expect(
+      isSupabaseMode({
+        processEnv: { DATA_ADAPTER: "supabase" },
+        viteEnv: { VITE_DATA_ADAPTER: "supabase" },
+      }),
+    ).toBe(true);
+    expect(isSupabaseMode({ processEnv: { DATA_ADAPTER: "local" }, viteEnv: {} })).toBe(false);
   });
 });
 
