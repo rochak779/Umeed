@@ -12,7 +12,8 @@
     "format": "prettier --write .",
     "test": "vitest run",
     "test:watch": "vitest",
-    "db:migrate": "scripts/db-migrate.sh"
+    "db:migrate": "scripts/db-migrate.sh",
+    "check:bundle": "scripts/check-client-bundle.sh"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
