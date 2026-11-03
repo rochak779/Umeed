@@ -125,8 +125,12 @@ export function localDeps(): AppDeps {
 }
 
 /** The signed-in local-mode user — the local equivalent of `currentActor()`. */
-export async function localUserId(): Promise<string> {
+export async function localActor(): Promise<{ userId: string; email: string }> {
   const session = await container.authProvider.getSession();
   if (!session) throw new Error("unauthenticated");
-  return session.userId;
+  return { userId: session.userId, email: session.email };
+}
+
+export async function localUserId(): Promise<string> {
+  return (await localActor()).userId;
 }

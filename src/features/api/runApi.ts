@@ -1,5 +1,6 @@
 import type { AppDeps } from "@/application/ports/appDeps";
-import { localDeps, localUserId } from "@/features/authentication/container";
+import { localActor, localDeps, localUserId } from "@/features/authentication/container";
+import type { Actor } from "@/server/actor";
 import { isSupabaseMode } from "@/shared/config";
 
 /**
@@ -24,4 +25,14 @@ export async function runPublicApi<I, O>(
 ): Promise<O> {
   if (isSupabaseMode()) return serverFn({ data: input });
   return local(localDeps(), input);
+}
+
+/** Like `runApi`, for operations that need the verified email as well as the id. */
+export async function runApiAsActor<I, O>(
+  serverFn: (opts: { data: I }) => Promise<O>,
+  local: (deps: AppDeps, actor: Actor, input: I) => Promise<O>,
+  input: I,
+): Promise<O> {
+  if (isSupabaseMode()) return serverFn({ data: input });
+  return local(localDeps(), await localActor(), input);
 }
