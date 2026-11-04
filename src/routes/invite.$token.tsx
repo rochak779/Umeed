@@ -5,12 +5,9 @@ import { Screen, TopBar, UButton, UCard } from "@/components/umeed/primitives";
 import { Field } from "@/shared/components/Field";
 import { container } from "@/features/authentication/container";
 import { api } from "@/features/authentication/sessionApi";
+import { invitationApi } from "@/features/invitations/invitationApi";
 import { useSession } from "@/features/authentication/SessionContext";
-import {
-  previewInvitation,
-  type PreviewInvitationResult,
-} from "@/application/use-cases/previewInvitation";
-import { acceptInvitation } from "@/application/use-cases/acceptInvitation";
+import { type PreviewInvitationResult } from "@/application/use-cases/previewInvitation";
 
 export const Route = createFileRoute("/invite/$token")({
   head: () => ({ meta: [{ title: "You've been invited — Umeed" }] }),
@@ -43,31 +40,11 @@ function InviteAccept() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    void previewInvitation(
-      {
-        careCircleRepository: container.careCircleRepository,
-        invitationRepository: container.invitationRepository,
-        profileRepository: container.profileRepository,
-        clock: container.clock,
-      },
-      { token },
-    ).then(setPreview);
+    void invitationApi.preview({ token }).then(setPreview);
   }, [token]);
 
-  const finishAcceptance = async (userId: string, userEmail: string) => {
-    const result = await acceptInvitation(
-      {
-        careCircleRepository: container.careCircleRepository,
-        invitationRepository: container.invitationRepository,
-        consentRepository: container.consentRepository,
-        auditRepository: container.auditRepository,
-        routineRepository: container.routineRepository,
-        occurrenceRepository: container.occurrenceRepository,
-        clock: container.clock,
-        idGenerator: container.idGenerator,
-      },
-      { token, userId, userEmail },
-    );
+  const finishAcceptance = async () => {
+    const result = await invitationApi.accept({ token });
     if (!result.ok) {
       setError(
         result.code === "wrong_account"
@@ -93,14 +70,14 @@ function InviteAccept() {
         );
         return;
       }
-      await finishAcceptance(result.session.userId, result.session.email);
+      await finishAcceptance();
     } else {
       const result = await container.authProvider.signIn({ email, password });
       if (!result.ok) {
         setError("Email or password is incorrect.");
         return;
       }
-      await finishAcceptance(result.session.userId, result.session.email);
+      await finishAcceptance();
     }
   };
 
@@ -143,7 +120,7 @@ function InviteAccept() {
               {responderLabel[preview.proposedResponderType]}.
             </p>
             {error ? <p className="t-caption text-critical">{error}</p> : null}
-            <UButton size="lg" full onClick={() => finishAcceptance(session.userId, session.email)}>
+            <UButton size="lg" full onClick={() => finishAcceptance()}>
               Accept invitation
             </UButton>
           </UCard>

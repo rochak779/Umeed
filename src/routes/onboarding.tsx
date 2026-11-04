@@ -5,15 +5,14 @@ import { toast } from "sonner";
 import { Screen, TopBar, UButton, UCard } from "@/components/umeed/primitives";
 import { Field } from "@/shared/components/Field";
 import { useSession } from "@/features/authentication/SessionContext";
-import { container } from "@/features/authentication/container";
+import { circleApi } from "@/features/circle/circleApi";
 import { requireSession } from "@/features/authentication/guards";
-import { startCareCircle } from "@/application/use-cases/startCareCircle";
 
 export const Route = createFileRoute("/onboarding")({
   beforeLoad: async () => {
     const session = await requireSession();
     if (!session) return; // SSR pass-through; see guards.ts
-    const existing = await container.careCircleRepository.findByUserId(session.userId);
+    const existing = await circleApi.myCircleIds();
     if (existing.length > 0) throw redirect({ to: "/app" });
   },
   head: () => ({ meta: [{ title: "Set up your circle — Umeed" }] }),
@@ -33,24 +32,12 @@ function Onboarding() {
 
   const onCreateCircle = async (e: React.FormEvent) => {
     e.preventDefault();
-    const session = await container.authProvider.getSession();
-    if (!session) return;
     setSubmitting(true);
-    const { plaintextToken } = await startCareCircle(
-      {
-        careCircleRepository: container.careCircleRepository,
-        invitationRepository: container.invitationRepository,
-        auditRepository: container.auditRepository,
-        clock: container.clock,
-        idGenerator: container.idGenerator,
-      },
-      {
-        coordinatorUserId: session.userId,
-        olderAdultPreferredName: preferredName,
-        invitedEmail: contactEmail || null,
-        invitedPhone: null,
-      },
-    );
+    const { plaintextToken } = await circleApi.start({
+      olderAdultPreferredName: preferredName,
+      invitedEmail: contactEmail || null,
+      invitedPhone: null,
+    });
     setSubmitting(false);
     setInviteLink(`${window.location.origin}/invite/${plaintextToken}`);
     setStep("invited");

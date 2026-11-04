@@ -10,6 +10,7 @@ import { currentActor, UnauthenticatedError, type Actor } from "@/server/actor";
 import { buildServerDeps } from "@/server/serverDeps";
 import { isSupabaseMode } from "@/shared/config";
 import { container } from "./container";
+import { ensureProfile } from "./ensureProfile";
 import type { ActiveMembership } from "./SessionContext";
 
 export type SessionState = { profile: UserProfile | null; memberships: ActiveMembership[] };
@@ -26,36 +27,14 @@ async function loadMemberships(deps: Pick<AppDeps, "careCircleRepository">, user
 }
 
 /**
- * Server side of "who am I and which circles am I in". Creates the profile
- * on first load (sign-up only creates the auth user, and when the project
- * requires email confirmation there is no session at sign-up to create it
- * with), keyed by the verified auth user id — membership and RLS checks
- * depend on the two ids matching.
+ * Server side of "who am I and which circles am I in". Ensures the profile
+ * exists first (see ensureProfile).
  */
 export async function loadSessionStateFor(
   deps: Pick<AppDeps, "profileRepository" | "careCircleRepository" | "clock">,
   actor: Actor,
 ): Promise<{ profile: UserProfile; memberships: ActiveMembership[] }> {
-  let profile = await deps.profileRepository.findById(actor.userId);
-  if (!profile) {
-    const nowIso = deps.clock.now().toISOString();
-    const displayName = actor.displayName || actor.email.split("@")[0] || "Friend";
-    profile = {
-      id: actor.userId,
-      displayName,
-      preferredName: displayName,
-      phone: null,
-      address: null,
-      email: actor.email,
-      timezone: "Europe/London",
-      locale: "en-GB",
-      accessibilityPreferences: { largeText: false, reducedMotion: false, highContrast: false },
-      onboardingStatus: "not_started",
-      createdAt: nowIso,
-      updatedAt: nowIso,
-    };
-    await deps.profileRepository.save(profile);
-  }
+  const profile = await ensureProfile(deps, actor);
   return { profile, memberships: await loadMemberships(deps, actor.userId) };
 }
 

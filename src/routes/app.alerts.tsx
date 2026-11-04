@@ -3,11 +3,9 @@ import { useEffect, useState } from "react";
 import { AlertTriangle, PhoneCall } from "lucide-react";
 import { toast } from "sonner";
 import { Screen, TopBar, UButton, UCard } from "@/components/umeed/primitives";
-import { container } from "@/features/authentication/container";
+import { alertApi } from "@/features/alerts/alertApi";
 import { resolveActiveMembership, useSession } from "@/features/authentication/SessionContext";
-import { getAlertsForCircle, type AlertView } from "@/application/use-cases/getAlertsForCircle";
-import { claimAlert } from "@/application/use-cases/claimAlert";
-import { resolveAlert } from "@/application/use-cases/resolveAlert";
+import type { AlertView } from "@/application/use-cases/getAlertsForCircle";
 import { useAlertsRealtime } from "@/features/alerts/useAlertsRealtime";
 import type { AlertRecipient, DeliveryStatus, ResolutionCode } from "@/domain/entities/alert";
 import type { ResponderType } from "@/domain/entities/careCircle";
@@ -64,35 +62,16 @@ function AlertsScreen() {
 
   const load = async () => {
     if (!circleId) return;
-    const views = await getAlertsForCircle(
-      {
-        alerts: container.alertRepository,
-        careCircles: container.careCircleRepository,
-        profiles: container.profileRepository,
-      },
-      { careCircleId: circleId },
-    );
+    const { alerts: views, members, recipientsByAlert } = await alertApi.list({ circleId });
     setAlerts(views);
 
-    const openAlerts = views.filter(
-      (a) => !["resolved", "unresolved", "cancelled"].includes(a.status),
-    );
-
-    const members = await container.careCircleRepository.findMembers(circleId);
     const labelByMemberId: Record<string, string> = {};
     for (const m of members) {
-      const profile = await container.profileRepository.findById(m.userId);
       labelByMemberId[m.id] =
-        `${profile?.preferredName ?? m.relationship} (${responderTypeLabel[m.responderType]})`;
+        `${m.preferredName ?? m.relationship} (${responderTypeLabel[m.responderType]})`;
     }
     setMemberLabels(labelByMemberId);
-
-    const recipientEntries = await Promise.all(
-      openAlerts.map(
-        async (a) => [a.id, await container.alertRepository.findRecipients(a.id)] as const,
-      ),
-    );
-    setRecipientsByAlert(Object.fromEntries(recipientEntries));
+    setRecipientsByAlert(recipientsByAlert);
   };
 
   useEffect(() => {
@@ -156,21 +135,10 @@ function AlertsScreen() {
                           size="md"
                           full
                           onClick={async () => {
-                            await resolveAlert(
-                              {
-                                alerts: container.alertRepository,
-                                occurrences: container.occurrenceRepository,
-                                audit: container.auditRepository,
-                                clock: container.clock,
-                                idGenerator: container.idGenerator,
-                              },
-                              {
-                                alertId: alert.id,
-                                actorUserId: session.userId,
-                                resolutionCode: opt.value,
-                                resolutionNote: null,
-                              },
-                            );
+                            await alertApi.resolve({
+                              alertId: alert.id,
+                              resolutionCode: opt.value,
+                            });
                             setResolvingId(null);
                             await load();
                           }}
@@ -191,16 +159,7 @@ function AlertsScreen() {
                 size="lg"
                 full
                 onClick={async () => {
-                  const result = await claimAlert(
-                    {
-                      alerts: container.alertRepository,
-                      careCircles: container.careCircleRepository,
-                      audit: container.auditRepository,
-                      clock: container.clock,
-                      idGenerator: container.idGenerator,
-                    },
-                    { alertId: alert.id, claimerUserId: session.userId, claimWindowMinutes: 15 },
-                  );
+                  const result = await alertApi.claim({ alertId: alert.id });
                   if (!result.ok) toast.info("Someone else is already handling this.");
                   await load();
                 }}

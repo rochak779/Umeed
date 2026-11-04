@@ -49,7 +49,7 @@ describe("useAlertsRealtime", () => {
       "postgres_changes",
       expect.objectContaining({
         event: "*",
-        schema: "public",
+        schema: "umeed",
         table: "alerts",
         filter: "care_circle_id=eq.circle-1",
       }),

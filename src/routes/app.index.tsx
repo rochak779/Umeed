@@ -3,9 +3,9 @@ import { useCallback, useEffect, useState } from "react";
 import { AlertTriangle, CalendarClock, LogOut, Settings, Shield, Users } from "lucide-react";
 import { Screen, SectionHeader, TopBar, UCard } from "@/components/umeed/primitives";
 import { resolveActiveMembership, useSession } from "@/features/authentication/SessionContext";
-import { container } from "@/features/authentication/container";
-import { getRecentActivity, type ActivityItem } from "@/application/use-cases/getRecentActivity";
-import { getAlertsForCircle, type AlertView } from "@/application/use-cases/getAlertsForCircle";
+import { alertApi } from "@/features/alerts/alertApi";
+import type { ActivityItem } from "@/application/use-cases/getRecentActivity";
+import type { AlertView } from "@/application/use-cases/getAlertsForCircle";
 import { useAlertsRealtime } from "@/features/alerts/useAlertsRealtime";
 
 export const Route = createFileRoute("/app/")({
@@ -28,7 +28,14 @@ const roleLabel: Record<string, string> = {
  */
 function AppHome() {
   const navigate = useNavigate();
-  const { loading, profile, memberships, activeCircleId, signOut } = useSession();
+  const {
+    loading,
+    profile,
+    memberships,
+    activeCircleId,
+    signOut,
+    refresh: refreshSession,
+  } = useSession();
   const [activity, setActivity] = useState<ActivityItem[]>([]);
   const [openAlerts, setOpenAlerts] = useState<AlertView[]>([]);
 
@@ -36,20 +43,16 @@ function AppHome() {
 
   const refresh = useCallback(() => {
     if (!circleId) return;
-    void getRecentActivity(
-      { audit: container.auditRepository },
-      { careCircleId: circleId, limit: 5 },
-    ).then(setActivity);
-    void getAlertsForCircle(
-      {
-        alerts: container.alertRepository,
-        careCircles: container.careCircleRepository,
-        profiles: container.profileRepository,
-      },
-      { careCircleId: circleId },
-    ).then((all) =>
-      setOpenAlerts(all.filter((a) => !["resolved", "unresolved", "cancelled"].includes(a.status))),
-    );
+    void alertApi
+      .summary({ circleId })
+      .then(({ openAlerts, activity }) => {
+        setActivity(activity);
+        setOpenAlerts(openAlerts);
+      })
+      // A stale circle (left or removed): reload the session instead of
+      // leaving an unhandled rejection and an empty dashboard.
+      .catch(() => refreshSession());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [circleId]);
 
   useEffect(() => {

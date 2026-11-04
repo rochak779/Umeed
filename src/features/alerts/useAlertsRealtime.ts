@@ -1,6 +1,7 @@
 import { isSupabaseMode } from "@/shared/config";
 import { useEffect } from "react";
 import { getSupabaseAuthClient } from "@/infrastructure/supabase/authClient";
+import { SUPABASE_DB_SCHEMA } from "@/infrastructure/supabase/schema";
 
 /**
  * Subscribes to live changes on `alerts` for one care circle (Implementation.md
@@ -21,7 +22,12 @@ export function useAlertsRealtime(circleId: string | undefined, onChange: () => 
       .channel(`alerts:${circleId}`)
       .on(
         "postgres_changes",
-        { event: "*", schema: "public", table: "alerts", filter: `care_circle_id=eq.${circleId}` },
+        {
+          event: "*",
+          schema: SUPABASE_DB_SCHEMA,
+          table: "alerts",
+          filter: `care_circle_id=eq.${circleId}`,
+        },
         () => onChange(),
       )
       .subscribe();

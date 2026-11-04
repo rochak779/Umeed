@@ -1,9 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Screen, TopBar, UCard } from "@/components/umeed/primitives";
-import { container } from "@/features/authentication/container";
+import { consentApi } from "@/features/consent/consentApi";
 import { resolveActiveMembership, useSession } from "@/features/authentication/SessionContext";
-import { setConsent } from "@/application/use-cases/setConsent";
 import type { ConsentRecord, ConsentType } from "@/domain/entities/consent";
 
 export const Route = createFileRoute("/app/consent")({
@@ -37,7 +36,7 @@ function ConsentScreen() {
 
   const load = async () => {
     if (!membership) return;
-    setRecords(await container.consentRepository.findByCareCircle(membership.circle.id));
+    setRecords(await consentApi.list({ circleId: membership.circle.id }));
   };
 
   useEffect(() => {
@@ -81,21 +80,11 @@ function ConsentScreen() {
                   granted ? "bg-sage justify-end" : "bg-line justify-start"
                 }`}
                 onClick={async () => {
-                  await setConsent(
-                    {
-                      careCircles: container.careCircleRepository,
-                      consents: container.consentRepository,
-                      audit: container.auditRepository,
-                      clock: container.clock,
-                      idGenerator: container.idGenerator,
-                    },
-                    {
-                      careCircleId: membership.circle.id,
-                      actorUserId: session.userId,
-                      consentType: t.type,
-                      status: granted ? "revoked" : "granted",
-                    },
-                  );
+                  await consentApi.set({
+                    circleId: membership.circle.id,
+                    consentType: t.type,
+                    status: granted ? "revoked" : "granted",
+                  });
                   await load();
                 }}
               >
