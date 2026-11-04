@@ -1,3 +1,4 @@
+import { isSupabaseMode } from "@/shared/config";
 import { useEffect } from "react";
 import { getSupabaseAuthClient } from "@/infrastructure/supabase/authClient";
 
@@ -13,7 +14,7 @@ import { getSupabaseAuthClient } from "@/infrastructure/supabase/authClient";
 export function useAlertsRealtime(circleId: string | undefined, onChange: () => void): void {
   useEffect(() => {
     if (!circleId) return;
-    if (process.env["DATA_ADAPTER"] !== "supabase") return;
+    if (!isSupabaseMode()) return;
 
     const client = getSupabaseAuthClient();
     const channel = client

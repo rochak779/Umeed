@@ -2,11 +2,12 @@
  * Composition root for the local-first adapters (Implementation.md §11).
  * Everything here is a singleton wired to the browser's localStorage — this
  * is the one file allowed to know about concrete Local* implementations.
- * Supabase adapters are wired up the same way, behind the same ports, when
- * `DATA_ADAPTER=supabase`: repositories (Phase 9) and `authProvider` via
- * `SupabaseAuthProvider` (Phase 10) both branch on it here, without any
- * feature code changing.
+ * In Supabase mode only `authProvider` switches (to `SupabaseAuthProvider`,
+ * anon key + the user's own session); repositories live behind server
+ * functions instead — see `repository()` below.
  */
+import { isSupabaseMode } from "../../shared/config";
+import type { AppDeps } from "../../application/ports/appDeps";
 import { BrowserLocalStorageStore } from "../../infrastructure/local/KeyValueStore";
 import { SystemClock } from "../../shared/time/Clock";
 import { UuidIdGenerator } from "../../shared/id/IdGenerator";
@@ -24,41 +25,12 @@ import { LocalAlertRepository } from "../../infrastructure/local/repositories/Lo
 import { LocalCommunicationRepository } from "../../infrastructure/local/repositories/LocalCommunicationRepository";
 import { LocalEventBus } from "../../infrastructure/local/LocalEventBus";
 import { MockNotificationGateway } from "../../infrastructure/mock-communications/MockNotificationGateway";
-import { createSupabaseServiceClient } from "../../infrastructure/supabase/client";
-import { SupabaseProfileRepository } from "../../infrastructure/supabase/repositories/SupabaseProfileRepository";
-import { SupabaseCareCircleRepository } from "../../infrastructure/supabase/repositories/SupabaseCareCircleRepository";
-import { SupabaseInvitationRepository } from "../../infrastructure/supabase/repositories/SupabaseInvitationRepository";
-import { SupabaseConsentRepository } from "../../infrastructure/supabase/repositories/SupabaseConsentRepository";
-import { SupabaseAuditRepository } from "../../infrastructure/supabase/repositories/SupabaseAuditRepository";
-import { SupabaseRoutineRepository } from "../../infrastructure/supabase/repositories/SupabaseRoutineRepository";
-import { SupabaseOccurrenceRepository } from "../../infrastructure/supabase/repositories/SupabaseOccurrenceRepository";
-import { SupabaseAlertRepository } from "../../infrastructure/supabase/repositories/SupabaseAlertRepository";
-import { SupabaseCommunicationRepository } from "../../infrastructure/supabase/repositories/SupabaseCommunicationRepository";
 
 const store = new BrowserLocalStorageStore();
 
-/**
- * Repository set only branches on `DATA_ADAPTER` — everything else (clock,
- * idGenerator, eventBus, notificationGateway) stays on the local/mock
- * adapters regardless. `authProvider` also branches on `DATA_ADAPTER`, but
- * separately, in `buildAuthProvider()` below (Phase 10: `SupabaseAuthProvider`
- * when `DATA_ADAPTER=supabase`, `LocalAuthProvider` otherwise).
- */
-function buildRepositories() {
-  if (process.env["DATA_ADAPTER"] === "supabase") {
-    const client = createSupabaseServiceClient();
-    return {
-      profileRepository: new SupabaseProfileRepository(client),
-      careCircleRepository: new SupabaseCareCircleRepository(client),
-      invitationRepository: new SupabaseInvitationRepository(client),
-      consentRepository: new SupabaseConsentRepository(client),
-      auditRepository: new SupabaseAuditRepository(client),
-      routineRepository: new SupabaseRoutineRepository(client),
-      occurrenceRepository: new SupabaseOccurrenceRepository(client),
-      alertRepository: new SupabaseAlertRepository(client),
-      communicationRepository: new SupabaseCommunicationRepository(client),
-    };
-  }
+type Repositories = Omit<AppDeps, "clock" | "idGenerator" | "eventBus" | "notificationGateway">;
+
+function buildLocalRepositories(): Repositories {
   return {
     profileRepository: new LocalProfileRepository(store),
     careCircleRepository: new LocalCareCircleRepository(store),
@@ -72,8 +44,26 @@ function buildRepositories() {
   };
 }
 
+/**
+ * In Supabase mode the container holds no repositories: this module ships to
+ * the browser, and the only Supabase repositories that exist are built on the
+ * service-role client, which must stay on the server. Data access in that
+ * mode goes through server functions (src/server/serverDeps.ts builds the
+ * repositories there). Local mode keeps the localStorage adapters.
+ */
+const localRepositories: Repositories | null = isSupabaseMode() ? null : buildLocalRepositories();
+
+function repository<K extends keyof Repositories>(name: K): Repositories[K] {
+  if (!localRepositories) {
+    throw new Error(
+      `container.${name} is not available in Supabase mode — read and write through server functions instead.`,
+    );
+  }
+  return localRepositories[name];
+}
+
 function buildAuthProvider() {
-  if (process.env["DATA_ADAPTER"] === "supabase") {
+  if (isSupabaseMode()) {
     return new SupabaseAuthProvider(getSupabaseAuthClient);
   }
   return new LocalAuthProvider(store, new SystemClock());
@@ -85,5 +75,31 @@ export const container = {
   eventBus: new LocalEventBus(),
   notificationGateway: new MockNotificationGateway(new SystemClock(), new UuidIdGenerator()),
   authProvider: buildAuthProvider(),
-  ...buildRepositories(),
+  get profileRepository() {
+    return repository("profileRepository");
+  },
+  get careCircleRepository() {
+    return repository("careCircleRepository");
+  },
+  get invitationRepository() {
+    return repository("invitationRepository");
+  },
+  get consentRepository() {
+    return repository("consentRepository");
+  },
+  get auditRepository() {
+    return repository("auditRepository");
+  },
+  get routineRepository() {
+    return repository("routineRepository");
+  },
+  get occurrenceRepository() {
+    return repository("occurrenceRepository");
+  },
+  get alertRepository() {
+    return repository("alertRepository");
+  },
+  get communicationRepository() {
+    return repository("communicationRepository");
+  },
 };

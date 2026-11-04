@@ -47,7 +47,13 @@ export type AuthResult =
   | { ok: true; session: Session }
   | {
       ok: false;
-      code: "invalid_credentials" | "email_taken" | "invalid_or_expired_token" | "unknown_error";
+      code:
+        | "invalid_credentials"
+        | "email_taken"
+        | "invalid_or_expired_token"
+        | "confirmation_required"
+        | "email_not_confirmed"
+        | "unknown_error";
     };
 
 /**

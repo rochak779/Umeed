@@ -1,18 +1,9 @@
 import { createIsomorphicFn } from "@tanstack/react-start";
 import { createBrowserClient, createServerClient } from "@supabase/ssr";
 import { SUPABASE_DB_SCHEMA } from "./schema";
+import { publicSupabaseConfig } from "@/shared/config";
 import { getCookies, setCookie } from "@tanstack/react-start/server";
 import type { SupabaseClient } from "@supabase/supabase-js";
-
-function requireEnv(name: string): string {
-  const value = process.env[name];
-  if (!value) {
-    throw new Error(
-      `Missing required environment variable ${name}. Supabase auth cannot start without it.`,
-    );
-  }
-  return value;
-}
 
 type CookieToSet = { name: string; value: string; options?: Record<string, unknown> };
 
@@ -70,16 +61,14 @@ let browserClient: SupabaseClient | undefined;
  */
 const resolveClient = createIsomorphicFn()
   .server((): SupabaseClient => {
-    const url = requireEnv("SUPABASE_URL");
-    const anonKey = requireEnv("SUPABASE_ANON_KEY");
+    const { url, anonKey } = publicSupabaseConfig();
     return createServerClient(url, anonKey, {
       db: { schema: SUPABASE_DB_SCHEMA },
       cookies: toCookieMethods(getCookies, setCookie),
     }) as unknown as SupabaseClient;
   })
   .client((): SupabaseClient => {
-    const url = requireEnv("SUPABASE_URL");
-    const anonKey = requireEnv("SUPABASE_ANON_KEY");
+    const { url, anonKey } = publicSupabaseConfig();
     browserClient ??= createBrowserClient(url, anonKey, {
       db: { schema: SUPABASE_DB_SCHEMA },
     }) as unknown as SupabaseClient;
