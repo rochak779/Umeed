@@ -16,25 +16,31 @@ export type GenerateOccurrencesDeps = {
  * (Implementation.md §12). Idempotent: only creates the occurrences that
  * don't already exist for that routine + scheduled instant, so running this
  * repeatedly (e.g. from a scheduler poll) never creates duplicates.
+ *
+ * `fromLocalDate` bounds the start: the scheduled job passes yesterday so a
+ * routine that started months ago isn't re-walked day by day on every run.
  */
 export async function generateOccurrences(
   deps: GenerateOccurrencesDeps,
-  input: { routineId: string; upToLocalDate: string },
+  input: { routineId: string; upToLocalDate: string; fromLocalDate?: string },
 ): Promise<number> {
   const routine = await deps.routines.findById(input.routineId);
   if (!routine) throw new NotFoundError("Routine", input.routineId);
   if (!routine.enabled) return 0;
 
-  const candidates = generateOccurrenceCandidates(routine, routine.startDate, input.upToLocalDate);
+  const fromLocalDate =
+    input.fromLocalDate && input.fromLocalDate > routine.startDate
+      ? input.fromLocalDate
+      : routine.startDate;
+  const candidates = generateOccurrenceCandidates(routine, fromLocalDate, input.upToLocalDate);
+  const existing = new Set(
+    (await deps.occurrences.findByRoutine(routine.id)).map((o) => o.scheduledForUtc),
+  );
   const nowIso = deps.clock.now().toISOString();
   let created = 0;
 
   for (const candidate of candidates) {
-    const existing = await deps.occurrences.findByRoutineAndScheduledForUtc(
-      routine.id,
-      candidate.scheduledForUtc,
-    );
-    if (existing) continue;
+    if (existing.has(candidate.scheduledForUtc)) continue;
     // A routine can't be missed before it existed — e.g. one created at
     // 21:00 with a 09:00 time must start tomorrow, not alert immediately.
     if (candidate.scheduledForUtc < routine.createdAt) continue;
