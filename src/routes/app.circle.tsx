@@ -32,7 +32,7 @@ const roleLabel: Record<ResponderType, string> = {
 };
 
 function CircleScreen() {
-  const { session, memberships, activeCircleId } = useSession();
+  const { session, memberships, activeCircleId, refresh } = useSession();
   const navigate = useNavigate();
   const membership = resolveActiveMembership(memberships, activeCircleId);
   const circleId = membership?.circle.id;
@@ -46,7 +46,16 @@ function CircleScreen() {
 
   const load = async () => {
     if (!session || !circleId) return;
-    const { result, circle } = await circleApi.roster({ circleId });
+    let roster;
+    try {
+      roster = await circleApi.roster({ circleId });
+    } catch {
+      // No longer a member (left or removed elsewhere): reload the session
+      // so the stale circle drops out instead of loading forever.
+      await refresh();
+      return;
+    }
+    const { result, circle } = roster;
     setRoster(result);
     setCircleStatus(circle?.status ?? null);
   };
@@ -116,6 +125,9 @@ function CircleScreen() {
                       onClick={async () => {
                         if (!session || !circleId) return;
                         await circleApi.requestLeave({ circleId });
+                        // Drop the left circle from the session before any
+                        // other screen asks the server about it.
+                        await refresh();
                         toast.success("You've left the circle");
                         navigate({ to: "/app" });
                       }}

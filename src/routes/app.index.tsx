@@ -28,7 +28,14 @@ const roleLabel: Record<string, string> = {
  */
 function AppHome() {
   const navigate = useNavigate();
-  const { loading, profile, memberships, activeCircleId, signOut } = useSession();
+  const {
+    loading,
+    profile,
+    memberships,
+    activeCircleId,
+    signOut,
+    refresh: refreshSession,
+  } = useSession();
   const [activity, setActivity] = useState<ActivityItem[]>([]);
   const [openAlerts, setOpenAlerts] = useState<AlertView[]>([]);
 
@@ -36,10 +43,16 @@ function AppHome() {
 
   const refresh = useCallback(() => {
     if (!circleId) return;
-    void alertApi.summary({ circleId }).then(({ openAlerts, activity }) => {
-      setActivity(activity);
-      setOpenAlerts(openAlerts);
-    });
+    void alertApi
+      .summary({ circleId })
+      .then(({ openAlerts, activity }) => {
+        setActivity(activity);
+        setOpenAlerts(openAlerts);
+      })
+      // A stale circle (left or removed): reload the session instead of
+      // leaving an unhandled rejection and an empty dashboard.
+      .catch(() => refreshSession());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [circleId]);
 
   useEffect(() => {
