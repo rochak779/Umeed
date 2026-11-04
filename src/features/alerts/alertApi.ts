@@ -115,17 +115,37 @@ export async function resolveFor(
   );
 }
 
-/** Runs due work for the actor's own circles only. Replaced by the scheduled job in Session 4. */
+/**
+ * Runs due work for the actor's own circles only. Replaced by the scheduled
+ * job in Session 4. pollDueWork's findDue is a global query (it was written
+ * for single-household local mode), so on the shared server it is narrowed
+ * here to occurrences of the actor's own routines — otherwise any signed-in
+ * user could raise missed-routine alerts in every family's circle.
+ */
 export async function runDueWorkFor(
   deps: AppDeps,
   actorId: string,
   _input: z.infer<typeof noInput>,
 ) {
   const circles = await deps.careCircleRepository.findByUserId(actorId);
+  const careCircleIds = circles.map((c) => c.id);
+  const routineIds = new Set(
+    (await Promise.all(careCircleIds.map((id) => deps.routineRepository.findByCareCircle(id))))
+      .flat()
+      .map((r) => r.id),
+  );
+  const occurrences: AppDeps["occurrenceRepository"] = Object.create(deps.occurrenceRepository, {
+    findDue: {
+      value: async (nowUtc: string) =>
+        (await deps.occurrenceRepository.findDue(nowUtc)).filter((o) =>
+          routineIds.has(o.routineId),
+        ),
+    },
+  });
   return pollDueWork(
     {
       routines: deps.routineRepository,
-      occurrences: deps.occurrenceRepository,
+      occurrences,
       careCircles: deps.careCircleRepository,
       alerts: deps.alertRepository,
       audit: deps.auditRepository,
@@ -134,7 +154,7 @@ export async function runDueWorkFor(
       clock: deps.clock,
       idGenerator: deps.idGenerator,
     },
-    { careCircleIds: circles.map((c) => c.id) },
+    { careCircleIds },
   );
 }
 
