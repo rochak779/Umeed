@@ -32,10 +32,15 @@ export class LocalOccurrenceRepository implements OccurrenceRepository {
     return this.collection.all().filter((o) => o.routineId === routineId);
   }
 
-  async findDue(nowUtc: string): Promise<RoutineOccurrence[]> {
+  async findDue(nowUtc: string, notBeforeUtc: string): Promise<RoutineOccurrence[]> {
     return this.collection
       .all()
-      .filter((o) => o.scheduledForUtc <= nowUtc && !RESOLVED_STATUSES.has(o.status));
+      .filter(
+        (o) =>
+          o.scheduledForUtc >= notBeforeUtc &&
+          o.scheduledForUtc <= nowUtc &&
+          !RESOLVED_STATUSES.has(o.status),
+      );
   }
 
   async save(occurrence: RoutineOccurrence): Promise<void> {

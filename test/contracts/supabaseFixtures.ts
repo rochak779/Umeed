@@ -69,7 +69,9 @@ export async function seedFixedContractParents(client: SupabaseClient): Promise<
     {
       id: "alert-1",
       care_circle_id: "circle-1",
-      occurrence_id: "occ-1",
+      // No occurrence: contract cases' own alerts default to occ-1, and
+      // alerts_occurrence_id_unique_idx allows one alert per occurrence.
+      occurrence_id: null,
       source: "missed_routine",
       status: "open",
       severity: "urgent",
@@ -255,6 +257,15 @@ async function clearGeneratedFixtureRows(client: SupabaseClient): Promise<void> 
     .delete()
     .in("care_circle_id", FIXTURE_CIRCLE_IDS);
   if (auditError) throw auditError;
+}
+
+/** Leaves every fixture routine disabled so the live scheduled job skips it. */
+export async function disableFixtureRoutines(client: SupabaseClient): Promise<void> {
+  const { error } = await client
+    .from("routines")
+    .update({ enabled: false })
+    .in("id", FIXTURE_ROUTINE_IDS);
+  if (error) throw error;
 }
 
 /** Keeps `in (...)` filters well under PostgREST's URL length limit. */

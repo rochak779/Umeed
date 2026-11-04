@@ -2,7 +2,11 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { OccurrenceRepository } from "@/application/ports/repositories.ts";
 import type { RoutineOccurrence } from "@/domain/entities/routine.ts";
 import { ConflictError } from "@/domain/errors/DomainError.ts";
-import { occurrenceToRow, rowToOccurrence, type OccurrenceRow } from "../mappers/occurrenceMapper.ts";
+import {
+  occurrenceToRow,
+  rowToOccurrence,
+  type OccurrenceRow,
+} from "../mappers/occurrenceMapper.ts";
 
 const RESOLVED_STATUSES = new Set<RoutineOccurrence["status"]>(["resolved", "cancelled"]);
 
@@ -51,10 +55,11 @@ export class SupabaseOccurrenceRepository implements OccurrenceRepository {
     return (data ?? []).map(rowToOccurrence);
   }
 
-  async findDue(nowUtc: string): Promise<RoutineOccurrence[]> {
+  async findDue(nowUtc: string, notBeforeUtc: string): Promise<RoutineOccurrence[]> {
     const { data, error } = await this.client
       .from("occurrences")
       .select("*")
+      .gte("scheduled_for_utc", notBeforeUtc)
       .lte("scheduled_for_utc", nowUtc)
       .not("status", "in", `(${Array.from(RESOLVED_STATUSES).join(",")})`)
       .returns<OccurrenceRow[]>();

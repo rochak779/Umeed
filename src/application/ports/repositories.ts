@@ -4,9 +4,17 @@
  * (see test/contracts/repositoryContract.ts).
  */
 import type { UserProfile } from "../../domain/entities/profile.ts";
-import type { CareCircle, CircleMember, MemberPermission } from "../../domain/entities/careCircle.ts";
+import type {
+  CareCircle,
+  CircleMember,
+  MemberPermission,
+} from "../../domain/entities/careCircle.ts";
 import type { Invitation } from "../../domain/entities/invitation.ts";
-import type { EscalationPolicy, Routine, RoutineOccurrence } from "../../domain/entities/routine.ts";
+import type {
+  EscalationPolicy,
+  Routine,
+  RoutineOccurrence,
+} from "../../domain/entities/routine.ts";
 import type { Alert, AlertRecipient, CommunicationEvent } from "../../domain/entities/alert.ts";
 import type {
   AuditEvent,
@@ -55,7 +63,8 @@ export interface OccurrenceRepository {
     scheduledForUtc: string,
   ): Promise<RoutineOccurrence | null>;
   findByRoutine(routineId: string): Promise<RoutineOccurrence[]>;
-  findDue(nowUtc: string): Promise<RoutineOccurrence[]>;
+  /** Unresolved occurrences scheduled in [notBeforeUtc, nowUtc]. */
+  findDue(nowUtc: string, notBeforeUtc: string): Promise<RoutineOccurrence[]>;
   save(occurrence: RoutineOccurrence): Promise<void>;
 }
 

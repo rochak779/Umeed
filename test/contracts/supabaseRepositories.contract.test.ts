@@ -1,7 +1,11 @@
-import { afterEach, beforeAll, describe } from "vitest";
+import { afterAll, afterEach, beforeAll, describe } from "vitest";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createSupabaseServiceClient } from "@/infrastructure/supabase/client";
-import { resetVolatileContractRows, seedFixedContractParents } from "./supabaseFixtures";
+import {
+  disableFixtureRoutines,
+  resetVolatileContractRows,
+  seedFixedContractParents,
+} from "./supabaseFixtures";
 import { SupabaseProfileRepository } from "@/infrastructure/supabase/repositories/SupabaseProfileRepository";
 import { SupabaseInvitationRepository } from "@/infrastructure/supabase/repositories/SupabaseInvitationRepository";
 import {
@@ -48,6 +52,13 @@ describe.skipIf(!hasSupabaseEnv)("Supabase repository contracts", () => {
     await seedFixedContractParents(client);
   });
 
+  // Routine contract cases save r-1/r-2 enabled in active circles; left that
+  // way, the live every-minute job generates occurrences and raises alerts
+  // for them until the next run.
+  afterAll(async () => {
+    await disableFixtureRoutines(client);
+  });
+
   /**
    * Unlike the Local adapter's `makeRepository()` — which hands each `it()`
    * a brand-new, empty `InMemoryKeyValueStore` — Supabase's `occurrences`
@@ -67,7 +78,7 @@ describe.skipIf(!hasSupabaseEnv)("Supabase repository contracts", () => {
     const { error } = await client
       .from("occurrences")
       .delete()
-      .in("id", ["o-1", "o-2", "o-due", "o-future", "o-resolved"]);
+      .in("id", ["o-1", "o-2", "o-due", "o-future", "o-resolved", "o-too-old"]);
     if (error) throw error;
 
     // Same reasoning as above, for AlertRepository contract's literal ids:
@@ -99,10 +110,7 @@ describe.skipIf(!hasSupabaseEnv)("Supabase repository contracts", () => {
 
     // CareCircleRepository's findAllActive contract test creates c-3.
     // c-1 and c-2 are seeded as fixed parents in beforeAll (do not delete).
-    const { error: careCircleError } = await client
-      .from("care_circles")
-      .delete()
-      .in("id", ["c-3"]);
+    const { error: careCircleError } = await client.from("care_circles").delete().in("id", ["c-3"]);
     if (careCircleError) throw careCircleError;
   });
 

@@ -94,7 +94,14 @@ export function runAlertRepositoryContract(makeRepository: () => AlertRepository
     it("findOpenByCareCircle excludes resolved, unresolved and cancelled alerts", async () => {
       const repo = makeRepository();
       await repo.save(buildAlert({ id: "a-open", careCircleId: "c-1", status: "unclaimed" }));
-      await repo.save(buildAlert({ id: "a-resolved", careCircleId: "c-1", status: "resolved" }));
+      await repo.save(
+        buildAlert({
+          id: "a-resolved",
+          careCircleId: "c-1",
+          status: "resolved",
+          occurrenceId: null,
+        }),
+      );
       const open = await repo.findOpenByCareCircle("c-1");
       expect(open.map((a) => a.id)).toEqual(["a-open"]);
     });
@@ -102,8 +109,15 @@ export function runAlertRepositoryContract(makeRepository: () => AlertRepository
     it("isolates alerts between care circles", async () => {
       const repo = makeRepository();
       await repo.save(buildAlert({ id: "a-1", careCircleId: "c-1" }));
-      await repo.save(buildAlert({ id: "a-2", careCircleId: "c-2" }));
+      await repo.save(buildAlert({ id: "a-2", careCircleId: "c-2", occurrenceId: null }));
       expect((await repo.findByCareCircle("c-1")).map((a) => a.id)).toEqual(["a-1"]);
+    });
+
+    it("refuses a second alert for the same occurrence", async () => {
+      const repo = makeRepository();
+      await repo.save(buildAlert({ id: "a-1" }));
+      await expect(repo.save(buildAlert({ id: "a-2" }))).rejects.toThrow();
+      expect((await repo.findById("a-2"))?.id).toBeUndefined();
     });
 
     it("round-trips alert recipients scoped to their alert", async () => {
@@ -304,8 +318,15 @@ export function runOccurrenceRepositoryContract(makeRepository: () => Occurrence
       expect((await repo.findByRoutine("r-1")).map((o) => o.id)).toEqual(["o-1"]);
     });
 
-    it("findDue returns unresolved occurrences scheduled at or before now", async () => {
+    it("findDue returns unresolved occurrences scheduled between notBefore and now", async () => {
       const repo = makeRepository();
+      await repo.save(
+        buildOccurrence({
+          id: "o-too-old",
+          scheduledForUtc: "2026-01-03T09:00:00.000Z",
+          status: "scheduled",
+        }),
+      );
       await repo.save(
         buildOccurrence({
           id: "o-due",
@@ -328,7 +349,7 @@ export function runOccurrenceRepositoryContract(makeRepository: () => Occurrence
           status: "resolved",
         }),
       );
-      const due = await repo.findDue("2026-01-05T09:30:00.000Z");
+      const due = await repo.findDue("2026-01-05T09:30:00.000Z", "2026-01-04T09:30:00.000Z");
       expect(due.map((o) => o.id)).toEqual(["o-due"]);
     });
   });

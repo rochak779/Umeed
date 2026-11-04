@@ -38,14 +38,13 @@ Families of an older parent who lives independently are stuck between two option
 ## Scope & limits
 
 - **Not deployed.** Calls and texts are simulated; real phone and SMS delivery is the next phase.
-- **Real accounts and shared data work end to end** in Supabase mode (`VITE_DATA_ADAPTER=supabase`): every read and write goes through server functions that check the signed-in user and their circle membership. The scheduled escalation job is still off; while someone has the app open, due work runs for their own circles.
+- **Real accounts and shared data work end to end** in Supabase mode (`VITE_DATA_ADAPTER=supabase`): every read and write goes through server functions that check the signed-in user and their circle membership. A scheduled job checks every minute for missed routines and raises alerts, whether or not anyone has the app open.
 - **Not an emergency service or a medical device.** It does not prove a medicine was taken or guarantee someone is safe.
 - **Out of scope by design:** fall detection, wearables, continuous location tracking, medication advice and NHS record access.
 
 ## Next in roadmap
 
 - Real phone calls and SMS through Twilio.
-- Fix and switch on the scheduled escalation job (the deployed function currently fails).
 - Deployment and final verification.
 
 <details>
