@@ -53,6 +53,15 @@ function buildLocalRepositories(): Repositories {
  */
 const localRepositories: Repositories | null = isSupabaseMode() ? null : buildLocalRepositories();
 
+function repositoriesOrThrow(): Repositories {
+  if (!localRepositories) {
+    throw new Error(
+      "Local repositories are not available in Supabase mode — read and write through server functions instead.",
+    );
+  }
+  return localRepositories;
+}
+
 function repository<K extends keyof Repositories>(name: K): Repositories[K] {
   if (!localRepositories) {
     throw new Error(
@@ -103,3 +112,25 @@ export const container = {
     return repository("communicationRepository");
   },
 };
+
+/** The local-mode equivalent of the server's `buildServerDeps()`. */
+export function localDeps(): AppDeps {
+  return {
+    clock: container.clock,
+    idGenerator: container.idGenerator,
+    eventBus: container.eventBus,
+    notificationGateway: container.notificationGateway,
+    ...repositoriesOrThrow(),
+  };
+}
+
+/** The signed-in local-mode user — the local equivalent of `currentActor()`. */
+export async function localActor(): Promise<{ userId: string; email: string }> {
+  const session = await container.authProvider.getSession();
+  if (!session) throw new Error("unauthenticated");
+  return { userId: session.userId, email: session.email };
+}
+
+export async function localUserId(): Promise<string> {
+  return (await localActor()).userId;
+}

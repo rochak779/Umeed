@@ -100,6 +100,8 @@ export async function seedFixedContractParents(client: SupabaseClient): Promise<
  * parent ids already listed in `seedFixedContractParents`).
  */
 export async function resetVolatileContractRows(client: SupabaseClient): Promise<void> {
+  await clearGeneratedFixtureRows(client);
+
   const { error: profilesError } = await client.from("profiles").delete().in("id", ["p-1"]);
   if (profilesError) throw profilesError;
 
@@ -152,7 +154,10 @@ function routineRow(id: string) {
     start_date: "2026-01-01",
     grace_period_minutes: 30,
     visibility: "family_and_nearby",
-    enabled: true,
+    // Disabled so the every-minute umeed-poll-due-work job ignores these
+    // test-only routines instead of regenerating occurrences and alerts
+    // for them between (and during) contract runs.
+    enabled: false,
     notification_channels: ["in_app"],
     created_by: "coordinator-1",
     created_at: NOW,
@@ -174,4 +179,87 @@ function memberRow(id: string, careCircleId: string, userId: string) {
     created_at: NOW,
     updated_at: NOW,
   };
+}
+
+const FIXTURE_CIRCLE_IDS = ["circle-1", "c-1", "c-2"];
+const FIXTURE_ROUTINE_IDS = ["routine-1", "r-1", "r-2"];
+const SEEDED_ALERT_IDS = ["alert-1"];
+const SEEDED_OCCURRENCE_IDS = ["occ-1"];
+
+/**
+ * The fixture routines are real, enabled, every-day routines in active
+ * circles, so the due-work poll (the umeed-poll-due-work function and its
+ * contract test) keeps generating occurrences, missed-routine alerts,
+ * communication events and audit events for them under ids no contract
+ * case knows. Those rows pile up across runs and break exact-equality
+ * assertions on the fixture circles. Clear everything hanging off the
+ * fixture circles/routines except the seeded parents, children first
+ * (communication_events and alerts.occurrence_id have no cascade).
+ */
+async function clearGeneratedFixtureRows(client: SupabaseClient): Promise<void> {
+  const { data: alerts, error: alertsReadError } = await client
+    .from("alerts")
+    .select("id")
+    .in("care_circle_id", FIXTURE_CIRCLE_IDS);
+  if (alertsReadError) throw alertsReadError;
+  const alertIds = (alerts ?? [])
+    .map((a: { id: string }) => a.id)
+    .filter((id) => !SEEDED_ALERT_IDS.includes(id));
+
+  const { data: occurrences, error: occurrencesReadError } = await client
+    .from("occurrences")
+    .select("id")
+    .in("routine_id", FIXTURE_ROUTINE_IDS);
+  if (occurrencesReadError) throw occurrencesReadError;
+  const occurrenceIds = (occurrences ?? [])
+    .map((o: { id: string }) => o.id)
+    .filter((id) => !SEEDED_OCCURRENCE_IDS.includes(id));
+
+  for (const chunk of chunks(alertIds)) {
+    const { error } = await client.from("communication_events").delete().in("alert_id", chunk);
+    if (error) throw error;
+  }
+  for (const chunk of chunks(occurrenceIds)) {
+    const { error } = await client.from("communication_events").delete().in("occurrence_id", chunk);
+    if (error) throw error;
+  }
+  for (const chunk of chunks(alertIds)) {
+    const { error } = await client.from("alerts").delete().in("id", chunk);
+    if (error) throw error;
+  }
+  for (const chunk of chunks(occurrenceIds)) {
+    // Alerts can reference these occurrences from outside the fixture
+    // circles, or be raised by a concurrently running due-work poll after
+    // the deletes above — clear those right before the occurrences go.
+    const { data: linked, error: linkedError } = await client
+      .from("alerts")
+      .select("id")
+      .in("occurrence_id", chunk)
+      .not("id", "in", `(${SEEDED_ALERT_IDS.join(",")})`);
+    if (linkedError) throw linkedError;
+    const linkedIds = (linked ?? []).map((a: { id: string }) => a.id);
+    if (linkedIds.length > 0) {
+      const { error: commsError } = await client
+        .from("communication_events")
+        .delete()
+        .in("alert_id", linkedIds);
+      if (commsError) throw commsError;
+      const { error: alertsError } = await client.from("alerts").delete().in("id", linkedIds);
+      if (alertsError) throw alertsError;
+    }
+    const { error } = await client.from("occurrences").delete().in("id", chunk);
+    if (error) throw error;
+  }
+  const { error: auditError } = await client
+    .from("audit_events")
+    .delete()
+    .in("care_circle_id", FIXTURE_CIRCLE_IDS);
+  if (auditError) throw auditError;
+}
+
+/** Keeps `in (...)` filters well under PostgREST's URL length limit. */
+function chunks<T>(items: T[], size = 100): T[][] {
+  const out: T[][] = [];
+  for (let i = 0; i < items.length; i += size) out.push(items.slice(i, i + size));
+  return out;
 }

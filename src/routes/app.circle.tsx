@@ -4,17 +4,9 @@ import { ArrowDown, ArrowUp, Ban, LogOut, UserPlus } from "lucide-react";
 import { toast } from "sonner";
 import { Screen, TopBar, UButton, UCard } from "@/components/umeed/primitives";
 import { Field } from "@/shared/components/Field";
-import { container } from "@/features/authentication/container";
+import { circleApi } from "@/features/circle/circleApi";
 import { resolveActiveMembership, useSession } from "@/features/authentication/SessionContext";
-import {
-  getCircleRoster,
-  type GetCircleRosterResult,
-} from "@/application/use-cases/getCircleRoster";
-import { inviteMember } from "@/application/use-cases/inviteMember";
-import { reorderMemberPriority } from "@/application/use-cases/reorderMemberPriority";
-import { revokeMemberPermission } from "@/application/use-cases/revokeMemberPermission";
-import { setCareCirclePaused } from "@/application/use-cases/setCareCirclePaused";
-import { requestLeaveCircle } from "@/application/use-cases/requestLeaveCircle";
+import { type GetCircleRosterResult } from "@/application/use-cases/getCircleRoster";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -40,7 +32,7 @@ const roleLabel: Record<ResponderType, string> = {
 };
 
 function CircleScreen() {
-  const { session, memberships, activeCircleId } = useSession();
+  const { session, memberships, activeCircleId, refresh } = useSession();
   const navigate = useNavigate();
   const membership = resolveActiveMembership(memberships, activeCircleId);
   const circleId = membership?.circle.id;
@@ -54,12 +46,17 @@ function CircleScreen() {
 
   const load = async () => {
     if (!session || !circleId) return;
-    const result = await getCircleRoster(
-      { careCircles: container.careCircleRepository, profiles: container.profileRepository },
-      { careCircleId: circleId, actorUserId: session.userId },
-    );
+    let roster;
+    try {
+      roster = await circleApi.roster({ circleId });
+    } catch {
+      // No longer a member (left or removed elsewhere): reload the session
+      // so the stale circle drops out instead of loading forever.
+      await refresh();
+      return;
+    }
+    const { result, circle } = roster;
     setRoster(result);
-    const circle = await container.careCircleRepository.findById(circleId);
     setCircleStatus(circle?.status ?? null);
   };
 
@@ -127,15 +124,10 @@ function CircleScreen() {
                     <AlertDialogAction
                       onClick={async () => {
                         if (!session || !circleId) return;
-                        await requestLeaveCircle(
-                          {
-                            careCircles: container.careCircleRepository,
-                            audit: container.auditRepository,
-                            clock: container.clock,
-                            idGenerator: container.idGenerator,
-                          },
-                          { careCircleId: circleId, userId: session.userId },
-                        );
+                        await circleApi.requestLeave({ circleId });
+                        // Drop the left circle from the session before any
+                        // other screen asks the server about it.
+                        await refresh();
                         toast.success("You've left the circle");
                         navigate({ to: "/app" });
                       }}
@@ -173,19 +165,7 @@ function CircleScreen() {
               size="md"
               onClick={async () => {
                 if (!session || !circleId) return;
-                await setCareCirclePaused(
-                  {
-                    careCircles: container.careCircleRepository,
-                    audit: container.auditRepository,
-                    clock: container.clock,
-                    idGenerator: container.idGenerator,
-                  },
-                  {
-                    careCircleId: circleId,
-                    actorUserId: session.userId,
-                    paused: circleStatus !== "paused",
-                  },
-                );
+                await circleApi.setPaused({ circleId, paused: circleStatus !== "paused" });
                 await load();
               }}
             >
@@ -213,20 +193,11 @@ function CircleScreen() {
                     aria-label="Move up in escalation order"
                     className="flex size-11 items-center justify-center rounded-full text-text-soft"
                     onClick={async () => {
-                      await reorderMemberPriority(
-                        {
-                          careCircles: container.careCircleRepository,
-                          audit: container.auditRepository,
-                          clock: container.clock,
-                          idGenerator: container.idGenerator,
-                        },
-                        {
-                          careCircleId: circleId,
-                          actorUserId: session.userId,
-                          circleMemberId: m.circleMemberId,
-                          newPriority: Math.max(0, m.priority - 1),
-                        },
-                      );
+                      await circleApi.reorder({
+                        circleId,
+                        circleMemberId: m.circleMemberId,
+                        newPriority: Math.max(0, m.priority - 1),
+                      });
                       await load();
                     }}
                   >
@@ -236,20 +207,11 @@ function CircleScreen() {
                     aria-label="Move down in escalation order"
                     className="flex size-11 items-center justify-center rounded-full text-text-soft"
                     onClick={async () => {
-                      await reorderMemberPriority(
-                        {
-                          careCircles: container.careCircleRepository,
-                          audit: container.auditRepository,
-                          clock: container.clock,
-                          idGenerator: container.idGenerator,
-                        },
-                        {
-                          careCircleId: circleId,
-                          actorUserId: session.userId,
-                          circleMemberId: m.circleMemberId,
-                          newPriority: m.priority + 1,
-                        },
-                      );
+                      await circleApi.reorder({
+                        circleId,
+                        circleMemberId: m.circleMemberId,
+                        newPriority: m.priority + 1,
+                      });
                       await load();
                     }}
                   >
@@ -259,19 +221,10 @@ function CircleScreen() {
                     aria-label="Revoke access"
                     className="flex size-11 items-center justify-center rounded-full text-critical"
                     onClick={async () => {
-                      await revokeMemberPermission(
-                        {
-                          careCircles: container.careCircleRepository,
-                          audit: container.auditRepository,
-                          clock: container.clock,
-                          idGenerator: container.idGenerator,
-                        },
-                        {
-                          careCircleId: circleId,
-                          actorUserId: session.userId,
-                          circleMemberId: m.circleMemberId,
-                        },
-                      );
+                      await circleApi.revokePermission({
+                        circleId,
+                        circleMemberId: m.circleMemberId,
+                      });
                       toast.success("Access revoked");
                       await load();
                     }}
@@ -294,23 +247,13 @@ function CircleScreen() {
               className="space-y-4"
               onSubmit={async (e) => {
                 e.preventDefault();
-                const result = await inviteMember(
-                  {
-                    careCircles: container.careCircleRepository,
-                    invitations: container.invitationRepository,
-                    audit: container.auditRepository,
-                    clock: container.clock,
-                    idGenerator: container.idGenerator,
-                  },
-                  {
-                    careCircleId: circleId,
-                    actorUserId: session.userId,
-                    invitedEmail: inviteEmail,
-                    invitedPhone: null,
-                    proposedResponderType: inviteType,
-                    proposedRelationship: inviteRelationship || inviteType,
-                  },
-                );
+                const result = await circleApi.invite({
+                  circleId,
+                  invitedEmail: inviteEmail,
+                  invitedPhone: null,
+                  proposedResponderType: inviteType,
+                  proposedRelationship: inviteRelationship || inviteType,
+                });
                 const link = `${window.location.origin}/invite/${result.plaintextToken}`;
                 await navigator.clipboard.writeText(link);
                 toast.success("Invite link copied");
