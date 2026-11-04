@@ -5,6 +5,7 @@ import {
   AlertRecipientSchema,
 } from "../../../domain/entities/alert";
 import type { AlertRepository } from "../../../application/ports/repositories";
+import { ConflictError } from "../../../domain/errors/DomainError";
 import type { KeyValueStore } from "../KeyValueStore";
 import { LocalCollection } from "../LocalCollection";
 
@@ -43,6 +44,13 @@ export class LocalAlertRepository implements AlertRepository {
   }
 
   async save(alert: Alert): Promise<void> {
+    // Mirrors alerts_occurrence_id_unique_idx: one alert per occurrence.
+    const clash =
+      alert.occurrenceId !== null &&
+      this.alerts.all().some((a) => a.occurrenceId === alert.occurrenceId && a.id !== alert.id);
+    if (clash) {
+      throw new ConflictError(`An alert for occurrence ${alert.occurrenceId} already exists`);
+    }
     this.alerts.save(alert);
   }
 
