@@ -63,7 +63,7 @@ describe("LocalOccurrenceRepository", () => {
       }),
     );
 
-    const due = await repo.findDue("2026-01-05T09:00:00.000Z");
+    const due = await repo.findDue("2026-01-05T09:00:00.000Z", "2026-01-01T00:00:00.000Z");
 
     expect(due.map((o) => o.id)).toEqual(["occ-past"]);
   });

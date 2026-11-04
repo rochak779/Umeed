@@ -1,7 +1,7 @@
 /**
- * Alerts screen, dashboard summary, claim/resolve, and the due-work poll
- * that generates occurrences and raises missed-routine alerts while someone
- * has the app open. Same shape as circleApi.ts.
+ * Alerts screen, dashboard summary and claim/resolve. Missed-routine alerts
+ * are raised by the umeed-poll-due-work scheduled job, not from here. Same
+ * shape as circleApi.ts.
  */
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
@@ -10,7 +10,6 @@ import { getAlertsForCircle } from "@/application/use-cases/getAlertsForCircle";
 import { getRecentActivity } from "@/application/use-cases/getRecentActivity";
 import { claimAlert } from "@/application/use-cases/claimAlert";
 import { resolveAlert } from "@/application/use-cases/resolveAlert";
-import { pollDueWork } from "@/application/use-cases/pollDueWork";
 import { ResolutionCodeSchema } from "@/domain/entities/alert";
 import { runApi } from "@/features/api/runApi";
 import { currentActor } from "@/server/actor";
@@ -23,7 +22,6 @@ const OPEN_EXCLUDED = ["resolved", "unresolved", "cancelled"];
 const circleInput = z.object({ circleId: z.string().min(1) });
 export const claimInput = z.object({ alertId: z.string().min(1) });
 const resolveInput = claimInput.extend({ resolutionCode: ResolutionCodeSchema });
-const noInput = z.object({});
 
 function alertsFor(deps: AppDeps, circleId: string) {
   return getAlertsForCircle(
@@ -115,49 +113,6 @@ export async function resolveFor(
   );
 }
 
-/**
- * Runs due work for the actor's own circles only. Replaced by the scheduled
- * job in Session 4. pollDueWork's findDue is a global query (it was written
- * for single-household local mode), so on the shared server it is narrowed
- * here to occurrences of the actor's own routines — otherwise any signed-in
- * user could raise missed-routine alerts in every family's circle.
- */
-export async function runDueWorkFor(
-  deps: AppDeps,
-  actorId: string,
-  _input: z.infer<typeof noInput>,
-) {
-  const circles = await deps.careCircleRepository.findByUserId(actorId);
-  const careCircleIds = circles.map((c) => c.id);
-  const routineIds = new Set(
-    (await Promise.all(careCircleIds.map((id) => deps.routineRepository.findByCareCircle(id))))
-      .flat()
-      .map((r) => r.id),
-  );
-  const occurrences: AppDeps["occurrenceRepository"] = Object.create(deps.occurrenceRepository, {
-    findDue: {
-      value: async (nowUtc: string) =>
-        (await deps.occurrenceRepository.findDue(nowUtc)).filter((o) =>
-          routineIds.has(o.routineId),
-        ),
-    },
-  });
-  return pollDueWork(
-    {
-      routines: deps.routineRepository,
-      occurrences,
-      careCircles: deps.careCircleRepository,
-      alerts: deps.alertRepository,
-      audit: deps.auditRepository,
-      communications: deps.communicationRepository,
-      notificationGateway: deps.notificationGateway,
-      clock: deps.clock,
-      idGenerator: deps.idGenerator,
-    },
-    { careCircleIds },
-  );
-}
-
 const serverDeps = async () => ({
   deps: buildServerDeps(),
   actorId: (await currentActor()).userId,
@@ -191,17 +146,9 @@ export const resolveFn = createServerFn({ method: "POST" })
     return resolveFor(deps, actorId, data);
   });
 
-export const runDueWorkFn = createServerFn({ method: "POST" })
-  .validator((data: unknown) => noInput.parse(data ?? {}))
-  .handler(async ({ data }) => {
-    const { deps, actorId } = await serverDeps();
-    return runDueWorkFor(deps, actorId, data);
-  });
-
 export const alertApi = {
   list: (input: z.infer<typeof circleInput>) => runApi(listFn, listFor, input),
   summary: (input: z.infer<typeof circleInput>) => runApi(summaryFn, summaryFor, input),
   claim: (input: z.infer<typeof claimInput>) => runApi(claimFn, claimFor, input),
   resolve: (input: z.infer<typeof resolveInput>) => runApi(resolveFn, resolveFor, input),
-  runDueWork: () => runApi(runDueWorkFn, runDueWorkFor, {}),
 };

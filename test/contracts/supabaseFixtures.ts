@@ -257,6 +257,15 @@ async function clearGeneratedFixtureRows(client: SupabaseClient): Promise<void> 
   if (auditError) throw auditError;
 }
 
+/** Leaves every fixture routine disabled so the live scheduled job skips it. */
+export async function disableFixtureRoutines(client: SupabaseClient): Promise<void> {
+  const { error } = await client
+    .from("routines")
+    .update({ enabled: false })
+    .in("id", FIXTURE_ROUTINE_IDS);
+  if (error) throw error;
+}
+
 /** Keeps `in (...)` filters well under PostgREST's URL length limit. */
 function chunks<T>(items: T[], size = 100): T[][] {
   const out: T[][] = [];

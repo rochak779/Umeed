@@ -304,8 +304,15 @@ export function runOccurrenceRepositoryContract(makeRepository: () => Occurrence
       expect((await repo.findByRoutine("r-1")).map((o) => o.id)).toEqual(["o-1"]);
     });
 
-    it("findDue returns unresolved occurrences scheduled at or before now", async () => {
+    it("findDue returns unresolved occurrences scheduled between notBefore and now", async () => {
       const repo = makeRepository();
+      await repo.save(
+        buildOccurrence({
+          id: "o-too-old",
+          scheduledForUtc: "2026-01-03T09:00:00.000Z",
+          status: "scheduled",
+        }),
+      );
       await repo.save(
         buildOccurrence({
           id: "o-due",
@@ -328,7 +335,7 @@ export function runOccurrenceRepositoryContract(makeRepository: () => Occurrence
           status: "resolved",
         }),
       );
-      const due = await repo.findDue("2026-01-05T09:30:00.000Z");
+      const due = await repo.findDue("2026-01-05T09:30:00.000Z", "2026-01-04T09:30:00.000Z");
       expect(due.map((o) => o.id)).toEqual(["o-due"]);
     });
   });

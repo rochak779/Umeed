@@ -3,7 +3,6 @@ import { useEffect, useRef } from "react";
 import { requireSession } from "@/features/authentication/guards";
 import { useSession } from "@/features/authentication/SessionContext";
 import { container } from "@/features/authentication/container";
-import { alertApi } from "@/features/alerts/alertApi";
 import { isSupabaseMode } from "@/shared/config";
 import {
   Select,
@@ -18,8 +17,8 @@ import type { PollDueWorkDeps } from "../application/use-cases/pollDueWork";
 const POLL_INTERVAL_MS = 15_000;
 
 /**
- * Protected layout: every route under /app requires a session. Also mounts
- * the local scheduler (Implementation.md §11.5) for the lifetime of the
+ * Protected layout: every route under /app requires a session. In local mode
+ * it also mounts the local scheduler (Implementation.md §11.5) for the lifetime of the
  * authenticated app shell — it silently drives occurrence generation,
  * missed-routine alerting and claim expiry in the background. This is not a
  * product feature and must never surface a control in the UI.
@@ -46,14 +45,9 @@ function AppLayout() {
   useEffect(() => {
     if (!session || memberships.length === 0) return;
 
-    if (isSupabaseMode()) {
-      // Supabase mode: due work runs server-side for the signed-in user's
-      // own circles (Session 4 replaces this with the scheduled job).
-      const run = () => void alertApi.runDueWork().catch(() => {});
-      run();
-      const timer = setInterval(run, POLL_INTERVAL_MS);
-      return () => clearInterval(timer);
-    }
+    // Supabase mode: the umeed-poll-due-work scheduled job does this
+    // server-side for every circle, whether or not anyone has the app open.
+    if (isSupabaseMode()) return;
 
     if (!schedulerRef.current) {
       const deps: PollDueWorkDeps = {
