@@ -49,6 +49,9 @@ function SignUp() {
     <>
       <TopBar title="Create your account" back="/" />
       <Screen>
+        <p className="t-caption text-text-soft">
+          Prototype: use made-up details, not real people or medical information.
+        </p>
         <UCard>
           <form className="space-y-4" onSubmit={onSubmit}>
             <Field

@@ -37,3 +37,6 @@ dist-ssr
 # Supabase CLI local cache
 supabase/.temp/
 .superpowers/
+
+# Vercel build output and project link
+.vercel

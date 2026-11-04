@@ -2,7 +2,7 @@
 
 **Notices when an older parent misses a daily routine, checks in gently, and gets a trusted person nearby to respond, without the whole family scrambling.**
 
-Not deployed yet; runs locally (see below).
+A prototype to try out, not a service to rely on. The live link arrives with the Vercel deployment; it also runs locally (see below).
 
 <img src="docs/readme/screenshot.png" alt="Umeed landing screen on mobile" width="320" />
 
@@ -13,7 +13,7 @@ Families of an older parent who lives independently are stuck between two option
 ## What it does
 
 - **Routines with gentle reminders,** for example "Morning check-in and tablets" at 9:00.
-- **A step-by-step escalation when there's no response:** an in-app reminder, then a call, then a trusted neighbour, then the family coordinator, then the rest of the family. Every timing is configurable.
+- **A step-by-step escalation when there's no response:** an in-app reminder, then a trusted neighbour, then the family coordinator, then the rest of the family. Phone calls are designed in but not switched on in this prototype.
 - **"I'm handling this."** One tap claims an alert, and everyone else can see that someone is on it. If the claim expires, escalation picks up where it left off.
 - **"I need help."** The parent can skip the routine steps and alert their neighbour and family straight away, with links to call family, NHS 111 or 999.
 - **Consent and permissions controlled by the older adult,** who can see and remove anyone's access.
@@ -31,21 +31,27 @@ Families of an older parent who lives independently are stuck between two option
 ## Results & evidence
 
 - Phases 0 to 10 of a 12-phase build plan are complete: real accounts, care circles, consent, routines, escalation, alert claiming and live alert updates.
-- 61 automated test files cover the domain rules and complete user journeys, including the main scenario: a parent misses her routine, the neighbour claims the alert, and the family sees it is handled.
+- 74 automated test files cover the domain rules and complete user journeys, including the main scenario: a parent misses her routine, the neighbour claims the alert, and the family sees it is handled.
 - An end-to-end walkthrough found user-journey bugs, which have been fixed.
 - Not yet used by real families.
 
 ## Scope & limits
 
-- **Not deployed.** Calls and texts are simulated; real phone and SMS delivery is the next phase.
-- **Real accounts and shared data work end to end** in Supabase mode (`VITE_DATA_ADAPTER=supabase`): every read and write goes through server functions that check the signed-in user and their circle membership. A scheduled job checks every minute for missed routines and raises alerts, whether or not anyone has the app open.
+- **A prototype to try out.** Use made-up names and details, not real people or medical information. Accounts and data may be cleared at any time. The app says this on the landing page, the sign-up page and the home screen.
+- **No calls or texts.** Alerts appear in the app only; real phone and SMS delivery (Twilio) is not part of this version.
+- **What works for real** in Supabase mode (`VITE_DATA_ADAPTER=supabase`): accounts that work on any device, care circles whose members share the same data, live alert updates, and a scheduled job that checks every minute for missed routines whether or not anyone has the app open. Every read and write goes through server functions that check the signed-in user and their circle membership.
+- **Known gaps inside a circle** (people outside a circle cannot see it):
+  - Revoking a member's permission doesn't yet stop them reading what it covered.
+  - Medicine names are visible to every member, including those not allowed to see them.
+  - An invite link shows the invited person's email to whoever opens it.
 - **Not an emergency service or a medical device.** It does not prove a medicine was taken or guarantee someone is safe.
 - **Out of scope by design:** fall detection, wearables, continuous location tracking, medication advice and NHS record access.
 
 ## Next in roadmap
 
+- Deploy to Vercel and publish the live link.
+- Close the known gaps inside a circle.
 - Real phone calls and SMS through Twilio.
-- Deployment and final verification.
 
 <details>
 <summary><strong>Tech stack & running locally</strong></summary>
