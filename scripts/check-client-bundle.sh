@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Builds the app and fails if anything server-only reached the browser bundle:
 # the service-role key's name, the service-client factory, or the key's actual
-# value from .env.local. See docs/superpowers/specs/2026-11-03-live-data-connection-design.md.
+# value from .env.local.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 

@@ -1536,7 +1536,7 @@ The implementation agent must not attempt all phases in one uncontrolled change.
 
 ## 22. Implementation status checklist
 
-- [x] Phase 0 — Repository audit and baseline (see `docs/phase-0-audit.md`)
+- [x] Phase 0 — Repository audit and baseline
 - [x] Phase 1 — Domain foundations and local adapters
 - [x] Phase 2 — Product shell, authentication and onboarding
 - [x] Phase 3 — Care circle, consent and permissions
@@ -1545,8 +1545,8 @@ The implementation agent must not attempt all phases in one uncontrolled change.
 - [x] Phase 6 — Mock communications and direct help
 - [x] Phase 7 — Complete real-world journeys and experience polish
 - [x] Phase 8 — Test hardening and local release gate
-- [x] Phase 9 — Supabase design without cutover (see `docs/superpowers/plans/2026-09-03-supabase-schema-design.md`)
-- [x] Phase 10 — Supabase cutover and server scheduling, with known gaps (see below; plan: `docs/superpowers/plans/2026-09-04-phase-10-supabase-cutover.md`)
+- [x] Phase 9 — Supabase design without cutover
+- [x] Phase 10 — Supabase cutover and server scheduling, with known gaps (see below)
 - [ ] Phase 11 — Real communications integration
 - [ ] Phase 12 — Final verification and deployment readiness
 
