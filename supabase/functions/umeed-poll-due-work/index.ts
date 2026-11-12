@@ -37,7 +37,9 @@ Deno.serve(async (req) => {
     // Fail closed, not open: an unset/misspelled secret must never fall
     // through to a literal "Bearer undefined" comparison that anyone could
     // satisfy by sending that exact header.
-    console.error("umeed-poll-due-work misconfigured: UMEED_POLL_DUE_WORK_INVOKE_SECRET is not set");
+    console.error(
+      "umeed-poll-due-work misconfigured: UMEED_POLL_DUE_WORK_INVOKE_SECRET is not set",
+    );
     return new Response(JSON.stringify({ error: "internal_error" }), {
       status: 500,
       headers: { "content-type": "application/json" },
@@ -79,7 +81,10 @@ Deno.serve(async (req) => {
     // Redacted the same way analytics events already are (Implementation.md
     // §15): log the error's message/stack only, never the full care-circle
     // or occurrence payload it might have been operating on when it threw.
-    console.error("umeed-poll-due-work failed:", error instanceof Error ? error.message : String(error));
+    console.error(
+      "umeed-poll-due-work failed:",
+      error instanceof Error ? error.message : String(error),
+    );
     return new Response(JSON.stringify({ error: "internal_error" }), {
       status: 500,
       headers: { "content-type": "application/json" },
