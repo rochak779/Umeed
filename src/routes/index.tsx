@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
-import { Bell, FlaskConical, HeartHandshake, PhoneOff, ShieldCheck, Users } from "lucide-react";
+import { Bell, HeartHandshake, PhoneOff, ShieldCheck, Users } from "lucide-react";
 import { Wordmark } from "@/components/umeed/Wordmark";
 import { UCard } from "@/components/umeed/primitives";
 
@@ -63,7 +63,7 @@ function Landing() {
         </p>
       </motion.header>
 
-      <div className="flex flex-col gap-3 pb-6">
+      <div className="flex flex-col gap-3 pb-8">
         <Link
           to="/sign-up"
           className="t-button inline-flex min-h-16 w-full items-center justify-center rounded-full border border-sage bg-sage px-6 text-white shadow-calm active:bg-sage-dark"
@@ -77,15 +77,6 @@ function Landing() {
           Sign in
         </Link>
       </div>
-
-      <UCard className="mb-8 flex items-start gap-4 border-marigold/40 bg-marigold-tint">
-        <FlaskConical aria-hidden size={22} className="mt-0.5 shrink-0 text-marigold" />
-        <span className="t-body text-text">
-          <span className="block font-semibold">This is a prototype to try out.</span>
-          Use made-up names and details, not real people or medical information. No calls or texts
-          are sent; alerts appear in the app. Accounts and data may be cleared at any time.
-        </span>
-      </UCard>
 
       <div className="space-y-3">
         {points.map((point) => {

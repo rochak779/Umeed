@@ -192,8 +192,7 @@ function AppHome() {
 
         <p className="t-caption text-center text-text-soft">
           Umeed helps families coordinate check-ins. It is not an emergency or medical service and
-          cannot confirm that someone is safe. For a life-threatening emergency, call 999. This is a
-          prototype: use made-up details, and expect data to be cleared at any time.
+          cannot confirm that someone is safe. For a life-threatening emergency, call 999.
         </p>
       </Screen>
     </>
