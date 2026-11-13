@@ -2,7 +2,7 @@
 
 **Notices when an older parent misses a daily routine, checks in gently, and gets a trusted person nearby to respond, without the whole family scrambling.**
 
-**Try it: [umeed-seven.vercel.app](https://umeed-seven.vercel.app)** — a prototype to try out, not a service to rely on. It also runs locally (see below).
+**Try it: [umeed-seven.vercel.app](https://umeed-seven.vercel.app)**. A working product build with real accounts, shared care circles and live alerts. Phone calls and texts are not switched on yet. It also runs locally (see below).
 
 <img src="docs/readme/screenshot.png" alt="Umeed landing screen on mobile" width="320" />
 
