@@ -2,7 +2,7 @@
 
 **Notices when an older parent misses a daily routine, checks in gently, and gets a trusted person nearby to respond, without the whole family scrambling.**
 
-A prototype to try out, not a service to rely on. The live link arrives with the Vercel deployment; it also runs locally (see below).
+**Try it: [umeed-seven.vercel.app](https://umeed-seven.vercel.app)** — a prototype to try out, not a service to rely on. It also runs locally (see below).
 
 <img src="docs/readme/screenshot.png" alt="Umeed landing screen on mobile" width="320" />
 
@@ -49,7 +49,6 @@ Families of an older parent who lives independently are stuck between two option
 
 ## Next in roadmap
 
-- Deploy to Vercel and publish the live link.
 - Close the known gaps inside a circle.
 - Real phone calls and SMS through Twilio.
 
