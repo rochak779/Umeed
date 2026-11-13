@@ -37,7 +37,7 @@ Families of an older parent who lives independently are stuck between two option
 
 ## Scope & limits
 
-- **A prototype to try out.** Use made-up names and details, not real people or medical information. Accounts and data may be cleared at any time. The app says this on the landing page, the sign-up page and the home screen.
+- **Try it with made-up details.** Use made-up names, not real people or medical information. Accounts and data may be cleared at any time.
 - **No calls or texts.** Alerts appear in the app only; real phone and SMS delivery (Twilio) is not part of this version.
 - **What works for real** in Supabase mode (`VITE_DATA_ADAPTER=supabase`): accounts that work on any device, care circles whose members share the same data, live alert updates, and a scheduled job that checks every minute for missed routines whether or not anyone has the app open. Every read and write goes through server functions that check the signed-in user and their circle membership.
 - **Known gaps inside a circle** (people outside a circle cannot see it):
