@@ -343,6 +343,7 @@ Update this table in each repo's copy when you add an app. Also comment on the s
 | Schema | App | Repo | Edge Functions | Cron jobs | Buckets |
 |---|---|---|---|---|---|
 | `umeed` | Umeed (family elder-care) | github.com/rochak779/Umeed | `umeed-poll-due-work` | `umeed-poll-due-work` (paused) | — |
-| `public` ⚠️ | Learning app, not yet migrated. 11 tables (`profiles`, `learning_paths`, `quiz_attempts`, `duel_results` …), 6 functions. It predates these rules. | ? | — | — | — |
+| `marg` | Marg (AI learning app). Moved out of `public` in place, 2026-09-24. | github.com/rochak779/Marg | — | — | — |
+| `winback` | WinBack (PE diligence prototype) | github.com/rochak779/winback | — | — | `winback-documents` |
 
-The learning app in `public` must move into its own schema by following section 7. Until it does, `public` belongs to it. No other app may add to `public`.
+No app may add to `public`.
