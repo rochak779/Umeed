@@ -67,3 +67,7 @@ bun run test
 The full product specification is in [Implementation.md](Implementation.md).
 
 </details>
+
+---
+
+Built by [Rochak Agarwal](https://www.rochakagarwal.com). Read the full case study: [Umeed on rochakagarwal.com](https://www.rochakagarwal.com/projects/umeed).
