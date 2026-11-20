@@ -102,6 +102,13 @@ function Landing() {
           a life-threatening emergency, always call 999.
         </p>
       </div>
+
+      <p className="t-caption mt-6 text-center text-text-soft">
+        Built by{" "}
+        <a href="https://www.rochakagarwal.com" className="underline underline-offset-4">
+          Rochak Agarwal
+        </a>
+      </p>
     </main>
   );
 }
